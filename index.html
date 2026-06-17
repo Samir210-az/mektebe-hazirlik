@@ -809,7 +809,7 @@ const LESSONS_DATA=[
   {id:6,s:'music',t:{az:'Azərbaycan mahnıları',ru:'Азербайджанские песни',en:'Azerbaijani songs'},desc:{az:'Xalq uşaq mahnıları',ru:'Народные детские песни',en:'Folk children songs'},d:15,acts:[{e:'🎵',az:'Mahnı oxu',ru:'Пой',en:'Sing'},{e:'👏',az:'Ritm tut',ru:'Ритм',en:'Rhythm'},{e:'🕺',az:'Rəqs',ru:'Танец',en:'Dance'}],obj:{az:['Musiqi','Ritm','İfadə'],ru:['Музыка','Ритм','Выразительность'],en:['Music','Rhythm','Expression']}},
   {id:7,s:'creativity',t:{az:'Plastilin meyvələr',ru:'Фрукты из пластилина',en:'Plasticine fruits'},desc:{az:'Plastilin ilə meyvə düzəlt',ru:'Лепим фрукты',en:'Making fruits'},d:25,acts:[{e:'🍎',az:'Alma',ru:'Яблоко',en:'Apple'},{e:'🍌',az:'Banan',ru:'Банан',en:'Banana'},{e:'🍊',az:'Portağal',ru:'Апельсин',en:'Orange'}],obj:{az:['Əl bacarığı','Yaradıcılıq','Rənglər'],ru:['Моторика','Творчество','Цвета'],en:['Motor skills','Creativity','Colors']}},
   {id:8,s:'physical',t:{az:'Barmaq oyunları',ru:'Пальчиковые игры',en:'Finger games'},desc:{az:'Əl barmaqları inkişafı',ru:'Развитие пальцев',en:'Finger development'},d:15,acts:[{e:'👆',az:'Barmaq hərəkəti',ru:'Движения',en:'Movements'},{e:'🎵',az:'Mahnı ilə',ru:'С песней',en:'With song'},{e:'🤸',az:'Gimnastika',ru:'Гимнастика',en:'Gymnastics'}],obj:{az:['Əl inkişafı','Koordinasiya','Çeviklik'],ru:['Развитие рук','Координация','Ловкость'],en:['Hand dev.','Coordination','Agility']}},
-  {id:9,s:'reading',t:{az:'Nağıl: Üç Dovşan',ru:'Три Зайца',en:'Three Rabbits'},desc:{az:'Maraqlı nağıl, müzakirə',ru:'Сказка и обсуждение',en:'Story and discussion'},d:25,acts:[{e:'📖',az:'Nağıl oxu',ru:'Читаем',en:'Read'},{e:'💬',az:'Suallar',ru:'Вопросы',en:'Questions'},{e:'🎨',az:'Personaj çək',ru:'Рисуем',en:'Draw character'}],obj:{az:['Dinləmə','Anlama','Nitq'],ru:['Слушание','Понимание','Речь'],en:['Listening','Comprehension','Speech']]}
+  {id:9,s:'reading',t:{az:'Nağıl: Üç Dovşan',ru:'Три Зайца',en:'Three Rabbits'},desc:{az:'Maraqlı nağıl, müzakirə',ru:'Сказка и обсуждение',en:'Story and discussion'},d:25,acts:[{e:'📖',az:'Nağıl oxu',ru:'Читаем',en:'Read'},{e:'💬',az:'Suallar',ru:'Вопросы',en:'Questions'},{e:'🎨',az:'Personaj çək',ru:'Рисуем',en:'Draw character'}],obj:{az:['Dinləmə','Anlama','Nitq'],ru:['Слушание','Понимание','Речь'],en:['Listening','Comprehension','Speech']}}
 ];
 
 function renderLessons(){
@@ -1189,7 +1189,23 @@ function saveRecord(studentId){
   const grades=recordGrades.map(g=>({subject:g.s,grade:g.g}));
   const avgGrade=grades.length?Math.round(grades.reduce((s,g)=>s+g.grade,0)/grades.length*10)/10:null;
   const record={
-    id:uid(),studentId,date,function renderReport(){
+    id:uid(),studentId,date,
+    behavior:{rating:'good',attention:3,activity:3,cooperation:3,notes:''},
+    lessonsCompleted:[],
+    teacherNote:document.getElementById('recTeacherNote')?.value||'',
+    parentMessage:document.getElementById('recParentMsg')?.value||'',
+    avgGrade,
+    createdAt:new Date().toISOString()
+  };
+  const records=getRecords();
+  records.push(record);
+  saveRecords(records);
+  closeModal();
+  showToast('Qeyd saxlanıldı! ✅','success');
+  renderStudentProfile();
+}
+
+function renderReport(){
   const student=getStudents().find(s=>s.id===currentStudentId);
   if(!student){document.getElementById('reportContent').innerHTML='<p>Uşaq tapılmadı</p>';return;}
   const records=getRecords().filter(r=>r.studentId===currentStudentId).sort((a,b)=>new Date(a.date)-new Date(b.date));
@@ -1210,7 +1226,6 @@ function saveRecord(studentId){
   });
   const weekKeys=Object.keys(weeklyData).sort((a,b)=>a-b);
   const weekAvgs=weekKeys.map(w=>weeklyData[w].length?Math.round(weeklyData[w].reduce((a,b)=>a+b,0)/weeklyData[w].length*10)/10:0);
-
   document.getElementById('reportContent').innerHTML=`
     <div style="background:linear-gradient(135deg,#6C63FF,#FF6B9D);border-radius:20px;padding:28px;margin-bottom:20px;color:white;text-align:center">
       <div style="font-size:52px;margin-bottom:8px">${student.gender==='female'?'👧':'👦'}</div>
@@ -1226,60 +1241,53 @@ function saveRecord(studentId){
       ${[['📅',records.length,'Dərs günü','#6C63FF'],['⭐',avgGrade||'—','Ortalama bal','#FFD93D'],['🌟',behavStats.excellent,'Əla davranış','#6BCB77'],['✅',records.reduce((s,r)=>s+(r.lessonsCompleted?.length||0),0),'Tamamlanan dərs','#FF6B9D']]
         .map(([ic,v,l,c])=>`<div class="card stat-card"><div style="font-size:28px;margin-bottom:6px">${ic}</div><div class="stat-num" style="color:${c}">${v}</div><div class="stat-lbl">${l}</div></div>`).join('')}
     </div>
-    ${Object.keys(subjectAvgs).length?`
-    <div class="card" style="margin-bottom:16px">
-      <div style="font-size:15px;font-weight:800;margin-bottom:16px">📚 Fənn üzrə nəticə</div>
-      ${Object.entries(subjectAvgs).map(([s,g])=>`
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <span style="font-size:20px;width:28px;text-align:center">${SE[s]}</span>
+    ${Object.keys(subjectAvgs).length?`<div class="card" style="margin-bottom:16px">
+      <div style="font-size:15px;font-weight:800;margin-bottom:14px">📚 Fənn üzrə nəticə</div>
+      ${Object.entries(subjectAvgs).map(([s,g])=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:18px">${SE[s]}</span>
           <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px">
               <span style="font-weight:700;font-size:13px">${L.subjects[s]}</span>
-              <span style="font-weight:900;font-size:14px;color:${g>=8?'#6BCB77':g>=5?'#FFB347':'#FF6B6B'}">${g}/10</span>
+              <span style="font-weight:900;color:${g>=8?'#6BCB77':g>=5?'#FFB347':'#FF6B6B'}">${g}/10</span>
             </div>
-            <div style="background:#f0f0f0;border-radius:20px;height:10px;overflow:hidden">
-              <div style="width:${g*10}%;background:${g>=8?'linear-gradient(90deg,#6BCB77,#43e97b)':g>=5?'linear-gradient(90deg,#FFB347,#FFD700)':'linear-gradient(90deg,#FF6B6B,#ff9999)'};height:100%;border-radius:20px"></div>
+            <div style="background:#eee;border-radius:20px;height:8px;overflow:hidden">
+              <div style="width:${g*10}%;background:${g>=8?'#6BCB77':g>=5?'#FFB347':'#FF6B6B'};height:100%;border-radius:20px"></div>
             </div>
           </div>
-          <span style="font-size:11px;font-weight:800;padding:3px 8px;border-radius:10px;background:${g>=8?'#6BCB7720':g>=5?'#FFB34720':'#FF6B6B20'};color:${g>=8?'#3d9447':g>=5?'#cc7700':'#cc3333'};white-space:nowrap">${g>=8?'Əla':g>=6?'Yaxşı':g>=4?'Qənaətbəxş':'Yaxşılaşdır.'}</span>
         </div>`).join('')}
     </div>`:''}
     <div class="grid-2" style="margin-bottom:16px">
       <div class="card">
-        <div style="font-size:15px;font-weight:800;margin-bottom:14px">😊 Davranış statistikası</div>
+        <div style="font-size:15px;font-weight:800;margin-bottom:12px">😊 Davranış</div>
         ${[['🌟','Əla',behavStats.excellent,'#FFD700'],['😊','Yaxşı',behavStats.good,'#6BCB77'],['😐','Qənaətbəxş',behavStats.satisfactory,'#FFB347'],['😢','Yaxşılaşdır.',behavStats.needs_improvement,'#FF6B6B']]
-          .map(([ic,l,v,c])=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:${c}18;border-radius:12px;margin-bottom:8px">
-            <span style="font-size:26px">${ic}</span>
+          .map(([ic,l,v,c])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${c}18;border-radius:10px;margin-bottom:6px">
+            <span style="font-size:22px">${ic}</span>
             <div style="flex:1;font-weight:700;font-size:13px">${l}</div>
-            <div style="font-size:22px;font-weight:900;color:${c}">${v}</div>
+            <div style="font-size:20px;font-weight:900;color:${c}">${v}</div>
           </div>`).join('')}
       </div>
       <div class="card">
-        <div style="font-size:15px;font-weight:800;margin-bottom:14px">📈 Həftəlik tərəqqi</div>
-        ${weekKeys.length?`<div style="display:flex;align-items:flex-end;gap:6px;height:160px;padding-bottom:22px;position:relative">
-          ${weekKeys.map((w,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
-            <div style="font-size:11px;font-weight:800;color:${weekAvgs[i]>=8?'#6BCB77':weekAvgs[i]>=5?'#FFB347':'#FF6B6B'}">${weekAvgs[i]||''}</div>
-            <div style="width:100%;border-radius:6px 6px 0 0;min-height:6px;height:${Math.max(weekAvgs[i]*12,6)}px;background:${weekAvgs[i]>=8?'linear-gradient(0deg,#6BCB77,#a8e6cf)':weekAvgs[i]>=5?'linear-gradient(0deg,#FFB347,#FFE18A)':'linear-gradient(0deg,#FF6B6B,#ffb3b3)'}"></div>
-            <div style="font-size:10px;color:var(--light);font-weight:700">H${w}</div>
+        <div style="font-size:15px;font-weight:800;margin-bottom:12px">📈 Həftəlik tərəqqi</div>
+        ${weekKeys.length?`<div style="display:flex;align-items:flex-end;gap:5px;height:140px;padding-bottom:20px">
+          ${weekKeys.map((w,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+            <span style="font-size:10px;font-weight:800;color:${weekAvgs[i]>=8?'#6BCB77':weekAvgs[i]>=5?'#FFB347':'#FF6B6B'}">${weekAvgs[i]||''}</span>
+            <div style="width:100%;border-radius:4px 4px 0 0;min-height:4px;height:${Math.max(weekAvgs[i]*12,4)}px;background:${weekAvgs[i]>=8?'#6BCB77':weekAvgs[i]>=5?'#FFB347':'#FF6B6B'}"></div>
+            <span style="font-size:9px;color:var(--light)">H${w}</span>
           </div>`).join('')}
-        </div>`:`<div style="text-align:center;padding:40px;color:var(--light)"><div style="font-size:32px">📊</div><p style="margin-top:8px">Məlumat yoxdur</p></div>`}
+        </div>`:`<p style="text-align:center;color:var(--light);padding:30px">Məlumat yoxdur</p>`}
       </div>
     </div>
     ${records.length?`<div class="card">
-      <div style="font-size:15px;font-weight:800;margin-bottom:14px">📋 Son Qeydlər (son 10)</div>
-      <div style="overflow-x:auto">
-        <table class="table">
-          <thead><tr><th>Tarix</th><th>Qiymət</th><th>Davranış</th><th>Müəllim Qeydi</th></tr></thead>
-          <tbody>
-            ${records.slice(-10).reverse().map(r=>`<tr>
-              <td style="font-weight:700;white-space:nowrap">${r.date}</td>
-              <td>${r.avgGrade?`<span style="background:${r.avgGrade>=8?'#6BCB7720':r.avgGrade>=5?'#FFB34720':'#FF6B6B20'};color:${r.avgGrade>=8?'#3d9447':r.avgGrade>=5?'#cc7700':'#cc3333'};padding:3px 10px;border-radius:20px;font-weight:800">${r.avgGrade}/10</span>`:'—'}</td>
-              <td>${r.behavior?.rating==='excellent'?'🌟 Əla':r.behavior?.rating==='good'?'😊 Yaxşı':r.behavior?.rating==='satisfactory'?'😐 Qənaətbəxş':'😢 Yaxşılaşdır.'}</td>
-              <td style="color:var(--light);font-size:13px;max-width:200px">${r.teacherNote||'—'}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:12px">📋 Son Qeydlər</div>
+      <div style="overflow-x:auto"><table class="table">
+        <thead><tr><th>Tarix</th><th>Qiymət</th><th>Davranış</th><th>Qeyd</th></tr></thead>
+        <tbody>${records.slice(-10).reverse().map(r=>`<tr>
+          <td style="font-weight:700">${r.date}</td>
+          <td>${r.avgGrade?`<span style="background:${r.avgGrade>=8?'#6BCB7720':r.avgGrade>=5?'#FFB34720':'#FF6B6B20'};color:${r.avgGrade>=8?'#3d9447':r.avgGrade>=5?'#cc7700':'#cc3333'};padding:3px 10px;border-radius:20px;font-weight:800">${r.avgGrade}/10</span>`:'—'}</td>
+          <td>${r.behavior?.rating==='excellent'?'🌟 Əla':r.behavior?.rating==='good'?'😊 Yaxşı':r.behavior?.rating==='satisfactory'?'😐 Qənaətbəxş':'😢'}</td>
+          <td style="color:var(--light);font-size:13px;max-width:160px">${r.teacherNote||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
     </div>`:''}
   `;
 }
@@ -1287,6 +1295,7 @@ function saveRecord(studentId){
 function printReport(){
   window.print();
 }
+
 // ============================================================
 // TEACHERS
 // ============================================================
