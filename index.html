@@ -370,7 +370,10 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
             <div class="page-title">📊 2 Aylıq Hesabat</div>
             <div class="page-sub">Avtomatik hesablanmış nəticə</div>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="showPage('student-profile')">← Geri</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="printReport()">🖨️ Çap et</button>
+            <button class="btn btn-outline btn-sm" onclick="showPage('student-profile')">← Geri</button>
+          </div>
         </div>
         <div id="reportContent"></div>
       </div>
@@ -397,9 +400,12 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
     </div>
   </div>
 
-  <footer>
-    <p>🎒 Məktəbəqədər Hazırlıq Proqramı © 2024 | <a href="https://www.instagram.com/s_akhundoff" target="_blank">📸 @s_akhundoff</a></p>
-    <p style="margin-top:4px;font-size:11px;opacity:.7">By s_akhundoff</p>
+  <footer style="background:linear-gradient(135deg,#1E1B4B,#6C63FF);color:white;text-align:center;padding:20px;margin-top:auto">
+    <div style="font-size:14px;margin-bottom:6px">🎒 Məktəbəqədər Hazırlıq Proqramı © 2025</div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap">
+      <span style="font-size:13px;opacity:0.8">By <strong style="color:#FFD93D">s_akhundoff</strong></span>
+      <a href="https://www.instagram.com/s_akhundoff" target="_blank" style="color:#FFD93D;text-decoration:none;font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:5px">📸 Instagram @s_akhundoff</a>
+    </div>
   </footer>
 </div>
 
@@ -1183,23 +1189,7 @@ function saveRecord(studentId){
   const grades=recordGrades.map(g=>({subject:g.s,grade:g.g}));
   const avgGrade=grades.length?Math.round(grades.reduce((s,g)=>s+g.grade,0)/grades.length*10)/10:null;
   const record={
-    id:uid(),studentId,date,grades,avgGrade,
-    behavior:{...recordBehavior,notes:document.getElementById('behNotes')?.value||''},
-    teacherNote:document.getElementById('teacherNote')?.value||'',
-    parentMessage:document.getElementById('parentMsg')?.value||'',
-    lessonsCompleted:[],createdAt:new Date().toISOString()
-  };
-  const records=getRecords();
-  records.push(record);
-  saveRecords(records);
-  showToast('Qeyd saxlanıldı! ✅','success');
-  showPage('student-profile');
-}
-
-// ============================================================
-// REPORT
-// ============================================================
-function renderReport(){
+    id:uid(),studentId,date,function renderReport(){
   const student=getStudents().find(s=>s.id===currentStudentId);
   if(!student){document.getElementById('reportContent').innerHTML='<p>Uşaq tapılmadı</p>';return;}
   const records=getRecords().filter(r=>r.studentId===currentStudentId).sort((a,b)=>new Date(a.date)-new Date(b.date));
@@ -1211,33 +1201,92 @@ function renderReport(){
   const subjectAvgs=Object.fromEntries(Object.entries(subjectMap).map(([s,gs])=>[s,Math.round(gs.reduce((a,b)=>a+b,0)/gs.length*10)/10]));
   const gc=avgGrade>=8?'#6BCB77':avgGrade>=5?'#FFB347':'#FF6B6B';
   const L=LANGS[lang];
+  const age=student.birthDate?Math.floor((new Date()-new Date(student.birthDate))/(365.25*24*60*60*1000)):'?';
+  const weeklyData={};
+  records.forEach(r=>{
+    const wk=Math.max(1,Math.min(8,Math.ceil((new Date(r.date)-new Date('2024-09-01'))/(7*24*60*60*1000))));
+    if(!weeklyData[wk]) weeklyData[wk]=[];
+    if(r.avgGrade) weeklyData[wk].push(r.avgGrade);
+  });
+  const weekKeys=Object.keys(weeklyData).sort((a,b)=>a-b);
+  const weekAvgs=weekKeys.map(w=>weeklyData[w].length?Math.round(weeklyData[w].reduce((a,b)=>a+b,0)/weeklyData[w].length*10)/10:0);
 
   document.getElementById('reportContent').innerHTML=`
-    <div style="margin-bottom:16px"><div style="font-size:16px;font-weight:800;margin-bottom:6px">👦 ${student.firstName} ${student.lastName}</div></div>
+    <div style="background:linear-gradient(135deg,#6C63FF,#FF6B9D);border-radius:20px;padding:28px;margin-bottom:20px;color:white;text-align:center">
+      <div style="font-size:52px;margin-bottom:8px">${student.gender==='female'?'👧':'👦'}</div>
+      <div style="font-size:22px;font-weight:900">${student.firstName} ${student.lastName}</div>
+      <div style="opacity:0.85;font-size:13px;margin-top:4px">${age} yaş${student.group?' · '+student.group+' qrupu':''}</div>
+      <div style="font-size:60px;font-weight:900;margin:16px 0 4px;line-height:1">${avgGrade||'—'}</div>
+      <div style="opacity:0.8;font-size:14px;margin-bottom:12px">Ümumi ortalama qiymət (/10)</div>
+      <span style="background:rgba(255,255,255,0.25);padding:8px 20px;border-radius:20px;font-weight:800;font-size:15px">
+        ${avgGrade>=8?'🌟 Əla':avgGrade>=6?'👍 Yaxşı':avgGrade>=4?'📈 Qənaətbəxş':'💪 Yaxşılaşdır.'}
+      </span>
+    </div>
     <div class="grid-4" style="margin-bottom:20px">
-      ${[['📅',records.length,'Dərs günü','#6C63FF'],['⭐',avgGrade||'—','Ortalama','#FFD93D'],['🌟',behavStats.excellent,'Əla davranış','#6BCB77'],['✅',records.reduce((s,r)=>s+(r.lessonsCompleted?.length||0),0),'Tamamlanan dərs','#FF6B9D']]
-        .map(([ic,v,l,c])=>`<div class="card stat-card"><div style="font-size:26px">${ic}</div><div class="stat-num" style="color:${c}">${v}</div><div class="stat-lbl">${l}</div></div>`).join('')}
+      ${[['📅',records.length,'Dərs günü','#6C63FF'],['⭐',avgGrade||'—','Ortalama bal','#FFD93D'],['🌟',behavStats.excellent,'Əla davranış','#6BCB77'],['✅',records.reduce((s,r)=>s+(r.lessonsCompleted?.length||0),0),'Tamamlanan dərs','#FF6B9D']]
+        .map(([ic,v,l,c])=>`<div class="card stat-card"><div style="font-size:28px;margin-bottom:6px">${ic}</div><div class="stat-num" style="color:${c}">${v}</div><div class="stat-lbl">${l}</div></div>`).join('')}
     </div>
-    <div class="card" style="margin-bottom:16px;text-align:center;padding:36px">
-      <div style="font-size:64px;font-weight:900;color:${gc}">${avgGrade||'—'}</div>
-      <div style="color:var(--light);font-size:15px;margin:6px 0">/10</div>
-      <span style="background:${gc}20;color:${gc};padding:8px 20px;border-radius:20px;font-weight:800;font-size:15px">${avgGrade>=8?'🌟 Əla':avgGrade>=6?'👍 Yaxşı':avgGrade>=4?'📈 Qənaətbəxş':'💪 Yaxşılaşdır.'}</span>
-    </div>
-    ${Object.keys(subjectAvgs).length?`<div class="card" style="margin-bottom:16px">
-      <div style="font-size:15px;font-weight:800;margin-bottom:14px">📚 Fənn üzrə nəticə</div>
-      ${Object.entries(subjectAvgs).map(([s,g])=>`<div style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-          <span style="font-weight:700;font-size:13px">${SE[s]} ${L.subjects[s]}</span>
-          <span style="font-weight:800;color:${g>=8?'#6BCB77':g>=5?'#FFB347':'#FF6B6B'}">${g}/10</span>
-        </div>
-        <div style="background:#f0f0f0;border-radius:20px;height:8px;overflow:hidden">
-          <div style="width:${g*10}%;background:${g>=8?'#6BCB77':g>=5?'#FFB347':'#FF6B6B'};height:100%;border-radius:20px"></div>
-        </div>
-      </div>`).join('')}
+    ${Object.keys(subjectAvgs).length?`
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:15px;font-weight:800;margin-bottom:16px">📚 Fənn üzrə nəticə</div>
+      ${Object.entries(subjectAvgs).map(([s,g])=>`
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <span style="font-size:20px;width:28px;text-align:center">${SE[s]}</span>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-weight:700;font-size:13px">${L.subjects[s]}</span>
+              <span style="font-weight:900;font-size:14px;color:${g>=8?'#6BCB77':g>=5?'#FFB347':'#FF6B6B'}">${g}/10</span>
+            </div>
+            <div style="background:#f0f0f0;border-radius:20px;height:10px;overflow:hidden">
+              <div style="width:${g*10}%;background:${g>=8?'linear-gradient(90deg,#6BCB77,#43e97b)':g>=5?'linear-gradient(90deg,#FFB347,#FFD700)':'linear-gradient(90deg,#FF6B6B,#ff9999)'};height:100%;border-radius:20px"></div>
+            </div>
+          </div>
+          <span style="font-size:11px;font-weight:800;padding:3px 8px;border-radius:10px;background:${g>=8?'#6BCB7720':g>=5?'#FFB34720':'#FF6B6B20'};color:${g>=8?'#3d9447':g>=5?'#cc7700':'#cc3333'};white-space:nowrap">${g>=8?'Əla':g>=6?'Yaxşı':g>=4?'Qənaətbəxş':'Yaxşılaşdır.'}</span>
+        </div>`).join('')}
     </div>`:''}
-    <div class="card">
-      <div style="font-size:15px;font-weight:800;margin-bottom:14px">😊 Davranış statistikası</div>
-      <div class="grid-2">
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div style="font-size:15px;font-weight:800;margin-bottom:14px">😊 Davranış statistikası</div>
+        ${[['🌟','Əla',behavStats.excellent,'#FFD700'],['😊','Yaxşı',behavStats.good,'#6BCB77'],['😐','Qənaətbəxş',behavStats.satisfactory,'#FFB347'],['😢','Yaxşılaşdır.',behavStats.needs_improvement,'#FF6B6B']]
+          .map(([ic,l,v,c])=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:${c}18;border-radius:12px;margin-bottom:8px">
+            <span style="font-size:26px">${ic}</span>
+            <div style="flex:1;font-weight:700;font-size:13px">${l}</div>
+            <div style="font-size:22px;font-weight:900;color:${c}">${v}</div>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div style="font-size:15px;font-weight:800;margin-bottom:14px">📈 Həftəlik tərəqqi</div>
+        ${weekKeys.length?`<div style="display:flex;align-items:flex-end;gap:6px;height:160px;padding-bottom:22px;position:relative">
+          ${weekKeys.map((w,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="font-size:11px;font-weight:800;color:${weekAvgs[i]>=8?'#6BCB77':weekAvgs[i]>=5?'#FFB347':'#FF6B6B'}">${weekAvgs[i]||''}</div>
+            <div style="width:100%;border-radius:6px 6px 0 0;min-height:6px;height:${Math.max(weekAvgs[i]*12,6)}px;background:${weekAvgs[i]>=8?'linear-gradient(0deg,#6BCB77,#a8e6cf)':weekAvgs[i]>=5?'linear-gradient(0deg,#FFB347,#FFE18A)':'linear-gradient(0deg,#FF6B6B,#ffb3b3)'}"></div>
+            <div style="font-size:10px;color:var(--light);font-weight:700">H${w}</div>
+          </div>`).join('')}
+        </div>`:`<div style="text-align:center;padding:40px;color:var(--light)"><div style="font-size:32px">📊</div><p style="margin-top:8px">Məlumat yoxdur</p></div>`}
+      </div>
+    </div>
+    ${records.length?`<div class="card">
+      <div style="font-size:15px;font-weight:800;margin-bottom:14px">📋 Son Qeydlər (son 10)</div>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead><tr><th>Tarix</th><th>Qiymət</th><th>Davranış</th><th>Müəllim Qeydi</th></tr></thead>
+          <tbody>
+            ${records.slice(-10).reverse().map(r=>`<tr>
+              <td style="font-weight:700;white-space:nowrap">${r.date}</td>
+              <td>${r.avgGrade?`<span style="background:${r.avgGrade>=8?'#6BCB7720':r.avgGrade>=5?'#FFB34720':'#FF6B6B20'};color:${r.avgGrade>=8?'#3d9447':r.avgGrade>=5?'#cc7700':'#cc3333'};padding:3px 10px;border-radius:20px;font-weight:800">${r.avgGrade}/10</span>`:'—'}</td>
+              <td>${r.behavior?.rating==='excellent'?'🌟 Əla':r.behavior?.rating==='good'?'😊 Yaxşı':r.behavior?.rating==='satisfactory'?'😐 Qənaətbəxş':'😢 Yaxşılaşdır.'}</td>
+              <td style="color:var(--light);font-size:13px;max-width:200px">${r.teacherNote||'—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`:''}
+  `;
+}
+
+function printReport(){
+  window.print();
+}
         ${[['🌟','Əla',behavStats.excellent,'#FFD700'],['😊','Yaxşı',behavStats.good,'#6BCB77'],['😐','Qənaətbəxş',behavStats.satisfactory,'#FFB347'],['😢','Yaxşılaşdır.',behavStats.needs_improvement,'#FF6B6B']]
           .map(([ic,l,v,c])=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;background:${c}15;border-radius:12px">
             <span style="font-size:24px">${ic}</span>
