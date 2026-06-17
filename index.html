@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎒 Məktəbə Hazırlıq Proqramı</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6C63FF;
+      --secondary: #FF6B9D;
+      --accent: #FFD93D;
+      --success: #6BCB77;
+      --bg: #F8F9FF;
+      --card: #ffffff;
+      --text: #2D3748;
+      --light: #718096;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* NAV */
+    nav {
+      background: linear-gradient(135deg, #6C63FF, #5048CC);
+      padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.3);
+    }
+    .nav-logo { color: white; font-size: 20px; font-weight: 900; padding: 16px 0; display: flex; align-items: center; gap: 10px; }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      color: rgba(255,255,255,0.85); text-decoration: none;
+      padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 14px;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .nav-links a:hover, .nav-links a.active { background: rgba(255,255,255,0.2); color: white; }
+    .lang-btn {
+      background: rgba(255,255,255,0.15); border: none; color: white;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover, .lang-btn.active { background: rgba(255,255,255,0.3); }
+    .lang-group { display: flex; gap: 6px; align-items: center; }
+
+    /* PAGES */
+    .page { display: none; padding: 32px 24px; max-width: 1300px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #6C63FF 0%, #FF6B9D 100%);
+      border-radius: 24px; padding: 48px 40px; color: white;
+      margin-bottom: 32px; text-align: center;
+    }
+    .hero h1 { font-size: 36px; font-weight: 900; margin-bottom: 12px; }
+    .hero p { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+    .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .hero-badge {
+      background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
+      color: white; padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 14px;
+    }
+
+    /* CARDS */
+    .card {
+      background: white; border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.1);
+      padding: 24px; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(108,99,255,0.18); }
+
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+    @media(max-width:768px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; } nav .nav-links { display: none; } }
+
+    /* STAT */
+    .stat-card { text-align: center; }
+    .stat-num { font-size: 40px; font-weight: 900; }
+    .stat-label { font-size: 13px; color: var(--light); font-weight: 600; margin-top: 4px; }
+
+    /* WEEK TABS */
+    .week-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .week-tab {
+      padding: 10px 18px; border-radius: 12px; border: 2px solid var(--primary);
+      background: white; color: var(--primary); font-weight: 700; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 14px; transition: all 0.2s;
+    }
+    .week-tab.active, .week-tab:hover { background: var(--primary); color: white; }
+
+    /* DAY GRID */
+    .day-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 24px; }
+    .day-card {
+      background: white; border-radius: 14px; padding: 14px 10px; text-align: center;
+      border: 2px solid #E2E8F0; cursor: pointer; transition: all 0.2s;
+    }
+    .day-card:hover, .day-card.active { border-color: var(--primary); background: rgba(108,99,255,0.06); }
+    .day-name { font-weight: 800; font-size: 13px; }
+    .day-count { font-size: 11px; color: var(--light); margin-top: 4px; }
+
+    /* LESSON CARD */
+    .lesson-card {
+      background: white; border-radius: 16px; padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      border-left: 5px solid; margin-bottom: 14px;
+    }
+    .lesson-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .lesson-title { font-weight: 800; font-size: 15px; }
+    .lesson-meta { font-size: 12px; color: var(--light); margin-top: 4px; }
+    .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-primary { background: rgba(108,99,255,0.12); color: var(--primary); }
+    .badge-success { background: rgba(107,203,119,0.15); color: #4CAF50; }
+
+    /* ACTIVITY CHIPS */
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .chip { background: var(--bg); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+    /* SUBJECT GRID */
+    .subject-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    @media(max-width:600px) { .subject-grid { grid-template-columns: repeat(2,1fr); } .day-grid { grid-template-columns: repeat(2,1fr); } }
+
+    .subject-card {
+      border-radius: 16px; padding: 20px; color: white; text-align: center;
+      cursor: pointer; transition: transform 0.2s;
+    }
+    .subject-card:hover { transform: scale(1.04); }
+    .subject-card .s-icon { font-size: 36px; margin-bottom: 8px; }
+    .subject-card .s-name { font-weight: 800; font-size: 15px; }
+    .subject-card .s-count { font-size: 12px; opacity: 0.85; margin-top: 4px; }
+
+    /* WEEK THEME BANNER */
+    .theme-banner {
+      background: linear-gradient(135deg, #6C63FF, #FF6B9D);
+      border-radius: 16px; padding: 20px 24px; color: white; margin-bottom: 20px;
+    }
+    .theme-banner .week-num { font-size: 13px; opacity: 0.85; font-weight: 600; }
+    .theme-banner h2 { font-size: 22px; font-weight: 900; margin-top: 4px; }
+
+    /* PAGE TITLE */
+    .page-title { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+    .page-sub { font-size: 14px; color: var(--light); margin-bottom: 28px; }
+
+    /* REPORT TABLE */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; color: var(--light); background: var(--bg); border-bottom: 2px solid #E2E8F0; }
+    td { padding: 14px 16px; border-bottom: 1px solid #F0F0F0; font-size: 14px; }
+    tr:hover td { background: rgba(108,99,255,0.03); }
+
+    /* GRADE BADGE */
+    .grade { padding: 4px 14px; border-radius: 20px; font-weight: 800; font-size: 14px; }
+    .grade-a { background: #6BCB7720; color: #4CAF50; }
+    .grade-b { background: #FFB34720; color: #FF8C00; }
+    .grade-c { background: #FF6B6B20; color: #E53935; }
+
+    /* DEMO BOX */
+    .demo-box { background: rgba(108,99,255,0.06); border: 2px solid rgba(108,99,255,0.2); border-radius: 14px; padding: 16px 20px; margin-top: 24px; }
+    .demo-box h4 { color: var(--primary); font-weight: 800; margin-bottom: 10px; }
+    .demo-item { padding: 6px 0; font-size: 14px; border-bottom: 1px solid rgba(108,99,255,0.1); }
+
+    /* FOOTER */
+    footer {
+      background: linear-gradient(135deg, #5048CC, #6C63FF);
+      color: white; text-align: center; padding: 20px;
+      margin-top: 40px;
+    }
+    footer a { color: var(--accent); text-decoration: none; font-weight: 800; }
+
+    /* SECTION TITLE */
+    .section-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* QUICK LINKS */
+    .quick-card {
+      background: white; border-radius: 16px; padding: 24px; text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07); cursor: pointer;
+      border-top: 4px solid; transition: transform 0.2s;
+      text-decoration: none; color: var(--text); display: block;
+    }
+    .quick-card:hover { transform: translateY(-3px); }
+    .quick-icon { font-size: 36px; margin-bottom: 10px; }
+    .quick-title { font-weight: 800; font-size: 15px; }
+    .quick-desc { font-size: 12px; color: var(--light); margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🎒 <span data-az="Məktəbə Hazırlıq" data-ru="Подготовка к школе" data-en="School Prep">Məktəbə Hazırlıq</span></div>
+  <div class="nav-links">
+    <a onclick="showPage('home')" class="active" id="nav-home">🏠 <span data-az="Ana Səhifə" data-ru="Главная" data-en="Home">Ana Səhifə</span></a>
+    <a onclick="showPage('curriculum')" id="nav-curriculum">📅 <span data-az="Tədris Planı" data-ru="Учебный план" data-en="Curriculum">Tədris Planı</span></a>
+    <a onclick="showPage('lessons')" id="nav-lessons">📚 <span data-az="Məşğələlər" data-ru="Занятия" data-en="Lessons">Məşğələlər</span></a>
+    <a onclick="showPage('report')" id="nav-report">📊 <span data-az="Hesabat" data-ru="Отчёт" data-en="Report">Hesabat</span></a>
+  </div>
+  <div class="lang-group">
+    <button class="lang-btn active" onclick="setLang('az')">🇦🇿 AZ</button>
+    <button class="lang-btn" onclick="setLang('ru')">🇷🇺 RU</button>
+    <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div style="font-size:64px;margin-bottom:16px">🎒</div>
+    <h1 data-az="Məktəbəqədər Hazırlıq Proqramı" data-ru="Программа Подготовки к Школе" data-en="School Preparation Program">Məktəbəqədər Hazırlıq Proqramı</h1>
+    <p data-az="5-6 yaş uşaqları üçün Azərbaycana uyğunlaşdırılmış 2 aylıq tədris proqramı" data-ru="2-месячная учебная программа для детей 5-6 лет, адаптированная для Азербайджана" data-en="2-month curriculum adapted for Azerbaijan, for children aged 5-6">5-6 yaş uşaqları üçün Azərbaycana uyğunlaşdırılmış 2 aylıq tədris proqramı</p>
+    <div class="hero-badges">
+      <span class="hero-badge">🇦🇿 Azərbaycan</span>
+      <span class="hero-badge">📅 8 Həftə</span>
+      <span class="hero-badge">📚 9 Fənn</span>
+      <span class="hero-badge">👶 5-6 Yaş</span>
+      <span class="hero-badge">🌐 3 Dil</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid-4" style="margin-bottom:32px">
+    <div class="card stat-card">
+      <div style="font-size:32px;margin-bottom:6px">📅</div>
+      <div class="stat-num" style="color:#6C63FF">8</div>
+      <div class="stat-label" data-az="Həftə" data-ru="Недели" data-en="Weeks">Həftə</div>
+    </div>
+    <div class="card stat-card">
+      <div style="font-size:32px;margin-bottom:6px">📚</div>
+      <div class="stat-num" style="color:#FF6B9D">9</div>
+      <div class="stat-label" data-az="Fənn" data-ru="Предметы" data-en="Subjects">Fənn</div>
+    </div>
+    <div class="card stat-card">
+      <div style="font-size:32px;margin-bottom:6px">🎯</div>
+      <div class="stat-num" style="color:#FFD93D">40</div>
+      <div class="stat-label" data-az="Dərs günü" data-ru="Учебных дней" data-en="School days">Dərs günü</div>
+    </div>
+    <div class="card stat-card">
+      <div style="font-size:32px;margin-bottom:6px">🎮</div>
+      <div class="stat-num" style="color:#6BCB77">120+</div>
+      <div class="stat-label" data-az="Məşğələ" data-ru="Занятий" data-en="Activities">Məşğələ</div>
+    </div>
+  </div>
+
+  <!-- Quick links -->
+  <div class="section-title">⚡ <span data-az="Sürətli Keçidlər" data-ru="Быстрые ссылки" data-en="Quick Links">Sürətli Keçidlər</span></div>
+  <div class="grid-4" style="margin-bottom:32px">
+    <div class="quick-card" onclick="showPage('curriculum')" style="border-color:#6C63FF">
+      <div class="quick-icon">📅</div>
+      <div class="quick-title" data-az="Tədris Planı" data-ru="Учебный план" data-en="Curriculum">Tədris Planı</div>
+      <div class="quick-desc" data-az="8 həftəlik proqram" data-ru="8-недельная программа" data-en="8-week program">8 həftəlik proqram</div>
+    </div>
+    <div class="quick-card" onclick="showPage('lessons')" style="border-color:#FF6B9D">
+      <div class="quick-icon">📚</div>
+      <div class="quick-title" data-az="Məşğələlər" data-ru="Занятия" data-en="Lessons">Məşğələlər</div>
+      <div class="quick-desc" data-az="Nümunə dərslər" data-ru="Примеры уроков" data-en="Sample lessons">Nümunə dərslər</div>
+    </div>
+    <div class="quick-card" onclick="showPage('report')" style="border-color:#FFD93D">
+      <div class="quick-icon">📊</div>
+      <div class="quick-title" data-az="Hesabat" data-ru="Отчёт" data-en="Report">Hesabat</div>
+      <div class="quick-desc" data-az="2 aylıq nəticə" data-ru="Результат за 2 месяца" data-en="2-month results">2 aylıq nəticə</div>
+    </div>
+    <div class="quick-card" onclick="showPage('curriculum')" style="border-color:#6BCB77">
+      <div class="quick-icon">🗓️</div>
+      <div class="quick-title" data-az="Bu Həftə" data-ru="Эта неделя" data-en="This Week">Bu Həftə</div>
+      <div class="quick-desc" data-az="Həftə 1 - Tanışlıq" data-ru="Неделя 1 - Знакомство" data-en="Week 1 - Introduction">Həftə 1 - Tanışlıq</div>
+    </div>
+  </div>
+
+  <!-- Fənlər -->
+  <div class="section-title">🎨 <span data-az="Tədris Fənləri" data-ru="Учебные предметы" data-en="Subjects">Tədris Fənləri</span></div>
+  <div class="subject-grid" style="margin-bottom:32px">
+    <div class="subject-card" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+      <div class="s-icon">🔢</div>
+      <div class="s-name" data-az="Riyaziyyat" data-ru="Математика" data-en="Mathematics">Riyaziyyat</div>
+      <div class="s-count" data-az="Rəqəmlər, saymaq, toplama" data-ru="Цифры, счёт, сложение" data-en="Numbers, counting, addition">Rəqəmlər, saymaq, toplama</div>
+    </div>
+    <div class="subject-card" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+      <div class="s-icon">📝</div>
+      <div class="s-name" data-az="Azərbaycan Dili" data-ru="Азербайджанский язык" data-en="Azerbaijani Language">Azərbaycan Dili</div>
+      <div class="s-count" data-az="Hərflər, sözlər, cümlə" data-ru="Буквы, слова, предложения" data-en="Letters, words, sentences">Hərflər, sözlər, cümlə</div>
+    </div>
+    <div class="subject-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+      <div class="s-icon">📖</div>
+      <div class="s-name" data-az="Oxu" data-ru="Чтение" data-en="Reading">Oxu</div>
+      <div class="s-count" data-az="Nağıllar, hekayələr" data-ru="Сказки, рассказы" data-en="Fairy tales, stories">Nağıllar, hekayələr</div>
+    </div>
+    <div class="subject-card" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
+      <div class="s-icon">🎨</div>
+      <div class="s-name" data-az="Rəsm" data-ru="Рисование" data-en="Drawing">Rəsm</div>
+      <div class="s-count" data-az="Boyalar, şəkillər, yaradıcılıq" data-ru="Краски, рисунки" data-en="Colors, drawings">Boyalar, şəkillər</div>
+    </div>
+    <div class="subject-card" style="background:linear-gradient(135deg,#fa709a,#fee140)">
+      <div class="s-icon">🎵</div>
+      <div class="s-name" data-az="Musiqi" data-ru="Музыка" data-en="Music">Musiqi</div>
+      <div class="s-count" data-az="Mahnılar, ritm, hərəkət" data-ru="Песни, ритм, движение" data-en="Songs, rhythm, movement">Mahnılar, ritm</div>
+    </div>
+    <div class="subject-card" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">
+      <div class="s-icon">🧩</div>
+      <div class="s-name" data-az="Məntiq" data-ru="Логика" data-en="Logic">Məntiq</div>
+      <div class="s-count" data-az="Tapmacalar, ardıcıllıq" data-ru="Загадки, последовательности" data-en="Puzzles, sequences">Tapmacalar, ardıcıllıq</div>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h4>👥 <span data-az="İstifadəçi Rolları" data-ru="Роли пользователей" data-en="User Roles">İstifadəçi Rolları</span></h4>
+    <div class="demo-item">👑 <strong data-az="Admin" data-ru="Администратор" data-en="Admin">Admin</strong> — <span data-az="Bütün sistemi idarə edir" data-ru="Управляет всей системой" data-en="Manages the entire system">Bütün sistemi idarə edir</span></div>
+    <div class="demo-item">👩‍🏫 <strong data-az="Müəllim" data-ru="Учитель" data-en="Teacher">Müəllim</strong> — <span data-az="Qeyd, qiymət, davranış daxil edir" data-ru="Вводит записи, оценки, поведение" data-en="Enters records, grades, behavior">Qeyd, qiymət, davranış daxil edir</span></div>
+    <div class="demo-item" style="border:none">👨‍👩‍👦 <strong data-az="Valideyn" data-ru="Родитель" data-en="Parent">Valideyn</strong> — <span data-az="Uşağının tərəqqisini izləyir" data-ru="Следит за успехами ребёнка" data-en="Monitors child's progress">Uşağının tərəqqisini izləyir</span></div>
+  </div>
+</div>
+
+<!-- CURRICULUM PAGE -->
+<div class="page" id="page-curriculum">
+  <div class="page-title" data-az="📅 2 Aylıq Tədris Planı" data-ru="📅 2-Месячный Учебный план" data-en="📅 2-Month Curriculum">📅 2 Aylıq Tədris Planı</div>
+  <div class="page-sub" data-az="5-6 yaş • Azərbaycana uyğunlaşdırılmış • 8 həftə" data-ru="5-6 лет • Адаптировано для Азербайджана • 8 недель" data-en="Age 5-6 • Adapted for Azerbaijan • 8 weeks">5-6 yaş • Azərbaycana uyğunlaşdırılmış • 8 həftə</div>
+
+  <div class="week-tabs" id="weekTabs"></div>
+  <div id="weekContent"></div>
+</div>
+
+<!-- LESSONS PAGE -->
+<div class="page" id="page-lessons">
+  <div class="page-title" data-az="📚 Nümunə Məşğələlər" data-ru="📚 Примеры занятий" data-en="📚 Sample Lessons">📚 Nümunə Məşğələlər</div>
+  <div class="page-sub" data-az="Şəkillərlə izahlı interaktiv dərslər" data-ru="Интерактивные уроки с иллюстрациями" data-en="Interactive lessons with illustrations">Şəkillərlə izahlı interaktiv dərslər</div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px" id="subjectFilters"></div>
+  <div id="lessonsGrid"></div>
+</div>
+
+<!-- REPORT PAGE -->
+<div class="page" id="page-report">
+  <div class="page-title" data-az="📊 2 Aylıq Hesabat Nümunəsi" data-ru="📊 Пример 2-месячного отчёта" data-en="📊 2-Month Report Sample">📊 2 Aylıq Hesabat Nümunəsi</div>
+  <div class="page-sub" data-az="Avtomatik hesablanmış nəticələr" data-ru="Автоматически рассчитанные результаты" data-en="Automatically calculated results">Avtomatik hesablanmış nəticələr</div>
+
+  <div class="grid-4" style="margin-bottom:28px">
+    <div class="card stat-card"><div style="font-size:28px">📅</div><div class="stat-num" style="color:#6C63FF">40</div><div class="stat-label" data-az="Dərs günü" data-ru="Учебных дней" data-en="School days">Dərs günü</div></div>
+    <div class="card stat-card"><div style="font-size:28px">⭐</div><div class="stat-num" style="color:#FFD93D">8.4</div><div class="stat-label" data-az="Ortalama qiymət" data-ru="Средняя оценка" data-en="Average grade">Ortalama qiymət</div></div>
+    <div class="card stat-card"><div style="font-size:28px">🌟</div><div class="stat-num" style="color:#6BCB77">28</div><div class="stat-label" data-az="Əla davranış günü" data-ru="Дней отличного поведения" data-en="Excellent behavior days">Əla davranış günü</div></div>
+    <div class="card stat-card"><div style="font-size:28px">✅</div><div class="stat-num" style="color:#FF6B9D">118</div><div class="stat-label" data-az="Tamamlanan dərs" data-ru="Завершённых уроков" data-en="Completed lessons">Tamamlanan dərs</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;text-align:center;padding:40px">
+    <div class="section-title" style="justify-content:center" data-az="🏆 Ümumi Nəticə" data-ru="🏆 Общий результат" data-en="🏆 Overall Result">🏆 Ümumi Nəticə</div>
+    <div style="font-size:80px;font-weight:900;color:#6BCB77">8.4</div>
+    <div style="color:#718096;font-size:16px;margin:8px 0">/10</div>
+    <span style="background:#6BCB7720;color:#4CAF50;padding:10px 24px;border-radius:20px;font-weight:800;font-size:16px">🌟 <span data-az="Əla Nəticə!" data-ru="Отличный результат!" data-en="Excellent Result!">Əla Nəticə!</span></span>
+  </div>
+
+  <div class="card" style="margin-bottom:24px">
+    <div class="section-title" data-az="📚 Fənn üzrə Nəticələr" data-ru="📚 Результаты по предметам" data-en="📚 Subject Results">📚 Fənn üzrə Nəticələr</div>
+    <div id="subjectBars"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" data-az="📋 Gündəlik Qeydlər Nümunəsi" data-ru="📋 Пример ежедневных записей" data-en="📋 Daily Records Sample">📋 Gündəlik Qeydlər Nümunəsi</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th data-az="Tarix" data-ru="Дата" data-en="Date">Tarix</th>
+          <th data-az="Keçirilən Dərslər" data-ru="Проведённые уроки" data-en="Completed Lessons">Keçirilən Dərslər</th>
+          <th data-az="Qiymət" data-ru="Оценка" data-en="Grade">Qiymət</th>
+          <th data-az="Davranış" data-ru="Поведение" data-en="Behavior">Davranış</th>
+          <th data-az="Müəllim Qeydi" data-ru="Заметка учителя" data-en="Teacher Note">Müəllim Qeydi</th>
+        </tr></thead>
+        <tbody id="reportTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>🎒 <span data-az="Məktəbəqədər Hazırlıq Proqramı" data-ru="Программа подготовки к школе" data-en="School Preparation Program">Məktəbəqədər Hazırlıq Proqramı</span> © 2024 |
+    <a href="https://www.instagram.com/s_akhundoff" target="_blank">📸 @s_akhundoff</a>
+  </p>
+  <p style="margin-top:6px;font-size:12px;opacity:0.7">By s_akhundoff</p>
+</footer>
+
+<script>
+// ========== DATA ==========
+const LANGS = {
+  az: { weeks: ['Tanışlıq və Məktəb','Ailə və Sevgi','Təbiət və Heyvanlar','Rənglər və Fiqurlar','Azərbaycan — Vətənimiz','Peşələr','Riyaziyyat Dünyası','Məktəbə Hazırlıq — Yekun 🎉'],
+    days: ['','Bazar ertəsi','Çərşənbə axşamı','Çərşənbə','Cümə axşamı','Cümə'],
+    subjects: {math:'Riyaziyyat',language:'Azərbaycan Dili',reading:'Oxu',drawing:'Rəsm',music:'Musiqi',physical:'Bədən Tərbiyəsi',nature:'Təbiət',logic:'Məntiq',creativity:'Yaradıcılıq'},
+    week:'Həftə', day:'Gün', lessons:'məşğələ', min:'dəq', all:'Hamısı',
+    activities:'Fəaliyyətlər', objectives:'Məqsədlər'
+  },
+  ru: { weeks: ['Знакомство и школа','Семья и любовь','Природа и животные','Цвета и фигуры','Азербайджан — Родина','Профессии','Мир математики','Готовы к школе — Итог 🎉'],
+    days: ['','Понедельник','Вторник','Среда','Четверг','Пятница'],
+    subjects: {math:'Математика',language:'Азербайджанский',reading:'Чтение',drawing:'Рисование',music:'Музыка',physical:'Физкультура',nature:'Природа',logic:'Логика',creativity:'Творчество'},
+    week:'Неделя', day:'День', lessons:'занятий', min:'мин', all:'Все',
+    activities:'Деятельность', objectives:'Цели'
+  },
+  en: { weeks: ['Introduction & School','Family & Love','Nature & Animals','Colors & Shapes','Azerbaijan — Homeland','Professions','World of Math','Ready for School — Final 🎉'],
+    days: ['','Monday','Tuesday','Wednesday','Thursday','Friday'],
+    subjects: {math:'Mathematics',language:'Azerbaijani',reading:'Reading',drawing:'Drawing',music:'Music',physical:'Physical Ed.',nature:'Nature',logic:'Logic',creativity:'Creativity'},
+    week:'Week', day:'Day', lessons:'lessons', min:'min', all:'All',
+    activities:'Activities', objectives:'Objectives'
+  }
+};
+
+const SUBJECT_EMOJI = {math:'🔢',language:'📝',reading:'📖',drawing:'🎨',music:'🎵',physical:'⚽',nature:'🌿',logic:'🧩',creativity:'✂️'};
+const SUBJECT_COLORS = {math:'#667eea',language:'#f5576c',reading:'#4facfe',drawing:'#43e97b',music:'#fa709a',physical:'#30cfd0',nature:'#6BCB77',logic:'#fccb90',creativity:'#a18cd1'};
+
+const CURRICULUM = [
+  { week:1, days:[
+    { day:1, lessons:[{s:'language',t:{az:'A, B, C hərfləri',ru:'Буквы А, Б, В',en:'Letters A, B, C'},d:25,acts:['📝 Hərfləri yazaq','🔊 Səslə oxudaq','🎨 Hərfi boyayaq']},
+      {s:'math',t:{az:'Rəqəmlər 1-5',ru:'Цифры 1-5',en:'Numbers 1-5'},d:20,acts:['🖐️ Barmaqla say','🃏 Kart oyunu','✏️ Dəftərə yaz']},
+      {s:'drawing',t:{az:'Məktəb çantası çəkirik',ru:'Рисуем портфель',en:'Drawing a schoolbag'},d:20,acts:['✏️ Kontur çək','🎨 Boyala','⭐ Bəzə']}]},
+    { day:2, lessons:[{s:'language',t:{az:'D, E, Ə hərfləri',ru:'Буквы Д, Е',en:'Letters D, E'},d:25,acts:['📝 Yaz','🔊 Söylə','🎮 Oyun']},
+      {s:'logic',t:{az:'Fiqurları tanıyaq',ru:'Фигуры',en:'Shapes'},d:20,acts:['🔴 Dairə','🔺 Üçbucaq','🟦 Kvadrat']},
+      {s:'physical',t:{az:'Barmaq oyunları',ru:'Пальчиковые игры',en:'Finger games'},d:15,acts:['👆 Hərəkət','🎵 Mahnı','🤸 Gimnastika']}]},
+    { day:3, lessons:[{s:'language',t:{az:'F, G, Ğ hərfləri',ru:'Буквы Ф, Г',en:'Letters F, G'},d:25,acts:['📝 Yaz','🔊 Deyirik','🎨 Boyayırıq']},
+      {s:'math',t:{az:'Rəqəmlər 6-10',ru:'Цифры 6-10',en:'Numbers 6-10'},d:20,acts:['🖐️ Say','🎮 Oyun','✏️ Yaz']},
+      {s:'music',t:{az:'Uşaq mahnıları',ru:'Детские песни',en:'Children songs'},d:15,acts:['🎵 Oxu','👏 Ritm tut','🕺 Rəqs et']}]},
+    { day:4, lessons:[{s:'reading',t:{az:'Nağıl: Üç dovşan',ru:'Сказка: Три зайца',en:'Story: Three rabbits'},d:25,acts:['📖 Oxu','💬 Müzakirə','🎨 Şəkil çək']},
+      {s:'drawing',t:{az:'Günəş və ağac',ru:'Солнце и дерево',en:'Sun and tree'},d:20,acts:['☀️ Günəş çək','🌳 Ağac','🎨 Boyala']},
+      {s:'nature',t:{az:'Fəsillər',ru:'Времена года',en:'Seasons'},d:15,acts:['🍂 Payız','❄️ Qış','🌸 Yaz','☀️ Yay']}]},
+    { day:5, lessons:[{s:'logic',t:{az:'Böyük-Kiçik anlayışı',ru:'Большой-маленький',en:'Big-Small concept'},d:25,acts:['🔍 Müqayisə','🎮 Oyun','✏️ İşarələ']},
+      {s:'creativity',t:{az:'Plastilin ilə meyvələr',ru:'Пластилин - фрукты',en:'Plasticine fruits'},d:25,acts:['🍎 Alma yarat','🍌 Banan','🍊 Portağal']},
+      {s:'physical',t:{az:'Hərəkət oyunları',ru:'Подвижные игры',en:'Movement games'},d:15,acts:['🏃 Qaç','🤸 Atla','🎮 Oyna']}]}
+  ]},
+  { week:2, days:[
+    { day:1, lessons:[{s:'language',t:{az:'H, X, I + ailə sözləri',ru:'Буквы + слова о семье',en:'Letters + family words'},d:25,acts:['📝 Hərflər','👨‍👩‍👧 Ailə sözləri','💬 Danış']},
+      {s:'math',t:{az:'Toplama 1-5',ru:'Сложение 1-5',en:'Addition 1-5'},d:20,acts:['➕ Əlavə et','🎮 Oyun','✏️ Yaz']},
+      {s:'drawing',t:{az:'Ailəmi çəkirəm',ru:'Рисую семью',en:'Drawing my family'},d:20,acts:['👨 Ata','👩 Ana','👦 Mən']}]},
+    { day:2, lessons:[{s:'reading',t:{az:'Nağıl: Ana sevgisi',ru:'Сказка: Любовь мамы',en:'Story: Mother love'},d:25,acts:['📖 Oxu','💬 Danış','🎨 Çək']},
+      {s:'logic',t:{az:'Rəng tanıma',ru:'Цвета',en:'Colors'},d:20,acts:['🔴 Qırmızı','🔵 Mavi','🟡 Sarı','🟢 Yaşıl']},
+      {s:'music',t:{az:'Ana haqqında mahnı',ru:'Песня о маме',en:'Song about mom'},d:15,acts:['🎵 Oxu','❤️ Hiss et','👏 Alqışla']}]},
+    { day:3, lessons:[{s:'language',t:{az:'K, Q, L hərfləri',ru:'Буквы К, Л',en:'Letters K, L'},d:25,acts:['📝 Yaz','🔊 Deyirik','🎮 Oyun']},
+      {s:'math',t:{az:'Çıxma 1-5',ru:'Вычитание 1-5',en:'Subtraction 1-5'},d:20,acts:['➖ Çıxart','🎮 Oyun','✏️ Yaz']},
+      {s:'nature',t:{az:'Ev heyvanları',ru:'Домашние животные',en:'Domestic animals'},d:20,acts:['🐕 It','🐈 Pişik','🐄 İnək','🐔 Toyuq']}]},
+    { day:4, lessons:[{s:'creativity',t:{az:'Ailə foto çərçivəsi',ru:'Фоторамка для семьи',en:'Family photo frame'},d:30,acts:['✂️ Kəs','🖊️ Bəzə','🎨 Boyala']},
+      {s:'logic',t:{az:'Məntiqi ardıcıllıq',ru:'Логические последовательности',en:'Logical sequences'},d:20,acts:['1️⃣ Birinci','2️⃣ İkinci','3️⃣ Üçüncü']}]},
+    { day:5, lessons:[{s:'language',t:{az:'Ailə üzvlərinin sözləri',ru:'Слова о членах семьи',en:'Family member words'},d:25,acts:['👨 Ata','👩 Ana','👴 Baba','👵 Nənə']},
+      {s:'math',t:{az:'Həftə sonu nəticə',ru:'Итог недели',en:'Week review'},d:20,acts:['🔄 Təkrar et','✅ Test','🏆 Nəticə']},
+      {s:'physical',t:{az:'Ailə oyunları',ru:'Семейные игры',en:'Family games'},d:20,acts:['🤸 Hərəkət','🎮 Oyna','🏆 Yarış']}]}
+  ]},
+  { week:3, days:[
+    { day:1, lessons:[{s:'nature',t:{az:'Meşə heyvanları',ru:'Лесные животные',en:'Forest animals'},d:25,acts:['🐺 Canavar','🦊 Tülkü','🐻 Ayı','🦌 Maral']},
+      {s:'language',t:{az:'M, N, O hərfləri',ru:'Буквы М, Н, О',en:'Letters M, N, O'},d:20,acts:['📝 Yaz','🔊 De','🎮 Oyna']},
+      {s:'drawing',t:{az:'Meşə mənzərəsi',ru:'Лесной пейзаж',en:'Forest scene'},d:20,acts:['🌲 Ağaclar','🍄 Göbələk','🌿 Ot']}]},
+    { day:2, lessons:[{s:'math',t:{az:'Toplama 6-10',ru:'Сложение 6-10',en:'Addition 6-10'},d:25,acts:['➕ Əlavə et','🎮 Oyun','✏️ Yaz']},
+      {s:'reading',t:{az:'Nağıl: Dələ',ru:'Сказка: Белка',en:'Story: Squirrel'},d:20,acts:['📖 Oxu','💬 Danış','🎨 Çək']},
+      {s:'music',t:{az:'Heyvan səsləri oyunu',ru:'Звуки животных',en:'Animal sounds game'},d:15,acts:['🐕 Hav-hav','🐈 Miyav','🐄 Mö-ö','🐔 Qu-qu-qu']}]},
+    { day:3, lessons:[{s:'language',t:{az:'P, R, S hərfləri',ru:'Буквы П, Р, С',en:'Letters P, R, S'},d:25,acts:['📝 Yaz','🔊 De','🎨 Boyala']},
+      {s:'nature',t:{az:'Bitkilər — ağaclar, çiçəklər',ru:'Растения — деревья, цветы',en:'Plants — trees, flowers'},d:20,acts:['🌳 Ağac','🌺 Çiçək','🌿 Ot','🍃 Yarpaq']},
+      {s:'creativity',t:{az:'Kağızdan heyvan',ru:'Животное из бумаги',en:'Paper animal'},d:20,acts:['✂️ Kəs','📄 Qlue','🎨 Boyala']}]},
+    { day:4, lessons:[{s:'logic',t:{az:'Kimin izi? — oyun',ru:'Чьи следы?',en:'Whose tracks?'},d:25,acts:['🐾 İzlər','🔍 Tap','🎮 Oyna']},
+      {s:'math',t:{az:'Çıxma 6-10',ru:'Вычитание 6-10',en:'Subtraction 6-10'},d:20,acts:['➖ Çıxart','🎮 Oyun','✏️ Yaz']},
+      {s:'physical',t:{az:'Heyvanları təqlid et',ru:'Подражание животным',en:'Imitate animals'},d:15,acts:['🐻 Ayı kimi','🐰 Dovşan kimi','🐸 Qurbağa kimi']}]},
+    { day:5, lessons:[{s:'reading',t:{az:'Nağıl: Üç donuz balası',ru:'Три поросёнка',en:'Three little pigs'},d:25,acts:['📖 Oxu','👥 Rol oyna','💬 Danış']},
+      {s:'drawing',t:{az:'Sevimli heyvanım',ru:'Мой любимый зверь',en:'My favorite animal'},d:25,acts:['🎨 Çək','🖊️ Bəzə','📝 Ad yaz']}]}
+  ]},
+  { week:4, days:[
+    { day:1, lessons:[{s:'logic',t:{az:'Həndəsi fiqurlar',ru:'Геометрические фигуры',en:'Geometric shapes'},d:25,acts:['⭕ Dairə','🔺 Üçbucaq','▭ Düzbucaqlı','💎 Romb']},
+      {s:'language',t:{az:'Ş, T, U hərfləri',ru:'Буквы Ш, Т, У',en:'Letters Ş, T, U'},d:20,acts:['📝 Yaz','🔊 De','🎮 Oyna']},
+      {s:'drawing',t:{az:'Fiqurlardan şəkil',ru:'Рисунок из фигур',en:'Drawing from shapes'},d:20,acts:['⭕🔺▭ Birləşdir','🎨 Boyala','✨ Bəzə']}]},
+    { day:2, lessons:[{s:'math',t:{az:'Saymaq 1-20',ru:'Счёт 1-20',en:'Counting 1-20'},d:25,acts:['1️⃣-2️⃣ Say','🎵 Mahnı','✏️ Yaz']},
+      {s:'nature',t:{az:'Göy, torpaq, su',ru:'Небо, земля, вода',en:'Sky, earth, water'},d:20,acts:['🌤️ Göy','🌍 Torpaq','💧 Su']},
+      {s:'creativity',t:{az:'Rəngli kağız kollaj',ru:'Цветной коллаж',en:'Colorful collage'},d:20,acts:['✂️ Kəs','🖊️ Yap','🎨 Bəzə']}]},
+    { day:3, lessons:[{s:'language',t:{az:'V, Y, Z hərfləri',ru:'Буквы В, Й, З',en:'Letters V, Y, Z'},d:25,acts:['📝 Yaz','🔊 De','✅ Bitirdik!']},
+      {s:'logic',t:{az:'Çeşidləmə — rəng, forma',ru:'Сортировка — цвет, форма',en:'Sorting — color, shape'},d:20,acts:['🔴🔵🟡 Rəngə görə','⭕🔺▭ Formaya görə']},
+      {s:'music',t:{az:'Rənglər mahnısı',ru:'Песня о цветах',en:'Colors song'},d:15,acts:['🎵 Oxu','🌈 Rənglər','👏 Oyna']}]},
+    { day:4, lessons:[{s:'math',t:{az:'Artıq / Az / Bərabər',ru:'Больше / Меньше / Равно',en:'More / Less / Equal'},d:25,acts:['➕ Artıq','➖ Az','🟰 Bərabər']},
+      {s:'reading',t:{az:'Nağıl: Göy qurşağı',ru:'Радуга',en:'Rainbow'},d:20,acts:['📖 Oxu','🌈 Rənglər','🎨 Çək']},
+      {s:'physical',t:{az:'Rəng oyunları',ru:'Игры с цветами',en:'Color games'},d:15,acts:['🔴 Qırmızıya qaç','🔵 Maviyə dur','🟡 Sarıya atla']}]},
+    { day:5, lessons:[{s:'logic',t:{az:'Birinci ay nəticəsi',ru:'Итог первого месяца',en:'First month review'},d:30,acts:['📊 Baxış','🔄 Təkrar','🏆 Test']},
+      {s:'creativity',t:{az:'Ay sonu sərgi',ru:'Выставка работ',en:'Month-end exhibition'},d:25,acts:['🖼️ İşlər','👀 Baxaq','⭐ Qiymətləndir']}]}
+  ]},
+  { week:5, days:[
+    { day:1, lessons:[{s:'language',t:{az:'Azərbaycan sözləri',ru:'Слова об Азербайджане',en:'Azerbaijan words'},d:25,acts:['🇦🇿 Vətən','🏙️ Bakı','🏔️ Dağlar']},
+      {s:'nature',t:{az:'Azərbaycanın təbiəti',ru:'Природа Азербайджана',en:'Azerbaijan nature'},d:20,acts:['🌊 Xəzər','🏔️ Qafqaz','🌳 Meşələr']},
+      {s:'drawing',t:{az:'Bayrağımız',ru:'Наш флаг',en:'Our flag'},d:20,acts:['🔵 Mavi','🔴 Qırmızı','🟢 Yaşıl','⭐🌙 İşarələr']}]},
+    { day:2, lessons:[{s:'music',t:{az:'Azərbaycan mahnıları',ru:'Азербайджанские песни',en:'Azerbaijani songs'},d:25,acts:['🎵 Xalq mahnıları','🎶 Oxu','💃 Rəqs et']},
+      {s:'math',t:{az:'Rəqəmləri yaz 1-20',ru:'Пишем цифры 1-20',en:'Write numbers 1-20'},d:20,acts:['✏️ Yaz','🔄 Təkrar','✅ Düzəlt']},
+      {s:'reading',t:{az:'Bakı haqqında',ru:'О Баку',en:'About Baku'},d:15,acts:['📖 Oxu','🏙️ Bakı','⛲ Çeşmə']}]},
+    { day:3, lessons:[{s:'language',t:{az:'Böyük hərflər',ru:'Заглавные буквы',en:'Capital letters'},d:25,acts:['📝 Böyük hərflər','✏️ Yaz','🎯 Başlanğıc']},
+      {s:'logic',t:{az:'Xəritə ilə tanışlıq',ru:'Знакомство с картой',en:'Map introduction'},d:20,acts:['🗺️ Xəritə','📍 Bakı','🧭 İstiqamət']},
+      {s:'creativity',t:{az:'Xalça naxışları',ru:'Ковровые узоры',en:'Carpet patterns'},d:20,acts:['🔶 Naxış','🎨 Boyala','✨ Bəzə']}]},
+    { day:4, lessons:[{s:'nature',t:{az:'Azərbaycan meyvələri',ru:'Азербайджанские фрукты',en:'Azerbaijani fruits'},d:25,acts:['🍇 Üzüm','🍑 Şaftalı','🍎 Alma','🍒 Gilas']},
+      {s:'math',t:{az:'Problemlər həll et',ru:'Решаем задачи',en:'Solve problems'},d:20,acts:['📊 Məsələ','💡 Düşün','✅ Həll et']},
+      {s:'physical',t:{az:'Milli oyunlar',ru:'Национальные игры',en:'National games'},d:20,acts:['🏃 Bayatı','⚽ Kəndirbaz','🎮 Yallı']}]},
+    { day:5, lessons:[{s:'language',t:{az:'Şeir: Vətən sevgisi',ru:'Стихи о Родине',en:'Poem about homeland'},d:25,acts:['📜 Şeir','🔊 Əzbərlə','🎤 Söylə']},
+      {s:'drawing',t:{az:'Bakı qalası',ru:'Бакинская крепость',en:'Baku fortress'},d:25,acts:['🏰 Qala','✏️ Çək','🎨 Boyala']}]}
+  ]},
+  { week:6, days:[
+    { day:1, lessons:[{s:'language',t:{az:'Peşə sözləri',ru:'Слова о профессиях',en:'Profession words'},d:25,acts:['👨‍⚕️ Həkim','👩‍🏫 Müəllim','👨‍🍳 Aşpaz']},
+      {s:'drawing',t:{az:'Həkim, müəllim, aşpaz',ru:'Врач, учитель, повар',en:'Doctor, teacher, chef'},d:20,acts:['🎨 Çək','✏️ Bəzə','💬 Anlat']},
+      {s:'logic',t:{az:'Kim nə istifadə edir?',ru:'Кто что использует?',en:'Who uses what?'},d:20,acts:['🔍 Tap','🔗 Birləşdir','✅ Düzəlt']}]},
+    { day:2, lessons:[{s:'math',t:{az:'Sadə məsələlər',ru:'Простые задачи',en:'Simple word problems'},d:25,acts:['📊 Məsələ','💡 Düşün','✅ Həll et']},
+      {s:'reading',t:{az:'Nağıl: Cəfər müəllim',ru:'Учитель Джафар',en:'Story: Teacher Jafar'},d:20,acts:['📖 Oxu','💬 Müzakirə','🎨 Çək']},
+      {s:'music',t:{az:'Böyüyəndə kim olacam',ru:'Кем я стану',en:'What will I be?'},d:15,acts:['🎵 Mahnı','💭 Xəyal','🎤 Oxu']}]},
+    { day:3, lessons:[{s:'language',t:{az:'Cümlə qurma',ru:'Составляем предложения',en:'Building sentences'},d:25,acts:['📝 Söz','➡️ Cümlə','✅ Oxu']},
+      {s:'creativity',t:{az:'Forma geyimi hazırla',ru:'Делаем форму',en:'Make a uniform'},d:25,acts:['✂️ Kəs','🖊️ Yap','👕 Geyim']},
+      {s:'physical',t:{az:'Peşə rol oyunları',ru:'Ролевые игры',en:'Role play games'},d:20,acts:['👨‍⚕️ Həkim oyna','👩‍🏫 Müəllim ol','👨‍🍳 Aşpaz']}]},
+    { day:4, lessons:[{s:'nature',t:{az:'Fermər peşəsi',ru:'Профессия фермера',en:'Farmer profession'},d:25,acts:['🌱 Əkin','🚜 Traktor','🌾 Məhsul']},
+      {s:'math',t:{az:'Pul ilə tanışlıq',ru:'Знакомство с деньгами',en:'Money introduction'},d:20,acts:['💰 Pul','🛍️ Al-sat','🔢 Say']}]},
+    { day:5, lessons:[{s:'language',t:{az:'Həftə sonu təkrar',ru:'Повторение',en:'Week review'},d:25,acts:['📚 Bütün peşələr','🔄 Təkrar','✅ Test']},
+      {s:'drawing',t:{az:'Gələcəkdə kim olacam?',ru:'Кем я стану?',en:'Who will I be?'},d:25,acts:['💭 Xəyal qur','🎨 Çək','📝 Anlat']}]}
+  ]},
+  { week:7, days:[
+    { day:1, lessons:[{s:'math',t:{az:'Onluqlar — 10, 20, 30',ru:'Десятки',en:'Tens'},d:25,acts:['🔟 On','2️⃣0️⃣ İyirmi','3️⃣0️⃣ Otuz']},
+      {s:'language',t:{az:'Hekayə oxumaq',ru:'Читаем рассказ',en:'Reading a story'},d:20,acts:['📖 Oxu','💬 Anlat','🎨 Çək']},
+      {s:'logic',t:{az:'Sxem və cədvəllər',ru:'Схемы и таблицы',en:'Schemes and tables'},d:20,acts:['📊 Cədvəl','📈 Qrafik','🔍 Bax']}]},
+    { day:2, lessons:[{s:'math',t:{az:'Ölçmə — uzun/qısa',ru:'Длинный/короткий',en:'Long/short measurement'},d:25,acts:['📏 Ölçək','🔍 Müqayisə','📝 Yaz']},
+      {s:'nature',t:{az:'Vaxt — saat',ru:'Время — часы',en:'Time — clock'},d:20,acts:['🕐 Saat','⏰ Vaxt','📅 Gün/Gecə']},
+      {s:'drawing',t:{az:'Saat çəkirik',ru:'Рисуем часы',en:'Drawing a clock'},d:15,acts:['⭕ Dairə','🔢 Rəqəmlər','🕐 Əqrəblər']}]},
+    { day:3, lessons:[{s:'math',t:{az:'Toplama-çıxma oyunu',ru:'Игра на сложение-вычитание',en:'Addition-subtraction game'},d:30,acts:['➕ Topla','➖ Çıxart','🎮 Yarış']},
+      {s:'logic',t:{az:'Zəka sualları',ru:'Загадки на логику',en:'Logic riddles'},d:20,acts:['🧩 Tapmaca','💡 Düşün','✅ Həll et']},
+      {s:'creativity',t:{az:'Rəqəmli kollaj',ru:'Числовой коллаж',en:'Number collage'},d:15,acts:['✂️ Kəs','🔢 Rəqəmlər','🎨 Yap']}]},
+    { day:4, lessons:[{s:'math',t:{az:'Həndəsə — sahə anlayışı',ru:'Площадь',en:'Area concept'},d:25,acts:['📐 Sahə','🔲 Kvadrat','📏 Ölç']},
+      {s:'physical',t:{az:'Say oyunları',ru:'Считалки',en:'Counting games'},d:20,acts:['1️⃣2️⃣3️⃣ Say','🏃 Qaç','🎯 Hədəf']},
+      {s:'music',t:{az:'Ritmik saymaq',ru:'Ритмический счёт',en:'Rhythmic counting'},d:15,acts:['🎵 Ritm','🔢 Say','👏 Döy']}]},
+    { day:5, lessons:[{s:'math',t:{az:'Həftə sonu riyaziyyat yarışı',ru:'Математическое соревнование',en:'Math competition'},d:30,acts:['🏆 Yarış','🧮 Hesabla','🥇 Qaliblər']},
+      {s:'drawing',t:{az:'Rəqəm rəsmi',ru:'Числовой рисунок',en:'Number drawing'},d:25,acts:['🔢 Rəqəm seç','🎨 Çevir','✨ Rəsm yarat']}]}
+  ]},
+  { week:8, days:[
+    { day:1, lessons:[{s:'language',t:{az:'Bütün hərflər — təkrar',ru:'Все буквы — повторение',en:'All letters review'},d:30,acts:['📝 A-dan Z-yə','🔄 Təkrar','✅ Test']},
+      {s:'math',t:{az:'1-20 bütün əməliyyatlar',ru:'Все операции 1-20',en:'All operations 1-20'},d:25,acts:['➕➖ Əməliyyatlar','🎮 Oyun','🏆 Test']}]},
+    { day:2, lessons:[{s:'reading',t:{az:'Heca ilə oxumaq',ru:'Чтение по слогам',en:'Reading by syllables'},d:30,acts:['📖 Heca','🔊 Oxu','✅ Anlat']},
+      {s:'logic',t:{az:'Məntiqi düşünmə yekun',ru:'Итог логического мышления',en:'Logic final'},d:25,acts:['🧩 Test','💡 Həll et','🏆 Nəticə']}]},
+    { day:3, lessons:[{s:'creativity',t:{az:'Portfolionu hazırla',ru:'Готовим портфолио',en:'Prepare portfolio'},d:30,acts:['📁 Topla','🖼️ Düzəlt','✨ Bəzə']},
+      {s:'drawing',t:{az:'Məktəbimi xəyal edirəm',ru:'Мечтаю о школе',en:'I dream of school'},d:25,acts:['🏫 Məktəb','🎒 Çanta','✏️ Dəftər']}]},
+    { day:4, lessons:[{s:'language',t:{az:'Qısa hekayə yaz',ru:'Пишем мини-рассказ',en:'Write a short story'},d:25,acts:['📝 Başlanğıc','📖 Orta','🎯 Son']},
+      {s:'math',t:{az:'Final test — riyaziyyat',ru:'Финальный тест',en:'Final math test'},d:25,acts:['🧮 Hesabla','📊 Nəticə','🏆 Bal']},
+      {s:'nature',t:{az:'Dünya haqqında bildiklərim',ru:'Что я знаю о мире',en:'What I know about the world'},d:15,acts:['🌍 Dünya','🌿 Təbiət','❤️ Sevgi']}]},
+    { day:5, lessons:[{s:'creativity',t:{az:'🎉 Məzuniyyət Günü!',ru:'🎉 День выпуска!',en:'🎉 Graduation Day!'},d:60,acts:['🎓 Diplom','🎉 Bayram','📸 Foto','🎁 Hədiyyə']}]}
+  ]}
+];
+
+const LESSONS_DATA = [
+  {id:1,s:'math',t:{az:'Rəqəmlər 1-5 öyrənək',ru:'Учим цифры 1-5',en:'Learn numbers 1-5'},desc:{az:'Barmaqla saymaq, kart oyunu ilə 1-5 rəqəmlərini öyrənirik',ru:'Учим цифры 1-5 через игры',en:'Learn numbers 1-5 through games'},d:20,diff:'easy',acts:[{e:'🖐️',az:'Barmaqlarla saymaq',ru:'Считаем пальцами',en:'Count with fingers'},{e:'🃏',az:'Kart oyunu',ru:'Карточная игра',en:'Card game'},{e:'🎵',az:'Saymaq mahnısı',ru:'Песня-считалка',en:'Counting song'},{e:'✏️',az:'Rəqəmləri yaz',ru:'Пишем цифры',en:'Write numbers'}],obj:{az:['Rəqəmləri tanımaq','Saymağı öyrənmək','Yazmaq bacarığı'],ru:['Знать цифры','Научиться считать','Навык письма'],en:['Recognize numbers','Learn to count','Writing skill']}},
+  {id:2,s:'language',t:{az:'A hərfi — Alma',ru:'Буква А — Яблоко',en:'Letter A — Apple'},desc:{az:'A hərfini alma vasitəsilə öyrənirik',ru:'Учим букву А через яблоко',en:'Learn letter A through apple'},d:25,diff:'easy',acts:[{e:'🍎',az:'Alma göstər, A deyirik',ru:'Показываем яблоко',en:'Show apple, say A'},{e:'✏️',az:'Hərfi yazırıq',ru:'Пишем букву',en:'Write the letter'},{e:'🎨',az:'A hərfini boyayırıq',ru:'Раскрашиваем А',en:'Color letter A'},{e:'🔤',az:'A ilə 3 söz',ru:'3 слова на А',en:'3 words with A'}],obj:{az:['A hərfini tanımaq','Yazmaq','Söz bilgisi'],ru:['Знать букву А','Писать','Словарный запас'],en:['Know letter A','Write it','Vocabulary']}},
+  {id:3,s:'drawing',t:{az:'Günəş çəkirik',ru:'Рисуем солнышко',en:'Drawing the sun'},desc:{az:'Dairə və düz xətt — ilk rəsm dərsi',ru:'Первый урок рисования — круг и линии',en:'First drawing lesson — circle and lines'},d:20,diff:'easy',acts:[{e:'⭕',az:'Dairə çızmaq',ru:'Рисуем круг',en:'Draw a circle'},{e:'☀️',az:'Şüalar əlavə etmək',ru:'Добавляем лучи',en:'Add rays'},{e:'🌈',az:'Boyalarla boyamaq',ru:'Раскрашиваем красками',en:'Color with paints'}],obj:{az:['Dairə çızmaq','Boyalar ilə işləmək','Yaradıcılıq'],ru:['Рисовать круг','Работать с красками','Творчество'],en:['Draw a circle','Work with paints','Creativity']}},
+  {id:4,s:'nature',t:{az:'Fəsillər — Payız',ru:'Времена года — Осень',en:'Seasons — Autumn'},desc:{az:'Payız fəslinin əlamətlərini öyrənirik',ru:'Изучаем признаки осени',en:'Learn signs of autumn'},d:20,diff:'easy',acts:[{e:'🍂',az:'Yarpaqları toplamaq',ru:'Собираем листья',en:'Collect leaves'},{e:'🌧️',az:'Payız hava haqqında',ru:'О погоде осенью',en:'About autumn weather'},{e:'🎨',az:'Payız ağacı çəkmək',ru:'Рисуем осеннее дерево',en:'Draw an autumn tree'}],obj:{az:['Fəsilləri tanımaq','Müşahidə etmək','Rəsm'],ru:['Знать времена года','Наблюдать','Рисование'],en:['Know seasons','Observe','Drawing']}},
+  {id:5,s:'logic',t:{az:'Fiqurları çeşidləyək',ru:'Сортируем фигуры',en:'Sort the shapes'},desc:{az:'Dairə, üçbucaq, kvadrat — fiqurları tanı və çeşidlə',ru:'Круг, треугольник, квадрат',en:'Circle, triangle, square'},d:20,diff:'easy',acts:[{e:'🔴',az:'Dairəni tap',ru:'Найди круг',en:'Find the circle'},{e:'🔺',az:'Üçbucağı say',ru:'Посчитай треугольники',en:'Count triangles'},{e:'🟦',az:'Kvadratla rəsm',ru:'Нарисуй с квадратом',en:'Draw with square'}],obj:{az:['Fiqurları tanımaq','Çeşidləmək','Məntiq'],ru:['Знать фигуры','Сортировать','Логика'],en:['Know shapes','Sort','Logic']}},
+  {id:6,s:'music',t:{az:'Azərbaycan uşaq mahnıları',ru:'Азербайджанские детские песни',en:'Azerbaijani children songs'},desc:{az:'Azərbaycan xalq uşaq mahnıları ilə musiqi dərsi',ru:'Урок музыки с народными песнями',en:'Music lesson with folk songs'},d:15,diff:'easy',acts:[{e:'🎵',az:'"Getdim yara baxçasına"',ru:'Народная песня',en:'Folk song'},{e:'👏',az:'Ritm tutmaq',ru:'Держать ритм',en:'Keep rhythm'},{e:'🕺',az:'Rəqs hərəkətləri',ru:'Танцевальные движения',en:'Dance moves'}],obj:{az:['Musiqi hissi','Ritm','İfadəlilik'],ru:['Музыкальное чувство','Ритм','Выразительность'],en:['Music sense','Rhythm','Expression']}},
+  {id:7,s:'creativity',t:{az:'Plastilin ilə meyvələr',ru:'Фрукты из пластилина',en:'Plasticine fruits'},desc:{az:'Plastilin ilə müxtəlif meyvələr hazırlayırıq',ru:'Лепим фрукты из пластилина',en:'Making fruits from plasticine'},d:25,diff:'easy',acts:[{e:'🍎',az:'Alma yarat',ru:'Лепим яблоко',en:'Make an apple'},{e:'🍌',az:'Banan düzəlt',ru:'Лепим банан',en:'Make a banana'},{e:'🍊',az:'Portağal hazırla',ru:'Лепим апельсин',en:'Make an orange'}],obj:{az:['Əl bacarıqları','Yaradıcılıq','Rəng anlayışı'],ru:['Мелкая моторика','Творчество','Понятие цвета'],en:['Fine motor skills','Creativity','Color concept']}},
+  {id:8,s:'physical',t:{az:'Barmaq oyunları',ru:'Пальчиковые игры',en:'Finger games'},desc:{az:'Əl barmaqlarını inkişaf etdirən oyunlar',ru:'Игры для развития пальцев',en:'Games to develop fingers'},d:15,diff:'easy',acts:[{e:'👆',az:'Barmaq hərəkətləri',ru:'Движения пальцев',en:'Finger movements'},{e:'🎵',az:'Mahnı ilə oyun',ru:'Игра с песней',en:'Game with song'},{e:'🤸',az:'Gimnastika',ru:'Гимнастика',en:'Gymnastics'}],obj:{az:['Əl inkişafı','Koordinasiya','Çeviklik'],ru:['Развитие рук','Координация','Ловкость'],en:['Hand development','Coordination','Agility']}},
+  {id:9,s:'reading',t:{az:'Nağıl: Üç Dovşan',ru:'Сказка: Три Зайца',en:'Story: Three Rabbits'},desc:{az:'Maraqlı nağıl oxuyuruq, müzakirə edirik',ru:'Читаем и обсуждаем сказку',en:'Read and discuss the fairy tale'},d:25,diff:'easy',acts:[{e:'📖',az:'Nağılı oxu',ru:'Читаем сказку',en:'Read the story'},{e:'💬',az:'Sualları cavabla',ru:'Отвечаем на вопросы',en:'Answer questions'},{e:'🎨',az:'Personaj çək',ru:'Рисуем персонажа',en:'Draw a character'}],obj:{az:['Dinləmə bacarığı','Anlama','Nitq inkişafı'],ru:['Навык слушания','Понимание','Развитие речи'],en:['Listening skill','Comprehension','Speech development']]}
+];
+
+const REPORT_DATA = [
+  {date:'02.09.2024',lessons:'Hərflər + Rəqəmlər + Rəsm',grade:8,behavior:'🌟 Əla / Отлично / Excellent',note:'Çox yaxşı diqqət göstərdi'},
+  {date:'03.09.2024',lessons:'Fiqurlar + Musiqi + B.T.',grade:7,behavior:'😊 Yaxşı / Хорошо / Good',note:'Fəal iştirak etdi'},
+  {date:'04.09.2024',lessons:'Hərflər + Rəqəmlər + Musiqi',grade:9,behavior:'🌟 Əla / Отлично / Excellent',note:'Əla nəticə göstərdi'},
+  {date:'05.09.2024',lessons:'Nağıl + Rəsm + Təbiət',grade:8,behavior:'😊 Yaxşı / Хорошо / Good',note:'Nağılı çox sevdi'},
+  {date:'06.09.2024',lessons:'Məntiq + Yaradıcılıq + B.T.',grade:9,behavior:'🌟 Əla / Отлично / Excellent',note:'Çox yaradıcıdır'},
+  {date:'09.09.2024',lessons:'Ailə sözləri + Toplama + Rəsm',grade:8,behavior:'😊 Yaxşı / Хорошо / Good',note:'Ailə mövzusunu sevdi'},
+  {date:'10.09.2024',lessons:'Nağıl + Rənglər + Musiqi',grade:7,behavior:'😐 Qənaətbəxş / Удовл. / Satisf.',note:'Bir az yorğun idi'},
+  {date:'11.09.2024',lessons:'Hərflər + Çıxma + Heyvanlar',grade:9,behavior:'🌟 Əla / Отлично / Excellent',note:'Heyvanları çox sevirdi'},
+];
+
+// ========== STATE ==========
+let currentLang = 'az';
+let currentWeek = 1;
+let currentDay = null;
+let currentSubjectFilter = 'all';
+
+// ========== INIT ==========
+function init() {
+  renderWeekTabs();
+  renderWeekContent();
+  renderSubjectFilters();
+  renderLessons();
+  renderReportTable();
+  renderSubjectBars();
+  applyLang();
+}
+
+// ========== LANG ==========
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn:nth-child(${lang==='az'?1:lang==='ru'?2:3})`).classList.add('active');
+  applyLang();
+  renderWeekContent();
+  renderLessons();
+  renderReportTable();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-az]').forEach(el => {
+    el.textContent = el.getAttribute(`data-${currentLang}`) || el.getAttribute('data-az');
+  });
+}
+
+// ========== PAGE NAVIGATION ==========
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ========== CURRICULUM ==========
+function renderWeekTabs() {
+  const container = document.getElementById('weekTabs');
+  container.innerHTML = '';
+  for (let i = 1; i <= 8; i++) {
+    const btn = document.createElement('button');
+    btn.className = `week-tab${i === currentWeek ? ' active' : ''}`;
+    btn.textContent = `${LANGS[currentLang].week} ${i}`;
+    btn.onclick = () => { currentWeek = i; currentDay = null; renderWeekTabs(); renderWeekContent(); };
+    container.appendChild(btn);
+  }
+}
+
+function renderWeekContent() {
+  const L = LANGS[currentLang];
+  const weekData = CURRICULUM[currentWeek - 1];
+  const container = document.getElementById('weekContent');
+  const theme = LANGS[currentLang].weeks[currentWeek - 1];
+
+  let html = `<div class="theme-banner"><div class="week-num">${L.week} ${currentWeek}</div><h2>${theme}</h2></div>`;
+
+  // Day tabs
+  html += `<div class="day-grid">`;
+  for (let d = 1; d <= 5; d++) {
+    const dayData = weekData.days.find(x => x.day === d);
+    const cnt = dayData?.lessons?.length || 0;
+    html += `<div class="day-card${currentDay === d ? ' active' : ''}" onclick="selectDay(${d})">
+      <div class="day-name">${L.days[d]}</div>
+      <div class="day-count">${cnt} ${L.lessons}</div>
+    </div>`;
+  }
+  html += `</div>`;
+
+  if (currentDay) {
+    const dayData = weekData.days.find(x => x.day === currentDay);
+    html += `<div class="section-title">📚 ${L.days[currentDay]} — ${dayData?.lessons?.length || 0} ${L.lessons}</div>`;
+    if (dayData?.lessons) {
+      dayData.lessons.forEach(lesson => {
+        const title = lesson.t[currentLang] || lesson.t.az;
+        html += `<div class="lesson-card" style="border-color:${SUBJECT_COLORS[lesson.s]}">
+          <div style="display:flex;gap:14px;align-items:center">
+            <div class="lesson-icon" style="background:${SUBJECT_COLORS[lesson.s]}">${SUBJECT_EMOJI[lesson.s]}</div>
+            <div style="flex:1">
+              <div class="lesson-title">${title}</div>
+              <div class="lesson-meta">⏱ ${lesson.d} ${L.min} • ${L.subjects[lesson.s]}</div>
+              <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+                <span class="badge badge-primary">${L.subjects[lesson.s]}</span>
+                <span class="badge badge-success">⏱ ${lesson.d} ${L.min}</span>
+              </div>
+            </div>
+          </div>
+          <div class="chips">${lesson.acts.map(a => `<span class="chip">${a}</span>`).join('')}</div>
+        </div>`;
+      });
+    }
+  } else {
+    html += `<div style="text-align:center;padding:32px;color:var(--light)">
+      <div style="font-size:48px;margin-bottom:12px">👆</div>
+      <p style="font-size:15px;font-weight:600">${currentLang==='az'?'Günü seçin':currentLang==='ru'?'Выберите день':'Select a day'}</p>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function selectDay(d) {
+  currentDay = currentDay === d ? null : d;
+  renderWeekTabs();
+  renderWeekContent();
+}
+
+// ========== LESSONS ==========
+function renderSubjectFilters() {
+  const L = LANGS[currentLang];
+  const subjects = ['all','math','language','reading','drawing','music','physical','nature','logic','creativity'];
+  const container = document.getElementById('subjectFilters');
+  container.innerHTML = subjects.map(s => `
+    <button onclick="filterSubject('${s}')" style="padding:10px 16px;border-radius:12px;border:2px solid;border-color:${s==='all'?'var(--primary)':SUBJECT_COLORS[s]||'var(--primary)'};background:${currentSubjectFilter===s?(s==='all'?'var(--primary)':SUBJECT_COLORS[s]||'var(--primary)'):'white'};color:${currentSubjectFilter===s?'white':'var(--text)'};font-weight:700;cursor:pointer;font-family:Nunito,sans-serif;font-size:13px;transition:all 0.2s">
+      ${s==='all'?'🎯 '+L.all:SUBJECT_EMOJI[s]+' '+L.subjects[s]}
+    </button>
+  `).join('');
+}
+
+function filterSubject(s) {
+  currentSubjectFilter = s;
+  renderSubjectFilters();
+  renderLessons();
+}
+
+function renderLessons() {
+  const L = LANGS[currentLang];
+  const filtered = currentSubjectFilter === 'all' ? LESSONS_DATA : LESSONS_DATA.filter(l => l.s === currentSubjectFilter);
+  const container = document.getElementById('lessonsGrid');
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="card" style="text-align:center;padding:60px"><div style="font-size:48px">📚</div><p style="color:var(--light);margin-top:12px">${currentLang==='az'?'Bu fənn üçün nümunə tapılmadı':currentLang==='ru'?'Примеров для этого предмета нет':'No examples for this subject'}</p></div>`;
+    return;
+  }
+  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">` +
+    filtered.map(lesson => {
+      const title = lesson.t[currentLang] || lesson.t.az;
+      const desc = lesson.desc[currentLang] || lesson.desc.az;
+      const objs = lesson.obj[currentLang] || lesson.obj.az;
+      return `<div class="lesson-card" style="border-color:${SUBJECT_COLORS[lesson.s]};cursor:pointer" onclick="this.querySelector('.lesson-detail').style.display=this.querySelector('.lesson-detail').style.display==='none'?'block':'none'">
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:10px">
+          <div class="lesson-icon" style="background:${SUBJECT_COLORS[lesson.s]}">${SUBJECT_EMOJI[lesson.s]}</div>
+          <div style="flex:1">
+            <div class="lesson-title">${title}</div>
+            <div class="lesson-meta">⏱ ${lesson.d} ${L.min} • ${L.subjects[lesson.s]}</div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--light);margin-bottom:10px">${desc}</p>
+        <div class="chips">${lesson.acts.slice(0,3).map(a=>`<span class="chip">${a.e} ${a[currentLang]||a.az}</span>`).join('')}${lesson.acts.length>3?`<span class="chip">+${lesson.acts.length-3}</span>`:''}</div>
+        <div class="lesson-detail" style="display:none;margin-top:14px;padding-top:14px;border-top:2px solid #f0f0f0">
+          <div style="font-weight:800;font-size:13px;margin-bottom:8px">🎯 ${L.objectives}:</div>
+          ${objs.map(o=>`<div style="font-size:13px;padding:3px 0">✅ ${o}</div>`).join('')}
+          <div style="font-weight:800;font-size:13px;margin:12px 0 8px">🎮 ${L.activities}:</div>
+          ${lesson.acts.map(a=>`<div style="padding:7px 10px;background:var(--bg);border-radius:10px;margin-bottom:6px;font-size:13px;font-weight:600">${a.e} ${a[currentLang]||a.az}</div>`).join('')}
+        </div>
+      </div>`;
+    }).join('') + `</div>`;
+}
+
+// ========== REPORT ==========
+function renderReportTable() {
+  const tbody = document.getElementById('reportTable');
+  tbody.innerHTML = REPORT_DATA.map(r => {
+    const cls = r.grade >= 8 ? 'grade-a' : r.grade >= 6 ? 'grade-b' : 'grade-c';
+    return `<tr>
+      <td style="font-weight:700">${r.date}</td>
+      <td style="font-size:13px;color:var(--light)">${r.lessons}</td>
+      <td><span class="grade ${cls}">${r.grade}/10</span></td>
+      <td style="font-size:13px">${r.behavior}</td>
+      <td style="font-size:12px;color:var(--light)">${r.note}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSubjectBars() {
+  const subjects = [
+    {s:'math',grade:8.5},{s:'language',grade:8.0},{s:'reading',grade:9.0},
+    {s:'drawing',grade:9.5},{s:'music',grade:8.0},{s:'logic',grade:7.5},
+    {s:'nature',grade:8.5},{s:'creativity',grade:9.0},{s:'physical',grade:8.0}
+  ];
+  const container = document.getElementById('subjectBars');
+  container.innerHTML = subjects.map(item => {
+    const color = item.grade >= 8.5 ? '#6BCB77' : item.grade >= 7 ? '#FFB347' : '#FF6B6B';
+    const L = LANGS[currentLang];
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-weight:700;font-size:14px">${SUBJECT_EMOJI[item.s]} ${L.subjects[item.s]}</span>
+        <span style="font-weight:800;color:${color}">${item.grade}/10</span>
+      </div>
+      <div style="background:#f0f0f0;border-radius:20px;height:10px;overflow:hidden">
+        <div style="width:${item.grade*10}%;background:${color};height:100%;border-radius:20px;transition:width 0.8s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
