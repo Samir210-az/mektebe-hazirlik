@@ -1,0 +1,57 @@
+{
+  "common": {
+    "loading": "Loading...", "save": "Save", "cancel": "Cancel", "delete": "Delete",
+    "edit": "Edit", "add": "Add", "search": "Search", "back": "Back", "next": "Next",
+    "yes": "Yes", "no": "No", "success": "Success", "error": "Error", "close": "Close",
+    "view": "View", "profile": "Profile", "logout": "Logout", "settings": "Settings",
+    "dashboard": "Dashboard", "date": "Date", "name": "Name", "email": "Email",
+    "phone": "Phone", "password": "Password", "role": "Role", "status": "Status",
+    "active": "Active", "inactive": "Inactive"
+  },
+  "nav": {
+    "home": "Home", "curriculum": "Curriculum", "students": "Students",
+    "teachers": "Teachers", "lessons": "Lessons", "records": "Records",
+    "reports": "Reports", "admin": "Admin Panel"
+  },
+  "auth": {
+    "login": "Login", "register": "Register", "loginTitle": "Sign in to your account",
+    "registerTitle": "Create a new account", "emailPlaceholder": "Your email address",
+    "passwordPlaceholder": "Your password", "namePlaceholder": "Full name",
+    "forgotPassword": "Forgot password", "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?", "adminRole": "Admin",
+    "teacherRole": "Teacher", "parentRole": "Parent"
+  },
+  "student": {
+    "title": "Students", "addStudent": "Add Student", "firstName": "First Name",
+    "lastName": "Last Name", "birthDate": "Birth Date", "age": "Age",
+    "group": "Group", "teacher": "Teacher", "parent": "Parent",
+    "enrollmentDate": "Enrollment Date", "programStart": "Program Start",
+    "programEnd": "Program End", "noStudents": "No students found",
+    "viewProfile": "View Profile", "report": "Report"
+  },
+  "record": {
+    "title": "Daily Record", "addRecord": "Add Record", "todayRecord": "Today's Record",
+    "lessons": "Completed Lessons", "grades": "Grades", "behavior": "Behavior",
+    "teacherNote": "Teacher's Note", "parentMessage": "Message to Parents",
+    "behaviorExcellent": "Excellent", "behaviorGood": "Good",
+    "behaviorSatisfactory": "Satisfactory", "behaviorNeedsImprovement": "Needs Improvement",
+    "attention": "Attention", "activity": "Activity", "cooperation": "Cooperation",
+    "gradeSubject": "Subject", "gradeScore": "Grade (1-10)", "noRecordToday": "No record for today"
+  },
+  "report": {
+    "title": "2-Month Report", "averageGrade": "Average Grade", "totalDays": "Total Days",
+    "subjectAverages": "Subject Averages", "behaviorStats": "Behavior Statistics",
+    "weeklyProgress": "Weekly Progress", "downloadReport": "Download Report",
+    "excellent": "Excellent", "good": "Good", "satisfactory": "Satisfactory", "needsImprovement": "Needs Improvement"
+  },
+  "curriculum": {
+    "title": "2-Month Curriculum", "week": "Week", "day": "Day", "theme": "Theme",
+    "lessons": "Lessons", "duration": "Duration", "dqq": "min",
+    "activities": "Activities", "objectives": "Objectives", "materials": "Materials",
+    "subjects": {
+      "math": "Mathematics", "language": "Language", "reading": "Reading", "drawing": "Drawing",
+      "music": "Music", "physical": "Physical Ed.", "nature": "Nature", "logic": "Logic", "creativity": "Creativity"
+    }
+  },
+  "footer": { "text": "School Preparation Program", "rights": "All rights reserved", "by": "Developed by" }
+}
