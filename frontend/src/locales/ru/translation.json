@@ -1,0 +1,57 @@
+{
+  "common": {
+    "loading": "Загрузка...", "save": "Сохранить", "cancel": "Отмена", "delete": "Удалить",
+    "edit": "Изменить", "add": "Добавить", "search": "Поиск", "back": "Назад", "next": "Далее",
+    "yes": "Да", "no": "Нет", "success": "Успешно", "error": "Ошибка", "close": "Закрыть",
+    "view": "Просмотр", "profile": "Профиль", "logout": "Выход", "settings": "Настройки",
+    "dashboard": "Панель управления", "date": "Дата", "name": "Имя", "email": "Эл. почта",
+    "phone": "Телефон", "password": "Пароль", "role": "Роль", "status": "Статус",
+    "active": "Активный", "inactive": "Неактивный"
+  },
+  "nav": {
+    "home": "Главная", "curriculum": "Учебный план", "students": "Ученики",
+    "teachers": "Учителя", "lessons": "Занятия", "records": "Записи",
+    "reports": "Отчёты", "admin": "Панель Администратора"
+  },
+  "auth": {
+    "login": "Войти", "register": "Регистрация", "loginTitle": "Войдите в аккаунт",
+    "registerTitle": "Создайте новый аккаунт", "emailPlaceholder": "Ваш адрес электронной почты",
+    "passwordPlaceholder": "Ваш пароль", "namePlaceholder": "Имя и фамилия",
+    "forgotPassword": "Забыли пароль", "noAccount": "Нет аккаунта?",
+    "haveAccount": "Уже есть аккаунт?", "adminRole": "Администратор",
+    "teacherRole": "Учитель", "parentRole": "Родитель"
+  },
+  "student": {
+    "title": "Ученики", "addStudent": "Добавить ученика", "firstName": "Имя",
+    "lastName": "Фамилия", "birthDate": "Дата рождения", "age": "Возраст",
+    "group": "Группа", "teacher": "Учитель", "parent": "Родитель",
+    "enrollmentDate": "Дата записи", "programStart": "Начало программы",
+    "programEnd": "Конец программы", "noStudents": "Ученики не найдены",
+    "viewProfile": "Просмотр профиля", "report": "Отчёт"
+  },
+  "record": {
+    "title": "Ежедневная запись", "addRecord": "Добавить запись", "todayRecord": "Запись сегодня",
+    "lessons": "Проведённые занятия", "grades": "Оценки", "behavior": "Поведение",
+    "teacherNote": "Заметка учителя", "parentMessage": "Сообщение родителям",
+    "behaviorExcellent": "Отлично", "behaviorGood": "Хорошо",
+    "behaviorSatisfactory": "Удовлетворительно", "behaviorNeedsImprovement": "Нужно улучшить",
+    "attention": "Внимание", "activity": "Активность", "cooperation": "Сотрудничество",
+    "gradeSubject": "Предмет", "gradeScore": "Оценка (1-10)", "noRecordToday": "Нет записей на сегодня"
+  },
+  "report": {
+    "title": "2-Месячный Отчёт", "averageGrade": "Средняя оценка", "totalDays": "Всего дней",
+    "subjectAverages": "Среднее по предметам", "behaviorStats": "Статистика поведения",
+    "weeklyProgress": "Еженедельный прогресс", "downloadReport": "Скачать отчёт",
+    "excellent": "Отлично", "good": "Хорошо", "satisfactory": "Удовлетворительно", "needsImprovement": "Требует улучшения"
+  },
+  "curriculum": {
+    "title": "2-Месячный Учебный план", "week": "Неделя", "day": "День", "theme": "Тема",
+    "lessons": "Уроки", "duration": "Длительность", "dqq": "мин",
+    "activities": "Деятельность", "objectives": "Цели", "materials": "Материалы",
+    "subjects": {
+      "math": "Математика", "language": "Язык", "reading": "Чтение", "drawing": "Рисование",
+      "music": "Музыка", "physical": "Физкультура", "nature": "Природа", "logic": "Логика", "creativity": "Творчество"
+    }
+  },
+  "footer": { "text": "Программа подготовки к школе", "rights": "Все права защищены", "by": "Разработано" }
+}
