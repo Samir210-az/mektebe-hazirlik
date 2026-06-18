@@ -111,7 +111,7 @@ tr:hover td{background:rgba(108,99,255,0.03);}
 .day-cnt{font-size:11px;color:var(--light);margin-top:3px;}
 
 /* LESSON CARD */
-.lesson-card{background:white;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.07);border-left:5px solid;margin-bottom:12px;}
+.lesson-card{background:white;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.07);border-left:5px solid;margin-bottom:12px;position:relative;}
 .lesson-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
 .chip{background:var(--bg);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
@@ -147,6 +147,7 @@ tr:hover td{background:rgba(108,99,255,0.03);}
 /* SCHEDULE */
 @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-18px) scale(1.04)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes bounceIn{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 
 /* Lesson cards */
@@ -321,15 +322,19 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
     <div class="main-content">
       <!-- HOME -->
       <div class="page active" id="page-home">
-        <div class="hero">
-          <div style="font-size:52px;margin-bottom:12px">🎒</div>
-          <h1 id="heroTitle">Məktəbəqədər Hazırlıq Proqramı</h1>
-          <p id="heroSub">5-6 yaş uşaqları üçün Azərbaycana uyğunlaşdırılmış 2 aylıq tədris proqramı</p>
-          <div class="hero-badges">
-            <span class="hero-badge">🇦🇿 Azərbaycan</span>
-            <span class="hero-badge">📅 8 Həftə</span>
-            <span class="hero-badge">📚 9 Fənn</span>
-            <span class="hero-badge">👶 5-6 Yaş</span>
+        <div style="background:linear-gradient(135deg,#6C63FF 0%,#a78bfa 50%,#FF6B9D 100%);border-radius:24px;padding:32px 28px;color:white;margin-bottom:22px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.08);border-radius:50%"></div>
+          <div style="position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%"></div>
+          <div style="position:relative;z-index:1">
+            <div style="font-size:40px;margin-bottom:10px">🎒</div>
+            <h1 id="heroTitle" style="font-size:22px;font-weight:900;margin-bottom:6px;line-height:1.3">Məktəbəqədər Hazırlıq</h1>
+            <p id="heroSub" style="font-size:13px;opacity:0.85;margin-bottom:16px;line-height:1.5">5-6 yaş uşaqları üçün 2 aylıq tədris proqramı</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700">🇦🇿 Azərbaycan</span>
+              <span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700">📅 8 Həftə</span>
+              <span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700">📚 9 Fənn</span>
+              <span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700">👶 5-6 Yaş</span>
+            </div>
           </div>
         </div>
         <div class="grid-4" id="homeStats"></div>
@@ -522,7 +527,7 @@ const LANGS = {
 };
 
 const SE = {math:'🔢',language:'📝',reading:'📖',drawing:'🎨',music:'🎵',physical:'⚽',nature:'🌿',logic:'🧩',creativity:'✂️'};
-const SC = {math:'#667eea',language:'#f5576c',reading:'#4facfe',drawing:'#43e97b',music:'#fa709a',physical:'#30cfd0',nature:'#6BCB77',logic:'#fccb90',creativity:'#a18cd1'};
+const SC = {math:'#6366f1',language:'#e11d48',reading:'#0891b2',drawing:'#059669',music:'#7c3aed',physical:'#0d9488',nature:'#16a34a',logic:'#d97706',creativity:'#c026d3'};
 const ANN_COLORS = {elan:'#6C63FF',xeber:'#FFD93D',tedbir:'#FF6B9D',tebrk:'#6BCB77'};
 
 let lang = 'az';
@@ -733,6 +738,11 @@ function renderHome(){
   const records=getRecords();
   const L=LANGS[lang];
 
+  // Update hero texts
+  var heroTitleEl=document.getElementById('heroTitle');
+  var heroSubEl=document.getElementById('heroSub');
+  if(heroTitleEl) heroTitleEl.textContent=lang==='ru'?'Дошкольная подготовка':lang==='en'?'Preschool Preparation':'Məktəbəqədər Hazırlıq';
+  if(heroSubEl) heroSubEl.textContent=lang==='ru'?'2-месячная программа для детей 5-6 лет':lang==='en'?'2-month program for children aged 5-6':'5-6 yaş uşaqları üçün 2 aylıq tədris proqramı';
   document.getElementById('homeStats').innerHTML=[
     {icon:'📅',v:8,l:{az:'Həftə',ru:'Недели',en:'Weeks'},c:'#6C63FF'},
     {icon:'👦',v:students.length,l:{az:'Uşaqlar',ru:'Ученики',en:'Students'},c:'#FF6B9D'},
@@ -858,7 +868,26 @@ function renderCurriculum(){
       </div>`;
     });
   } else {
-    html+=`<div style="text-align:center;padding:40px;color:var(--light)"><div style="font-size:42px">👆</div><p style="margin-top:10px;font-weight:700">${lang==='az'?'Günü seçin':lang==='ru'?'Выберите день':'Select a day'}</p></div>`;
+    // Show all days overview
+    html += '<div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">';
+    wk.days.forEach(function(dd){
+      if(!dd||!dd.lessons) return;
+      var dayName = L.days[dd.day];
+      html += '<div style="background:white;border-radius:16px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,0.07)">';
+      html += '<div style="font-weight:900;font-size:14px;color:#2D3748;margin-bottom:10px;display:flex;align-items:center;gap:8px"><span style="background:#6C63FF22;color:#6C63FF;padding:2px 10px;border-radius:20px;font-size:12px">'+dayName+'</span></div>';
+      html += '<div style="display:flex;flex-direction:column;gap:6px">';
+      dd.lessons.forEach(function(l){
+        var title=l.t[lang]||l.t.az;
+        var col=SC[l.s]||'#6C63FF';
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:'+col+'0d;border-radius:10px;border-left:3px solid '+col+'">';
+        html += '<span style="font-size:18px">'+SE[l.s]+'</span>';
+        html += '<div><div style="font-weight:700;font-size:13px">'+title+'</div>';
+        html += '<div style="font-size:11px;color:#718096">⏱ '+l.d+' '+(L.min)+'</div></div>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
   }
   document.getElementById('weekContent').innerHTML=html;
 }
@@ -868,15 +897,98 @@ function selectDay(d){currentDay=currentDay===d?null:d;renderCurriculum();}
 // LESSONS
 // ============================================================
 const LESSONS_DATA=[
-  {id:1,s:'math',t:{az:'Rəqəmlər 1-5',ru:'Цифры 1-5',en:'Numbers 1-5'},desc:{az:'Barmaqla saymaq, kart oyunu',ru:'Считаем пальцами',en:'Count with fingers'},d:20,acts:[{e:'🖐️',az:'Barmaqla say',ru:'Пальцами',en:'Fingers'},{e:'🃏',az:'Kart oyunu',ru:'Карты',en:'Card game'},{e:'🎵',az:'Mahnı',ru:'Песня',en:'Song'},{e:'✏️',az:'Yaz',ru:'Пиши',en:'Write'}],obj:{az:['Rəqəmləri tanı','Say','Yaz'],ru:['Знать цифры','Считать','Писать'],en:['Recognize','Count','Write']}},
-  {id:2,s:'language',t:{az:'A hərfi — Alma',ru:'Буква А — Яблоко',en:'Letter A — Apple'},desc:{az:'A hərfini alma ilə öyrənirik',ru:'Буква А через яблоко',en:'Letter A through apple'},d:25,acts:[{e:'🍎',az:'Alma göstər',ru:'Яблоко',en:'Apple'},{e:'✏️',az:'Hərfi yaz',ru:'Пиши букву',en:'Write letter'},{e:'🎨',az:'Boyala',ru:'Раскрась',en:'Color'},{e:'🔤',az:'3 söz tap',ru:'3 слова',en:'3 words'}],obj:{az:['A hərfi','Yazmaq','Söz bilgisi'],ru:['Буква А','Письмо','Словарный запас'],en:['Letter A','Writing','Vocabulary']}},
-  {id:3,s:'drawing',t:{az:'Günəş çəkirik',ru:'Рисуем солнышко',en:'Draw the sun'},desc:{az:'Dairə və xətt — ilk rəsm',ru:'Первый урок рисования',en:'First drawing lesson'},d:20,acts:[{e:'⭕',az:'Dairə',ru:'Круг',en:'Circle'},{e:'☀️',az:'Şüalar',ru:'Лучи',en:'Rays'},{e:'🌈',az:'Boyala',ru:'Раскрась',en:'Color'}],obj:{az:['Dairə çək','Boyalar','Yaradıcılıq'],ru:['Рисовать','Краски','Творчество'],en:['Drawing','Colors','Creativity']}},
-  {id:4,s:'nature',t:{az:'Fəsillər — Payız',ru:'Времена года — Осень',en:'Seasons — Autumn'},desc:{az:'Payız əlamətlərini öyrənirik',ru:'Признаки осени',en:'Signs of autumn'},d:20,acts:[{e:'🍂',az:'Yarpaqlar',ru:'Листья',en:'Leaves'},{e:'🌧️',az:'Hava',ru:'Погода',en:'Weather'},{e:'🎨',az:'Payız ağacı çək',ru:'Осеннее дерево',en:'Autumn tree'}],obj:{az:['Fəsillər','Müşahidə','Rəsm'],ru:['Сезоны','Наблюдение','Рисование'],en:['Seasons','Observation','Drawing']}},
-  {id:5,s:'logic',t:{az:'Fiqurları çeşidlə',ru:'Сортируем фигуры',en:'Sort shapes'},desc:{az:'Dairə, üçbucaq, kvadrat',ru:'Круг, треугольник, квадрат',en:'Circle, triangle, square'},d:20,acts:[{e:'🔴',az:'Dairə tap',ru:'Найди круг',en:'Find circle'},{e:'🔺',az:'Üçbucaq say',ru:'Треугольник',en:'Triangle'},{e:'🟦',az:'Kvadrat rəsm',ru:'Квадрат',en:'Square'}],obj:{az:['Fiqurlar','Çeşidlə','Məntiq'],ru:['Фигуры','Сортировка','Логика'],en:['Shapes','Sorting','Logic']}},
-  {id:6,s:'music',t:{az:'Azərbaycan mahnıları',ru:'Азербайджанские песни',en:'Azerbaijani songs'},desc:{az:'Xalq uşaq mahnıları',ru:'Народные детские песни',en:'Folk children songs'},d:15,acts:[{e:'🎵',az:'Mahnı oxu',ru:'Пой',en:'Sing'},{e:'👏',az:'Ritm tut',ru:'Ритм',en:'Rhythm'},{e:'🕺',az:'Rəqs',ru:'Танец',en:'Dance'}],obj:{az:['Musiqi','Ritm','İfadə'],ru:['Музыка','Ритм','Выразительность'],en:['Music','Rhythm','Expression']}},
-  {id:7,s:'creativity',t:{az:'Plastilin meyvələr',ru:'Фрукты из пластилина',en:'Plasticine fruits'},desc:{az:'Plastilin ilə meyvə düzəlt',ru:'Лепим фрукты',en:'Making fruits'},d:25,acts:[{e:'🍎',az:'Alma',ru:'Яблоко',en:'Apple'},{e:'🍌',az:'Banan',ru:'Банан',en:'Banana'},{e:'🍊',az:'Portağal',ru:'Апельсин',en:'Orange'}],obj:{az:['Əl bacarığı','Yaradıcılıq','Rənglər'],ru:['Моторика','Творчество','Цвета'],en:['Motor skills','Creativity','Colors']}},
-  {id:8,s:'physical',t:{az:'Barmaq oyunları',ru:'Пальчиковые игры',en:'Finger games'},desc:{az:'Əl barmaqları inkişafı',ru:'Развитие пальцев',en:'Finger development'},d:15,acts:[{e:'👆',az:'Barmaq hərəkəti',ru:'Движения',en:'Movements'},{e:'🎵',az:'Mahnı ilə',ru:'С песней',en:'With song'},{e:'🤸',az:'Gimnastika',ru:'Гимнастика',en:'Gymnastics'}],obj:{az:['Əl inkişafı','Koordinasiya','Çeviklik'],ru:['Развитие рук','Координация','Ловкость'],en:['Hand dev.','Coordination','Agility']}},
-  {id:9,s:'reading',t:{az:'Nağıl: Üç Dovşan',ru:'Три Зайца',en:'Three Rabbits'},desc:{az:'Maraqlı nağıl, müzakirə',ru:'Сказка и обсуждение',en:'Story and discussion'},d:25,acts:[{e:'📖',az:'Nağıl oxu',ru:'Читаем',en:'Read'},{e:'💬',az:'Suallar',ru:'Вопросы',en:'Questions'},{e:'🎨',az:'Personaj çək',ru:'Рисуем',en:'Draw character'}],obj:{az:['Dinləmə','Anlama','Nitq'],ru:['Слушание','Понимание','Речь'],en:['Listening','Comprehension','Speech']}}
+  {id:1,s:'math',t:{az:'Rəqəmlər 1-5',ru:'Цифры 1-5',en:'Numbers 1-5'},
+   desc:{az:'Barmaqla saymaq, kart oyunu və vizual tapşırıqlarla 1-dən 5-ə kimi rəqəmləri öyrənirik.',ru:'Изучаем цифры от 1 до 5 через счет на пальцах, карточки и визуальные задания.',en:'Learning numbers 1-5 through finger counting, card games and visual exercises.'},
+   d:25,
+   obj:{az:['1-dən 5-ə kimi rəqəmləri tanıyır','Rəqəmləri ardıcıl saya bilir','Rəqəmi müvafiq miqdarla əlaqələndirir'],ru:['Узнает цифры от 1 до 5','Считает по порядку','Связывает цифру с количеством'],en:['Recognizes numbers 1-5','Counts in sequence','Matches number to quantity']},
+   acts:[{e:'🖐️',az:'Barmaqla say',ru:'Считать пальцами',en:'Count fingers'},{e:'🃏',az:'Kart oyunu',ru:'Карточная игра',en:'Card game'},{e:'🎵',az:'Sayma mahnısı',ru:'Считалка',en:'Counting song'},{e:'✏️',az:'Rəqəm yaz',ru:'Написать цифры',en:'Write numbers'}],
+   materials:{az:['Sayma kartları','Rəngli kublar','Karandaş'],ru:['Счётные карточки','Цветные кубики','Карандаш'],en:['Counting cards','Colored cubes','Pencil']}},
+
+  {id:2,s:'language',t:{az:'"A" hərfi — ANA',ru:'Буква "А" — МАМА',en:'Letter "A" — MOTHER'},
+   desc:{az:'Birinci hərf "A" — ən gözəl söz ANA ilə öyrənirik. Yazmaq, oxumaq, söz qurmaq.',ru:'Первая буква "А" — учим через слово МАМА. Пишем, читаем, составляем слова.',en:'First letter "A" — learning through the word MOTHER. Writing, reading, word building.'},
+   d:30,
+   obj:{az:['A hərfini tanıyır və yazır','A ilə başlayan sözlər tapır','Böyük və kiçik A fərqini bilir'],ru:['Узнает и пишет букву А','Находит слова на А','Различает заглавную и строчную'],en:['Recognizes and writes letter A','Finds words starting with A','Knows uppercase/lowercase']},
+   acts:[{e:'✍️',az:'A hərfi yaz',ru:'Написать букву А',en:'Write letter A'},{e:'🍎',az:'Alma — A sözü',ru:'Яблоко на А',en:'Apple — A word'},{e:'📖',az:'ANA sözü oxu',ru:'Читать слово МАМА',en:'Read word MOTHER'},{e:'🎨',az:'A ilə rəsm',ru:'Рисунок на А',en:'Drawing with A'}],
+   materials:{az:['Kağız','Qələm','Qırmızı karandaş','Alma şəkli'],ru:['Бумага','Ручка','Красный карандаш','Картинка яблока'],en:['Paper','Pencil','Red crayon','Apple picture']}},
+
+  {id:3,s:'reading',t:{az:'Heca oxuma: AB, BA',ru:'Чтение слогов: АБ, БА',en:'Reading syllables: AB, BA'},
+   desc:{az:'A və B hərflərini birləşdirib ilk hecalarımızı oxuyuruq: AB, BA, ABA, BABA.',ru:'Соединяем А и Б, читаем первые слоги: АБ, БА, АБА, БАБА.',en:'Combining A and B to read first syllables: AB, BA, ABA, BABA.'},
+   d:25,
+   obj:{az:['AB, BA hecalarını oxuyur','Hərfləri birləşdirir','BABA sözünü oxuyur'],ru:['Читает слоги АБ, БА','Соединяет буквы','Читает слово БАБА'],en:['Reads syllables AB, BA','Combines letters','Reads word BABA']},
+   acts:[{e:'🔤',az:'Heca oxu',ru:'Читать слоги',en:'Read syllables'},{e:'🃏',az:'Hərf kartları',ru:'Буквенные карточки',en:'Letter cards'},{e:'📣',az:'Yüksək səslə',ru:'Вслух читать',en:'Read aloud'},{e:'✏️',az:'Heca yaz',ru:'Написать слог',en:'Write syllable'}],
+   materials:{az:['A, B hərfli kartlar','Lövhə','Marker'],ru:['Карточки А, Б','Доска','Маркер'],en:['Letter cards A, B','Board','Marker']}},
+
+  {id:4,s:'drawing',t:{az:'Portret — Özümü çəkirəm',ru:'Портрет — Рисую себя',en:'Portrait — Drawing myself'},
+   desc:{az:'Uşaqlar özlərinin portretini çəkir. Dairə, xətt, rəng — yaradıcılıq başlayır!',ru:'Дети рисуют автопортрет. Круг, линия, цвет — начало творчества!',en:'Children draw self-portraits. Circle, line, color — creativity begins!'},
+   d:30,
+   obj:{az:['Dairəvi formadan üz çəkir','Bədən hissələrini əlavə edir','Rəngləri düzgün istifadə edir'],ru:['Рисует лицо из круга','Добавляет части тела','Правильно использует цвета'],en:['Draws face from circle','Adds body parts','Uses colors correctly']},
+   acts:[{e:'⭕',az:'Dairə — baş',ru:'Круг — голова',en:'Circle — head'},{e:'👀',az:'Göz, burun, ağız',ru:'Глаза, нос, рот',en:'Eyes, nose, mouth'},{e:'🎨',az:'Rənglər',ru:'Раскраска',en:'Coloring'},{e:'🖼️',az:'Sərgi',ru:'Выставка',en:'Gallery'}],
+   materials:{az:['A4 kağız','Rəngli karandaş','Karandaş','Silgi'],ru:['Бумага А4','Цветные карандаши','Карандаш','Ластик'],en:['A4 paper','Colored pencils','Pencil','Eraser']}},
+
+  {id:5,s:'math',t:{az:'Rəqəmlər 6-10',ru:'Цифры 6-10',en:'Numbers 6-10'},
+   desc:{az:'Rəqəmlər 6-dan 10-a. Toplama: 5+1=6, 5+2=7... Sayma oyunları.',ru:'Цифры от 6 до 10. Сложение: 5+1=6, 5+2=7... Игры на счет.',en:'Numbers 6-10. Addition: 5+1=6, 5+2=7... Counting games.'},
+   d:25,
+   obj:{az:['6-10 rəqəmlərini tanıyır','5-dən davam edərək sayır','Sadə toplama edir'],ru:['Узнает цифры 6-10','Продолжает счет от 5','Выполняет простое сложение'],en:['Recognizes numbers 6-10','Continues counting from 5','Does simple addition']},
+   acts:[{e:'🔢',az:'Say: 6-7-8-9-10',ru:'Считай: 6-7-8-9-10',en:'Count: 6-7-8-9-10'},{e:'🎮',az:'Rəqəm oyunu',ru:'Игра с цифрами',en:'Number game'},{e:'✏️',az:'Rəqəm yaz',ru:'Написать цифры',en:'Write numbers'},{e:'🍎',az:'Meyvə say',ru:'Считать фрукты',en:'Count fruits'}],
+   materials:{az:['Sayma kartları','Meyvə şəkilləri','Karandaş'],ru:['Счётные карточки','Картинки фруктов','Карандаш'],en:['Counting cards','Fruit pictures','Pencil']}},
+
+  {id:6,s:'language',t:{az:'"B" hərfi — BAL ARISI',ru:'Буква "Б" — ПЧЕЛА',en:'Letter "B" — BEE'},
+   desc:{az:'"B" hərfini Bal arısı ilə öyrənirik. B-BAL, B-BAĞ, B-BARMAQ.',ru:'Букву "Б" учим через пчелу. Б-МЁД, Б-БАГ, Б-ПАЛЕЦ.',en:'Learning "B" through the bee. B-BALL, B-BAG, B-BEAR.'},
+   d:30,
+   obj:{az:['B hərfini tanıyır və yazır','B ilə başlayan sözlər tapır','B hərfini A ilə birləşdirir'],ru:['Знает и пишет Б','Находит слова на Б','Соединяет Б с А'],en:['Knows and writes B','Finds B words','Combines B with A']},
+   acts:[{e:'✍️',az:'B hərfi yaz',ru:'Написать Б',en:'Write B'},{e:'🐝',az:'Bal arısı',ru:'Пчела',en:'Bee'},{e:'🔤',az:'B-A = BA',ru:'Б-А = БА',en:'B-A = BA'},{e:'🎨',az:'B ilə rəsm',ru:'Рисунок на Б',en:'Drawing with B'}],
+   materials:{az:['Kağız','Qələm','Bal arısı şəkli','Yaşıl karandaş'],ru:['Бумага','Ручка','Картинка пчелы','Зелёный карандаш'],en:['Paper','Pencil','Bee picture','Green crayon']}},
+
+  {id:7,s:'nature',t:{az:'Ailə üzvləri',ru:'Члены семьи',en:'Family members'},
+   desc:{az:'Ailə üzvlərini öyrənirik: ana, ata, bacı, qardaş, nənə, baba. Ailə ağacı hazırlayırıq.',ru:'Изучаем членов семьи: мама, папа, сестра, брат, бабушка, дедушка. Делаем семейное дерево.',en:'Learning family members: mother, father, sister, brother, grandmother, grandfather. Making a family tree.'},
+   d:25,
+   obj:{az:['Ailə üzvlərini adlandırır','Ailə ağacını başa düşür','Ailə haqqında danışır'],ru:['Называет членов семьи','Понимает семейное дерево','Рассказывает о семье'],en:['Names family members','Understands family tree','Talks about family']},
+   acts:[{e:'👨‍👩‍👧',az:'Ailə şəkli',ru:'Семейное фото',en:'Family photo'},{e:'🌳',az:'Ailə ağacı',ru:'Семейное дерево',en:'Family tree'},{e:'💬',az:'Ailə haqqında danış',ru:'Рассказать о семье',en:'Talk about family'},{e:'🎨',az:'Ailə rəsmi',ru:'Рисунок семьи',en:'Family drawing'}],
+   materials:{az:['A3 kağız','Rəngli karandaş','Ailə şəkli'],ru:['Бумага А3','Цветные карандаши','Семейное фото'],en:['A3 paper','Colored pencils','Family photo']}},
+
+  {id:8,s:'logic',t:{az:'Fiqurlar & Rənglər',ru:'Фигуры & Цвета',en:'Shapes & Colors'},
+   desc:{az:'Dairə, kvadrat, üçbucaq, düzbucaqlı. 7 əsas rəng. Cütləşdirmə oyunları.',ru:'Круг, квадрат, треугольник, прямоугольник. 7 основных цветов. Игры на сопоставление.',en:'Circle, square, triangle, rectangle. 7 primary colors. Matching games.'},
+   d:20,
+   obj:{az:['4 əsas fiquru tanıyır','7 rəngi adlandırır','Fiqur-rəng cütlüyü qurur'],ru:['Узнает 4 фигуры','Называет 7 цветов','Составляет пары фигура-цвет'],en:['Knows 4 shapes','Names 7 colors','Matches shape-color pairs']},
+   acts:[{e:'⭕',az:'Dairə',ru:'Круг',en:'Circle'},{e:'🟦',az:'Kvadrat',ru:'Квадрат',en:'Square'},{e:'🔺',az:'Üçbucaq',ru:'Треугольник',en:'Triangle'},{e:'🌈',az:'Rənglər',ru:'Цвета',en:'Colors'}],
+   materials:{az:['Rəngli kartlar','Fiqur şablonları','Rəngli karandaş'],ru:['Цветные карточки','Шаблоны фигур','Цветные карандаши'],en:['Colored cards','Shape templates','Colored pencils']}},
+
+  {id:9,s:'music',t:{az:'Uşaq mahnıları & Ritm',ru:'Детские песни & Ритм',en:'Children songs & Rhythm'},
+   desc:{az:'Sevimli Azərbaycan uşaq mahnıları. Əllə ritm. Musiqi hissi inkişaf edir.',ru:'Любимые азербайджанские детские песни. Ритм руками. Развивается музыкальный слух.',en:'Favorite Azerbaijani children songs. Clapping rhythm. Musical sense develops.'},
+   d:20,
+   obj:{az:['Sadə mahnı oxuyur','Ritmik əl çırpır','Melodiyanı tanıyır'],ru:['Поет простую песню','Ритмично хлопает','Узнает мелодию'],en:['Sings simple song','Claps rhythmically','Recognizes melody']},
+   acts:[{e:'🎵',az:'Mahnı oxu',ru:'Петь',en:'Sing'},{e:'👏',az:'Ritm vur',ru:'Хлопать',en:'Clap'},{e:'🥁',az:'Zərb aləti',ru:'Ударный инструмент',en:'Percussion'},{e:'🎤',az:'Solo oxu',ru:'Петь соло',en:'Solo singing'}],
+   materials:{az:['Musiqi / telefon','Zərb alətləri (isteğe bağlı)'],ru:['Музыка / телефон','Перкуссия (по желанию)'],en:['Music / phone','Percussion (optional)']}},
+
+  {id:10,s:'physical',t:{az:'Koordinasiya oyunları',ru:'Игры на координацию',en:'Coordination games'},
+   desc:{az:'Bədən koordinasiyası, balans, müxtəlif hərəkətlər. Heyvan imitasiyası oyunu.',ru:'Координация тела, баланс, разные движения. Игра в имитацию животных.',en:'Body coordination, balance, various movements. Animal imitation game.'},
+   d:20,
+   obj:{az:['Balansı saxlayır','Koordinasiyanı inkişaf etdirir','Hərəkət oyunlarında iştirak edir'],ru:['Держит баланс','Развивает координацию','Участвует в подвижных играх'],en:['Maintains balance','Develops coordination','Participates in movement games']},
+   acts:[{e:'🦘',az:'Sıçramaq',ru:'Прыгать',en:'Jump'},{e:'🐘',az:'Fil hərəkəti',ru:'Движение слона',en:'Elephant move'},{e:'🌀',az:'Dönmək',ru:'Вращаться',en:'Spin'},{e:'⚖️',az:'Balans',ru:'Баланс',en:'Balance'}],
+   materials:{az:['Geniş yer','Musiqi (isteğe bağlı)'],ru:['Просторное место','Музыка (по желанию)'],en:['Open space','Music (optional)']}},
+
+  {id:11,s:'drawing',t:{az:'Göy qurşağı & 7 rəng',ru:'Радуга & 7 цветов',en:'Rainbow & 7 colors'},
+   desc:{az:'7 rəngi öyrənirik. Göy qurşağı çəkirik. Rəng qarışdırma əyləncəsi.',ru:'Изучаем 7 цветов. Рисуем радугу. Смешиваем цвета.',en:'Learning 7 colors. Drawing rainbow. Color mixing fun.'},
+   d:30,
+   obj:{az:['7 rəngi adlandırır','Göy qurşağı çəkir','Rəngləri sıralayır'],ru:['Называет 7 цветов','Рисует радугу','Упорядочивает цвета'],en:['Names 7 colors','Draws rainbow','Orders colors']},
+   acts:[{e:'🌈',az:'Göy qurşağı',ru:'Радуга',en:'Rainbow'},{e:'🎨',az:'Rəng qarışdır',ru:'Смешать цвета',en:'Mix colors'},{e:'✏️',az:'Yarım dairə',ru:'Полукруг',en:'Semicircle'},{e:'☁️',az:'Bulud əlavə et',ru:'Добавить облако',en:'Add cloud'}],
+   materials:{az:['A4 kağız','7 rəng karandaş','Boya (isteğe bağlı)'],ru:['Бумага А4','7 цветных карандашей','Краски (по желанию)'],en:['A4 paper','7 colored pencils','Paint (optional)']}},
+
+  {id:12,s:'creativity',t:{az:'Ana üçün kart',ru:'Открытка для мамы',en:'Card for mom'},
+   desc:{az:'Anaya/atasına sevgi kartı hazırlayırıq. Əl işi + yazı + rəsm.',ru:'Делаем открытку для мамы/папы. Поделка + письмо + рисунок.',en:'Making love card for mom/dad. Craft + writing + drawing.'},
+   d:25,
+   obj:{az:['Kartı müstəqil hazırlayır','Ürək forması çəkir','ANA sözünü yazır'],
+    ru:['Самостоятельно делает открытку','Рисует сердечко','Пишет слово МАМА'],
+    en:['Makes card independently','Draws heart shape','Writes word MOM']},
+   acts:[{e:'📄',az:'Kağız qatla',ru:'Сложить бумагу',en:'Fold paper'},{e:'❤️',az:'Ürək çək',ru:'Нарисовать сердце',en:'Draw heart'},{e:'✍️',az:'ANA yaz',ru:'Написать МАМА',en:'Write MOM'},{e:'🌸',az:'Bəzə',ru:'Украсить',en:'Decorate'}],
+   materials:{az:['Rəngli kağız','Rəngli karandaş','Stikerlər','Yapışqan'],ru:['Цветная бумага','Цветные карандаши','Наклейки','Клей'],en:['Colored paper','Colored pencils','Stickers','Glue']}},
+
+  {id:13,s:'nature',t:{az:'Heyvanlar: Ev & Meşə',ru:'Животные: Дом & Лес',en:'Animals: Home & Forest'},
+   desc:{az:'Ev heyvanları: it, pişik, inək, at. Meşə heyvanları: ayı, tülkü, canavar. Heyvan səsləri.',ru:'Домашние: собака, кошка, корова, лошадь. Дикие: медведь, лиса, волк. Звуки животных.',en:'Home animals: dog, cat, cow, horse. Forest: bear, fox, wolf. Animal sounds.'},
+   d:25,
+   obj:{az:['Ev heyvanlarını sayır','Meşə heyvanlarını tanıyır','Heyvan səslərini imitasiya edir'],ru:['Называет домашних животных','Узнает диких животных','Имитирует звуки животных'],en:['Names home animals','Knows forest animals','Imitates animal sounds']},
+   acts:[{e:'🐕',az:'İt — hav-hav',ru:'Собака — гав-гав',en:'Dog — woof'},{e:'🐈',az:'Pişik — miyov',ru:'Кошка — мяу',en:'Cat — meow'},{e:'🐻',az:'Ayı',ru:'Медведь',en:'Bear'},{e:'🎭',az:'Heyvan oyunu',ru:'Игра в животных',en:'Animal game'}],
+   materials:{az:['Heyvan şəkilləri','Heyvan kartları'],ru:['Картинки животных','Карточки животных'],en:['Animal pictures','Animal cards']}}
 ];
 
 function renderLessons(){
@@ -886,11 +998,12 @@ function renderLessons(){
     `<button onclick="filterSubj('${s}')" style="padding:8px 14px;border-radius:11px;border:2px solid;border-color:${s==='all'?'var(--primary)':SC[s]||'var(--primary)'};background:${subjectFilter===s?(s==='all'?'var(--primary)':SC[s]||'var(--primary)'):'white'};color:${subjectFilter===s?'white':'var(--text)'};font-weight:700;cursor:pointer;font-family:Nunito,sans-serif;font-size:13px;transition:all .2s">${s==='all'?'🎯 '+L.all:SE[s]+' '+L.subjects[s]}</button>`
   ).join('');
   const filtered=subjectFilter==='all'?LESSONS_DATA:LESSONS_DATA.filter(l=>l.s===subjectFilter);
-  document.getElementById('lessonsGrid').innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">`+filtered.map(l=>{
+  document.getElementById('lessonsGrid').innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">`+filtered.map((l,_li)=>{
     const title=l.t[lang]||l.t.az;
     const desc=l.desc[lang]||l.desc.az;
     const objs=l.obj[lang]||l.obj.az;
-    return `<div class="lesson-card" style="border-color:${SC[l.s]};cursor:pointer" onclick="toggleDetail(this)">
+    return `<div class="lesson-card" style="border-color:${SC[l.s]};cursor:pointer;transition:all .2s" data-lesson-idx="${_li}" onclick="toggleDetail(this)" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px '+SC[l.s]+'33'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div style="position:absolute;top:12px;right:12px;background:${SC[l.s]}18;color:${SC[l.s]};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800">${_li+1}/${filtered.length}</div>
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
         <div class="lesson-icon" style="background:${SC[l.s]}">${SE[l.s]}</div>
         <div>
@@ -900,17 +1013,77 @@ function renderLessons(){
       </div>
       <p style="font-size:13px;color:var(--light);margin-bottom:8px">${desc}</p>
       <div class="chips">${l.acts.slice(0,3).map(a=>`<span class="chip">${a.e} ${a[lang]||a.az}</span>`).join('')}${l.acts.length>3?`<span class="chip">+${l.acts.length-3}</span>`:''}</div>
-      <div class="detail" style="display:none;margin-top:12px;padding-top:12px;border-top:2px solid #f0f0f0">
-        <div style="font-weight:800;font-size:12px;margin-bottom:6px">🎯 ${lang==='az'?'Məqsədlər':lang==='ru'?'Цели':'Objectives'}:</div>
-        ${objs.map(o=>`<div style="font-size:12px;padding:2px 0">✅ ${o}</div>`).join('')}
-        <div style="font-weight:800;font-size:12px;margin:10px 0 6px">🎮 ${lang==='az'?'Fəaliyyətlər':lang==='ru'?'Деятельность':'Activities'}:</div>
-        ${l.acts.map(a=>`<div style="padding:6px 10px;background:var(--bg);border-radius:8px;margin-bottom:5px;font-size:12px;font-weight:600">${a.e} ${a[lang]||a.az}</div>`).join('')}
-      </div>
+
     </div>`;
   }).join('')+`</div>`;
 }
 function filterSubj(s){subjectFilter=s;renderLessons();}
-function toggleDetail(el){const d=el.querySelector('.detail');d.style.display=d.style.display==='none'?'block':'none';}
+function toggleDetail(el){
+  // Get lesson index from data attribute
+  var idx = el.getAttribute('data-lesson-idx');
+  if(idx===null) return;
+  openLessonModal(parseInt(idx));
+}
+function openLessonModal(idx){
+  var l = (subjectFilter==='all'?LESSONS_DATA:LESSONS_DATA.filter(x=>x.s===subjectFilter))[idx];
+  if(!l) return;
+  var L=LANGS[lang];
+  var title=l.t[lang]||l.t.az;
+  var desc=l.desc[lang]||l.desc.az;
+  var objs=l.obj[lang]||l.obj.az;
+  var color=SC[l.s]||'#6C63FF';
+  var icon=SE[l.s]||'📘';
+  var subName=L.subjects[l.s]||l.s;
+  
+  // SVG illustration based on subject
+  var svgMap={
+    math:'<svg viewBox="0 0 80 80" width="72" height="72"><circle cx="40" cy="40" r="38" fill="'+color+'22" stroke="'+color+'" stroke-width="2"/><text x="40" y="30" text-anchor="middle" font-size="16" font-weight="900" fill="'+color+'">1+2</text><text x="40" y="52" text-anchor="middle" font-size="16" font-weight="900" fill="'+color+'">=3</text></svg>',
+    language:'<svg viewBox="0 0 80 80" width="72" height="72"><rect x="8" y="12" width="64" height="56" rx="8" fill="'+color+'22" stroke="'+color+'" stroke-width="2"/><line x1="18" y1="28" x2="62" y2="28" stroke="'+color+'" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="38" x2="55" y2="38" stroke="'+color+'" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="48" x2="48" y2="48" stroke="'+color+'" stroke-width="3" stroke-linecap="round"/><circle cx="40" cy="64" r="8" fill="'+color+'"/><text x="40" y="68" text-anchor="middle" font-size="10" font-weight="900" fill="white">A</text></svg>',
+    reading:'<svg viewBox="0 0 80 80" width="72" height="72"><rect x="10" y="8" width="26" height="64" rx="4" fill="'+color+'22" stroke="'+color+'" stroke-width="2"/><rect x="44" y="8" width="26" height="64" rx="4" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/><line x1="36" y1="8" x2="36" y2="72" stroke="'+color+'" stroke-width="2"/></svg>',
+    drawing:'<svg viewBox="0 0 80 80" width="72" height="72"><circle cx="28" cy="32" r="12" fill="#FF6B6B" opacity=".8"/><circle cx="52" cy="32" r="12" fill="#4facfe" opacity=".8"/><circle cx="40" cy="52" r="12" fill="#43e97b" opacity=".8"/></svg>',
+    music:'<svg viewBox="0 0 80 80" width="72" height="72"><ellipse cx="24" cy="62" rx="12" ry="8" fill="'+color+'44" stroke="'+color+'" stroke-width="2"/><ellipse cx="56" cy="56" rx="12" ry="8" fill="'+color+'44" stroke="'+color+'" stroke-width="2"/><line x1="36" y1="62" x2="36" y2="20" stroke="'+color+'" stroke-width="3"/><line x1="68" y1="56" x2="68" y2="14" stroke="'+color+'" stroke-width="3"/><line x1="36" y1="20" x2="68" y2="14" stroke="'+color+'" stroke-width="3"/></svg>',
+    physical:'<svg viewBox="0 0 80 80" width="72" height="72"><circle cx="40" cy="15" r="8" fill="'+color+'"/><line x1="40" y1="23" x2="40" y2="50" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/><line x1="15" y1="35" x2="65" y2="35" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/><line x1="40" y1="50" x2="22" y2="70" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/><line x1="40" y1="50" x2="58" y2="70" stroke="'+color+'" stroke-width="4" stroke-linecap="round"/></svg>',
+    nature:'<svg viewBox="0 0 80 80" width="72" height="72"><ellipse cx="40" cy="35" rx="24" ry="20" fill="'+color+'44" stroke="'+color+'" stroke-width="2"/><ellipse cx="24" cy="42" rx="16" ry="14" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/><ellipse cx="56" cy="42" rx="16" ry="14" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/><rect x="37" y="50" width="6" height="20" rx="3" fill="#8B4513"/></svg>',
+    logic:'<svg viewBox="0 0 80 80" width="72" height="72"><rect x="10" y="10" width="26" height="26" rx="4" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/><circle cx="55" cy="23" r="13" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/><polygon points="23,55 10,78 36,78" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/><rect x="42" y="48" width="26" height="26" rx="13" fill="'+color+'33" stroke="'+color+'" stroke-width="2"/></svg>',
+    creativity:'<svg viewBox="0 0 80 80" width="72" height="72"><path d="M40 8 L48 28 L70 28 L53 42 L60 62 L40 50 L20 62 L27 42 L10 28 L32 28 Z" fill="'+color+'44" stroke="'+color+'" stroke-width="2"/></svg>'
+  };
+  var svg = svgMap[l.s]||svgMap.logic;
+  
+  var matHtml='';
+  if(l.materials){
+    matHtml='<div style="margin-top:14px"><div style="font-weight:800;font-size:13px;margin-bottom:8px;color:#2D3748">🎒 '+(lang==='az'?'Materiallar':lang==='ru'?'Материалы':'Materials')+':</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+l.materials.map(function(m){return '<span style="background:'+color+'18;color:'+color+';padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">'+m+'</span>';}).join('')+'</div></div>';
+  }
+  
+  var modal='<div class="modal-overlay" onclick="if(event.target===this)closeModal()" style="align-items:flex-end;padding:0">'+
+    '<div style="background:white;border-radius:24px 24px 0 0;padding:0;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUp .3s ease">'+
+      '<div style="background:linear-gradient(135deg,'+color+'22,'+color+'08);padding:24px;border-bottom:2px solid '+color+'22;position:relative">'+
+        '<button onclick="closeModal()" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.08);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">×</button>'+
+        '<div style="display:flex;align-items:center;gap:16px">'+
+          '<div>'+svg+'</div>'+
+          '<div>'+
+            '<div style="font-size:11px;font-weight:800;color:'+color+';text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">'+icon+' '+subName+'</div>'+
+            '<div style="font-size:18px;font-weight:900;color:#2D3748;line-height:1.3">'+title+'</div>'+
+            '<div style="font-size:12px;color:#718096;margin-top:4px">⏱ '+l.d+' '+(L.min)+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="padding:20px">'+
+        '<div style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:16px">'+desc+'</div>'+
+        '<div style="margin-bottom:16px">'+
+          '<div style="font-weight:800;font-size:13px;margin-bottom:8px;color:#2D3748">🎯 '+(lang==='az'?'Məqsədlər':lang==='ru'?'Цели':'Objectives')+':</div>'+
+          '<div style="display:flex;flex-direction:column;gap:6px">'+objs.map(function(o){return '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:'+color+'0d;border-radius:10px;border-left:3px solid '+color+'"><span style="color:'+color+';font-weight:900;font-size:14px;flex-shrink:0">✓</span><span style="font-size:13px;color:#4a5568">'+o+'</span></div>';}).join('')+
+          '</div>'+
+        '</div>'+
+        '<div>'+
+          '<div style="font-weight:800;font-size:13px;margin-bottom:8px;color:#2D3748">🎮 '+(lang==='az'?'Fəaliyyətlər':lang==='ru'?'Деятельность':'Activities')+':</div>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+l.acts.map(function(a){return '<div style="padding:10px 12px;background:#f8f9ff;border-radius:12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px">'+a.e+' <span>'+(a[lang]||a.az)+'</span></div>';}).join('')+'</div>'+
+        '</div>'+
+        matHtml+
+      '</div>'+
+    '</div>'+
+  '</div>';
+  document.getElementById('modalContainer').innerHTML=modal;
+}
 
 // ============================================================
 // ANNOUNCEMENTS
