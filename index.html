@@ -73,7 +73,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;
 }
 .hdr-logo .badge{background:var(--gold);color:var(--g1);padding:2px 10px;border-radius:20px;font-size:12px}
-.hdr-nav{display:flex;gap:4px;flex-wrap:wrap;flex:1;justify-content:center}
+.hdr-nav{display:flex;gap:4px;flex-wrap:nowrap;flex:1;justify-content:center;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .hdr-nav a{
   color:rgba(255,255,255,.8);padding:7px 14px;border-radius:30px;
   font-weight:600;font-size:13px;cursor:pointer;transition:.2s;
@@ -90,7 +90,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .page{display:none;animation:fadeUp .3s ease}
 .page.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.container{max-width:1400px;margin:0 auto;padding:28px 20px 60px}
+.container{max-width:1400px;margin:0 auto;padding:28px 20px 100px}
 .page-title{font-size:26px;color:var(--g1);margin-bottom:6px;font-weight:900;display:flex;align-items:center;gap:10px}
 .page-sub{font-size:14px;color:var(--text2);margin-bottom:24px}
 
@@ -303,7 +303,6 @@ tbody tr:hover td{background:#f6fbf9}
 }
 @media(max-width:480px){
   .days-grid{grid-template-columns:1fr}
-  .hdr-nav{display:none}
 }
 </style>
 </head>
@@ -494,6 +493,24 @@ tbody tr:hover td{background:#f6fbf9}
   </div>
 </div>
 
+<nav style="position:fixed;bottom:0;left:0;right:0;background:var(--g1);display:flex;z-index:200;border-top:2px solid var(--g2);box-shadow:0 -4px 20px rgba(0,0,0,.2)">
+  <button onclick="showPage('home')" id="mnav-home" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
+    <span style="font-size:20px">🏠</span><span>Ana Səh.</span>
+  </button>
+  <button onclick="showPage('lessons')" id="mnav-lessons" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
+    <span style="font-size:20px">📚</span><span>Dərslər</span>
+  </button>
+  <button onclick="showPage('daily')" id="mnav-daily" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
+    <span style="font-size:20px">📅</span><span>Gündəlik</span>
+  </button>
+  <button onclick="showPage('grades')" id="mnav-grades" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
+    <span style="font-size:20px">📝</span><span>Qiymət</span>
+  </button>
+  <button onclick="showPage('report')" id="mnav-report" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
+    <span style="font-size:20px">📊</span><span>Hesabat</span>
+  </button>
+</nav>
+<div style="height:70px"></div>
 <footer class="footer">
   <p>© 2026 AN Psixoloji Dəstək Mərkəzi · <a href="tel:+994554157215">+994 55 415 72 15</a> · <a href="https://instagram.com/s_akhundoff" target="_blank">@s_akhundoff</a></p>
   <small>📍 Nizami r., Rizvan Teymurov 59 · İlk məsləhət <strong style="color:var(--gold)">pulsuzdur</strong> ✓ · By <a href="https://instagram.com/s_akhundoff" target="_blank">s_akhundoff</a></small>
@@ -1101,10 +1118,12 @@ function selectWeek(i){
   currentWeekIdx=i;
   buildWeekStrip();
   showPage('lessons');
+  // ensure lessons rendered
+  if(!document.getElementById('lessonWeeks').children.length) renderLessons();
   setTimeout(function(){
     var block=document.getElementById('wblock-'+i);
     if(block){block.scrollIntoView({behavior:'smooth'});openWeekBlock(block);}
-  },200);
+  },350);
 }
 
 // ================================================================
@@ -1113,10 +1132,23 @@ function selectWeek(i){
 function showPage(p){
   document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active')});
   document.querySelectorAll('.hdr-nav a').forEach(function(el){el.classList.remove('active')});
-  document.getElementById('page-'+p).classList.add('active');
+  var pg=document.getElementById('page-'+p);
+  if(pg) pg.classList.add('active');
   var nav=document.querySelector('.hdr-nav a[data-page="'+p+'"]');
   if(nav) nav.classList.add('active');
+  // bottom nav highlight
+  document.querySelectorAll('.mnav-btn').forEach(function(b){
+    b.style.color='rgba(255,255,255,.7)';
+    b.style.background='transparent';
+  });
+  var mb=document.getElementById('mnav-'+p);
+  if(mb){mb.style.color='var(--gold)';mb.style.background='rgba(255,255,255,.08)';}
   window.scrollTo({top:0,behavior:'smooth'});
+  // render if needed
+  if(p==='lessons'&&document.getElementById('lessonWeeks')&&!document.getElementById('lessonWeeks').children.length) renderLessons();
+  if(p==='daily'&&document.getElementById('dailyContent')&&!document.getElementById('dailyContent').children.length) renderDaily();
+  if(p==='report') renderReport();
+  if(p==='grades') populateSelect();
 }
 
 // ================================================================
