@@ -531,8 +531,8 @@ function currentUser(){ const s=getState(); return getUsers().find(u=>u.id===s.u
 function defaultUsers(){
   return [
     {id:'u1',name:'Admin',email:'admin@hazirlik.az',pwd:'AN2026',role:'admin',phone:'+994501234567',lang:'az',createdAt:new Date().toISOString()},
-    {id:'u2',name:'Leyla Müəllim',email:'teacher@demo.az',pwd:'teacher123',role:'teacher',phone:'+994507654321',lang:'az',createdAt:new Date().toISOString()},
-    {id:'u3',name:'Əli Valideyn',email:'parent@demo.az',pwd:'parent123',role:'parent',phone:'+994559876543',lang:'az',createdAt:new Date().toISOString(),childId:'s1'},
+    {id:'u2',name:'Leyla Müəllim',email:'muellim@hazirlik.az',pwd:'Muellim2026',role:'teacher',phone:'+994507654321',lang:'az',createdAt:new Date().toISOString()},
+    {id:'u3',name:'Əli Valideyn',email:'valideyn@hazirlik.az',pwd:'Valideyn2026',role:'parent',phone:'+994559876543',lang:'az',createdAt:new Date().toISOString(),childId:'s1'},
   ];
 }
 function defaultAnn(){
@@ -561,10 +561,6 @@ function switchAuth(tab){
   document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
   document.getElementById('tabLogin').classList.toggle('active', tab==='login');
   document.getElementById('tabRegister').classList.toggle('active', tab==='register');
-}
-function fillDemo(email,pwd){
-  document.getElementById('loginEmail').value=email;
-  document.getElementById('loginPwd').value=pwd;
 }
 function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
