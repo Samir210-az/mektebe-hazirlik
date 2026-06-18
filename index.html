@@ -1370,6 +1370,15 @@ function openDayPopup(wi,di){
       '</div>';
     }).join('')+
   '</div>';
+  // Add combined homework button at bottom
+  html+='<div style="margin-top:18px;padding:16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:16px">'+
+    '<div style="font-weight:900;color:#166534;font-size:14px;margin-bottom:6px">📚 Günün bütün ev tapşırıqları</div>'+
+    '<div style="font-size:12px;color:#15803d;margin-bottom:10px">'+day.subjects.filter(function(s){return s.hw;}).map(function(s){return '• '+s.s+': '+s.hw.title;}).join('<br>')+'</div>'+
+    '<button onclick="exportDayHW('+wi+','+di+')" style="width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#166534,#16a34a);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">'+
+      '📤 Bütün ev tapşırıqlarını valideyn qrupuna göndər'+
+    '</button>'+
+  '</div>';
+
   document.getElementById('dayPopupContent').innerHTML=html;
   document.getElementById('dayOverlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -1590,55 +1599,172 @@ function applyTranslations(l){
 var _currentHerf=null;
 var _currentRaqam=null;
 var ELIFBA=[
-  {h:'A',k:'a',sz:'ANA',mi:'👩',sozler:['Ana','Alma','At','Ağac','Ayı'],hw:'Dəftərə A hərfini 5 sətir yaz. Hər sətirdə böyük A, kiçik a. Yanına alma şəkli çək.'},
-  {h:'B',k:'b',sz:'BAL',mi:'🍯',sozler:['Bal','Bağ','Balıq','Barmaq','Böcək'],hw:'Dəftərə B hərfini 5 sətir yaz. Bal arısı çək — B üçün.'},
-  {h:'C',k:'c',sz:'CAM',mi:'🪟',sozler:['Cam','Cib','Cücə','Ceyran'],hw:'Dəftərə C hərfini 5 sətir yaz. Cam şəkli çək.'},
-  {h:'Ç',k:'ç',sz:'ÇİÇƏK',mi:'🌸',sozler:['Çiçək','Çörək','Çay','Çanta'],hw:'Dəftərə Ç hərfini 5 sətir yaz. Çiçək çək.'},
-  {h:'D',k:'d',sz:'DAĞ',mi:'⛰️',sozler:['Dağ','Dəniz','Dost','Dərs'],hw:'Dəftərə D hərfini 5 sətir yaz. Dağ şəkli çək.'},
-  {h:'E',k:'e',sz:'EV',mi:'🏠',sozler:['Ev','El','Eşşək','Enik'],hw:'Dəftərə E hərfini 5 sətir yaz. Ev çək.'},
-  {h:'Ə',k:'ə',sz:'ƏL',mi:'✋',sozler:['Əl','Əkin','Ət','Əjdaha'],hw:'Dəftərə Ə hərfini 5 sətir yaz. Əl şəkli çək.'},
-  {h:'F',k:'f',sz:'FİL',mi:'🐘',sozler:['Fil','Fındıq','Fərq','Fırça'],hw:'Dəftərə F hərfini 5 sətir yaz. Fil çək.'},
-  {h:'G',k:'g',sz:'GÜL',mi:'🌹',sozler:['Gül','Göz','Gəmi','Günəş'],hw:'Dəftərə G hərfini 5 sətir yaz. Gül çək.'},
-  {h:'Ğ',k:'ğ',sz:'BAĞÇA',mi:'🌿',sozler:['Bağça','Ağac','Dağ','Yağış'],hw:'Dəftərə Ğ hərfini 5 sətir yaz. Bağça çək.'},
-  {h:'H',k:'h',sz:'HEYVan',mi:'🐾',sozler:['Heyvan','Həyat','Həkim','Hava'],hw:'Dəftərə H hərfini 5 sətir yaz. Heyvan çək.'},
-  {h:'X',k:'x',sz:'XƏBƏR',mi:'📰',sozler:['Xəbər','Xörək','Xəzər','Xalq'],hw:'Dəftərə X hərfini 5 sətir yaz. Xalçа naxışı çək.'},
-  {h:'I',k:'ı',sz:'ILAN',mi:'🐍',sozler:['İlan','Işıq','Iğ'],hw:'Dəftərə I hərfini 5 sətir yaz.'},
-  {h:'İ',k:'i',sz:'İT',mi:'🐕',sozler:['İt','İnsan','İldırım','İp'],hw:'Dəftərə İ hərfini 5 sətir yaz. İt çək.'},
-  {h:'J',k:'j',sz:'JURNAL',mi:'📔',sozler:['Jurnal','Jalüz','Jilent'],hw:'Dəftərə J hərfini 5 sətir yaz.'},
-  {h:'K',k:'k',sz:'KƏND',mi:'🏡',sozler:['Kənd','Kitab','Karandaş','Körpə'],hw:'Dəftərə K hərfini 5 sətir yaz. Kitab çək.'},
-  {h:'Q',k:'q',sz:'QUŞU',mi:'🐦',sozler:['Quş','Qaz','Qar','Qırmızı'],hw:'Dəftərə Q hərfini 5 sətir yaz. Quş çək.'},
-  {h:'L',k:'l',sz:'LALƏ',mi:'🌷',sozler:['Lalə','Limon','Lövhə','Lent'],hw:'Dəftərə L hərfini 5 sətir yaz. Lalə çək.'},
-  {h:'M',k:'m',sz:'MAMA',mi:'👩',sozler:['Mama','Mənzil','Meyvə','Məktəb'],hw:'Dəftərə M hərfini 5 sətir yaz. Mama çək.'},
-  {h:'N',k:'n',sz:'NƏR',mi:'🌺',sozler:['Nər','Nənə','Nar','Naxış'],hw:'Dəftərə N hərfini 5 sətir yaz. Nar çək.'},
-  {h:'O',k:'o',sz:'OT',mi:'🌿',sozler:['Ot','Orman','Oxlov','Ordek'],hw:'Dəftərə O hərfini 5 sətir yaz.'},
-  {h:'Ö',k:'ö',sz:'ÖRD',mi:'🦆',sozler:['Ördək','Öküz','Öyrənmək'],hw:'Dəftərə Ö hərfini 5 sətir yaz. Ördək çək.'},
-  {h:'P',k:'p',sz:'PAPA',mi:'👨',sozler:['Papa','Palıd','Pəncərə','Parça'],hw:'Dəftərə P hərfini 5 sətir yaz.'},
-  {h:'R',k:'r',sz:'RAHİ',mi:'🌊',sozler:['Rəng','Rəsm','Riyaziyyat','Rüzgar'],hw:'Dəftərə R hərfini 5 sətir yaz. Rəng sxemi çək.'},
-  {h:'S',k:'s',sz:'SU',mi:'💧',sozler:['Su','Səma','Sinif','Saat'],hw:'Dəftərə S hərfini 5 sətir yaz. Səma çək.'},
-  {h:'Ş',k:'ş',sz:'ŞƏKİL',mi:'🖼️',sozler:['Şəkil','Şirniyyat','Şam','Şəhər'],hw:'Dəftərə Ş hərfini 5 sətir yaz. Şəkil çək.'},
-  {h:'T',k:'t',sz:'TAM',mi:'✅',sozler:['Tam','Torpaq','Tərəvəz','Top'],hw:'Dəftərə T hərfini 5 sətir yaz. Top çək.'},
-  {h:'U',k:'u',sz:'UÇMAQ',mi:'✈️',sozler:['Uçmaq','Ululdamaq','Uzun'],hw:'Dəftərə U hərfini 5 sətir yaz.'},
-  {h:'Ü',k:'ü',sz:'ÜZÜM',mi:'🍇',sozler:['Üzüm','Üzgüçülük','Ülkər'],hw:'Dəftərə Ü hərfini 5 sətir yaz. Üzüm çək.'},
-  {h:'V',k:'v',sz:'VƏTƏN',mi:'🇦🇿',sozler:['Vətən','Vaz','Val','Vida'],hw:'Dəftərə V hərfini 5 sətir yaz. Vətən bayrağı çək.'},
-  {h:'Y',k:'y',sz:'YOL',mi:'🛣️',sozler:['Yol','Yarpaq','Yağış','Yemək'],hw:'Dəftərə Y hərfini 5 sətir yaz. Yarpaq çək.'},
-  {h:'Z',k:'z',sz:'ZƏNBİL',mi:'🧺',sozler:['Zənbil','Zəng','Zürafə','Zərif'],hw:'Dəftərə Z hərfini 5 sətir yaz. Zürafə çək.'},
+  {h:'A',k:'a',sz:'ANA',mi:'👩',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="55" rx="34" ry="36" fill="#e53e3e"/><ellipse cx="60" cy="55" rx="34" ry="36" fill="url(#ag)" stroke="#c53030" stroke-width="2"/><defs><radialGradient id="ag" cx="35%" cy="30%"><stop offset="0%" stop-color="#fc8181"/><stop offset="100%" stop-color="#c53030"/></radialGradient></defs><ellipse cx="45" cy="30" rx="12" ry="6" fill="#e53e3e" transform="rotate(-30 45 30)"/><ellipse cx="75" cy="30" rx="12" ry="6" fill="#e53e3e" transform="rotate(30 75 30)"/><rect x="57" y="16" width="6" height="16" rx="3" fill="#744210"/><ellipse cx="75" cy="24" rx="10" ry="5" fill="#276749" transform="rotate(-20 75 24)"/><circle cx="44" cy="48" r="6" fill="rgba(255,255,255,0.2)"/></svg>',
+   sozler:['Ana','Alma','At','Ağac','Ayı'],
+   hw:'Dəftərə A hərfini 5 sətir yaz. Böyük A, kiçik a. Alma şəkli çək.'},
+  {h:'B',k:'b',sz:'BAL',mi:'🐝',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="60" rx="28" ry="22" fill="#f6e05e"/><rect x="40" y="48" width="40" height="8" rx="4" fill="#744210" opacity=".7"/><rect x="40" y="60" width="40" height="8" rx="4" fill="#744210" opacity=".7"/><circle cx="60" cy="45" r="14" fill="#f6e05e" stroke="#744210" stroke-width="2"/><circle cx="54" cy="42" r="3" fill="#1a202c"/><circle cx="66" cy="42" r="3" fill="#1a202c"/><path d="M54 50 Q60 56 66 50" stroke="#744210" stroke-width="2" fill="none"/><path d="M48 38 Q38 26 44 20" stroke="#bee3f8" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M72 38 Q82 26 76 20" stroke="#bee3f8" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+   sozler:['Bal','Bağ','Balıq','Barmaq','Böcək'],
+   hw:'Dəftərə B hərfini 5 sətir yaz. Bal arısı çək.'},
+  {h:'C',k:'c',sz:'CÜCƏ',mi:'🐣',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="62" rx="30" ry="28" fill="#fefcbf" stroke="#d69e2e" stroke-width="2"/><circle cx="60" cy="38" r="20" fill="#fefcbf" stroke="#d69e2e" stroke-width="2"/><circle cx="53" cy="34" r="4" fill="#1a202c"/><circle cx="67" cy="34" r="4" fill="#1a202c"/><path d="M52 44 L60 50 L68 44" fill="#fc8181" stroke="#e53e3e" stroke-width="1"/><path d="M36 58 Q24 50 28 40" stroke="#fefcbf" stroke-width="6" stroke-linecap="round" fill="none"/><path d="M84 58 Q96 50 92 40" stroke="#fefcbf" stroke-width="6" stroke-linecap="round" fill="none"/></svg>',
+   sozler:['Cücə','Cib','Cam','Ceyran'],
+   hw:'Dəftərə C hərfini 5 sətir yaz. Cücə çək.'},
+  {h:'Ç',k:'ç',sz:'ÇİÇƏK',mi:'🌸',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="56" y="55" width="8" height="38" rx="4" fill="#276749"/><ellipse cx="40" cy="48" rx="16" ry="10" fill="#fc8181" transform="rotate(-30 40 48)"/><ellipse cx="80" cy="48" rx="16" ry="10" fill="#fc8181" transform="rotate(30 80 48)"/><ellipse cx="60" cy="30" rx="16" ry="10" fill="#fc8181"/><ellipse cx="60" cy="65" rx="16" ry="10" fill="#fc8181" transform="rotate(90 60 65)"/><circle cx="60" cy="48" r="14" fill="#f6e05e"/><circle cx="60" cy="48" r="6" fill="#d69e2e"/></svg>',
+   sozler:['Çiçək','Çörək','Çay','Çanta'],
+   hw:'Dəftərə Ç hərfini 5 sətir yaz. Çiçək çək.'},
+  {h:'D',k:'d',sz:'DAĞ',mi:'⛰️',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><polygon points="60,10 8,90 112,90" fill="#718096"/><polygon points="60,10 8,90 112,90" fill="url(#dg)"/><defs><linearGradient id="dg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a0aec0"/><stop offset="100%" stop-color="#4a5568"/></linearGradient></defs><polygon points="60,10 42,38 78,38" fill="white" opacity=".8"/><circle cx="92" cy="30" r="12" fill="#f6e05e"/><circle cx="92" cy="30" r="10" fill="#faf089"/></svg>',
+   sozler:['Dağ','Dəniz','Dost','Dərs'],
+   hw:'Dəftərə D hərfini 5 sətir yaz. Dağ çək.'},
+  {h:'E',k:'e',sz:'EV',mi:'🏠',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><polygon points="60,10 10,50 110,50" fill="#e53e3e"/><rect x="20" y="50" width="80" height="45" fill="#f6ad55"/><rect x="46" y="65" width="28" height="30" rx="2" fill="#744210"/><rect x="30" y="58" width="18" height="18" rx="2" fill="#bee3f8"/><rect x="72" y="58" width="18" height="18" rx="2" fill="#bee3f8"/><line x1="39" y1="58" x2="39" y2="76" stroke="#7ec8e3" stroke-width="2"/><line x1="30" y1="67" x2="48" y2="67" stroke="#7ec8e3" stroke-width="2"/></svg>',
+   sozler:['Ev','El','Eşşək','Enik'],
+   hw:'Dəftərə E hərfini 5 sətir yaz. Ev çək.'},
+  {h:'Ə',k:'ə',sz:'ƏL',mi:'✋',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="45" y="40" width="14" height="42" rx="7" fill="#fed7aa"/><rect x="62" y="32" width="13" height="50" rx="6.5" fill="#fed7aa"/><rect x="78" y="36" width="13" height="46" rx="6.5" fill="#fed7aa"/><rect x="30" y="44" width="13" height="36" rx="6.5" fill="#fed7aa"/><ellipse cx="23" cy="62" rx="10" ry="12" fill="#fed7aa"/><rect x="30" y="55" width="65" height="35" rx="8" fill="#fed7aa"/><line x1="62" y1="82" x2="62" y2="88" stroke="#f6ad55" stroke-width="2"/><line x1="78" y1="82" x2="78" y2="88" stroke="#f6ad55" stroke-width="2"/><line x1="45" y1="82" x2="45" y2="88" stroke="#f6ad55" stroke-width="2"/></svg>',
+   sozler:['Əl','Əkin','Ət','Əjdaha'],
+   hw:'Dəftərə Ə hərfini 5 sətir yaz. Əl şəkli çək.'},
+  {h:'F',k:'f',sz:'FİL',mi:'🐘',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="62" cy="60" rx="38" ry="28" fill="#a0aec0"/><circle cx="55" cy="42" r="22" fill="#a0aec0"/><ellipse cx="40" cy="48" rx="10" ry="16" fill="#a0aec0"/><path d="M40 64 Q32 80 38 92 Q42 96 46 92 Q44 82 46 70" fill="#a0aec0" stroke="#718096" stroke-width="1"/><circle cx="48" cy="36" r="4" fill="#1a202c"/><circle cx="49" cy="35" r="1.5" fill="white"/><ellipse cx="56" cy="30" rx="8" ry="5" fill="#fc8181" transform="rotate(-15 56 30)"/><ellipse cx="72" cy="28" rx="8" ry="5" fill="#fc8181" transform="rotate(15 72 28)"/><line x1="72" y1="78" x2="72" y2="94" stroke="#718096" stroke-width="6" stroke-linecap="round"/><line x1="84" y1="78" x2="84" y2="94" stroke="#718096" stroke-width="6" stroke-linecap="round"/><line x1="50" y1="80" x2="50" y2="94" stroke="#718096" stroke-width="6" stroke-linecap="round"/><line x1="38" y1="80" x2="38" y2="94" stroke="#718096" stroke-width="6" stroke-linecap="round"/></svg>',
+   sozler:['Fil','Fındıq','Fərq','Fırça'],
+   hw:'Dəftərə F hərfini 5 sətir yaz. Fil çək.'},
+  {h:'G',k:'g',sz:'GÜL',mi:'🌹',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="56" y="50" width="8" height="44" rx="4" fill="#276749"/><ellipse cx="76" cy="62" rx="14" ry="8" fill="#48bb78" transform="rotate(-30 76 62)"/><ellipse cx="44" cy="68" rx="14" ry="8" fill="#48bb78" transform="rotate(30 44 68)"/><circle cx="60" cy="32" r="20" fill="#fc8181"/><circle cx="60" cy="32" r="14" fill="#e53e3e"/><circle cx="60" cy="32" r="8" fill="#c53030"/><circle cx="60" cy="26" r="5" fill="#fed7aa" opacity=".6"/></svg>',
+   sozler:['Gül','Göz','Gəmi','Günəş'],
+   hw:'Dəftərə G hərfini 5 sətir yaz. Gül çək.'},
+  {h:'Ğ',k:'ğ',sz:'BAĞÇA',mi:'🌿',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="56" y="60" width="8" height="36" rx="4" fill="#744210"/><ellipse cx="60" cy="40" rx="30" ry="32" fill="#276749"/><ellipse cx="42" cy="52" rx="20" ry="18" fill="#38a169"/><ellipse cx="78" cy="52" rx="20" ry="18" fill="#38a169"/><ellipse cx="60" cy="24" rx="18" ry="15" fill="#48bb78"/><circle cx="48" cy="44" r="5" fill="#e53e3e"/><circle cx="70" cy="38" r="4" fill="#e53e3e"/><circle cx="60" cy="56" r="5" fill="#e53e3e"/></svg>',
+   sozler:['Bağça','Ağac','Dağ','Yağış'],
+   hw:'Dəftərə Ğ hərfini 5 sətir yaz. Bağça çək.'},
+  {h:'H',k:'h',sz:'HEYVAN',mi:'🐾',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="62" rx="32" ry="24" fill="#b7791f"/><circle cx="54" cy="42" r="18" fill="#b7791f"/><ellipse cx="46" cy="28" rx="8" ry="12" fill="#b7791f" transform="rotate(-15 46 28)"/><ellipse cx="62" cy="26" rx="8" ry="12" fill="#b7791f" transform="rotate(15 62 26)"/><ellipse cx="47" cy="28" rx="5" ry="8" fill="#fc8181"/><ellipse cx="63" cy="26" rx="5" ry="8" fill="#fc8181"/><circle cx="50" cy="42" r="3" fill="#1a202c"/><circle cx="58" cy="42" r="3" fill="#1a202c"/><ellipse cx="54" cy="50" rx="7" ry="5" fill="#744210"/><circle cx="52" cy="49" r="1.5" fill="#1a202c"/><circle cx="56" cy="49" r="1.5" fill="#1a202c"/></svg>',
+   sozler:['Heyvan','Həyat','Həkim','Hava'],
+   hw:'Dəftərə H hərfini 5 sətir yaz. Heyvan çək.'},
+  {h:'X',k:'x',sz:'XƏZƏl',mi:'🍁',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><path d="M60 15 Q80 35 70 55 Q90 45 100 60 Q80 65 75 80 Q65 65 60 85 Q55 65 45 80 Q40 65 20 60 Q30 45 50 55 Q40 35 60 15Z" fill="#e53e3e"/><path d="M60 15 Q80 35 70 55 Q90 45 100 60 Q80 65 75 80 Q65 65 60 85 Q55 65 45 80 Q40 65 20 60 Q30 45 50 55 Q40 35 60 15Z" fill="url(#xg)"/><defs><linearGradient id="xg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fc8181"/><stop offset="100%" stop-color="#c53030"/></linearGradient></defs><line x1="60" y1="15" x2="60" y2="85" stroke="#c53030" stroke-width="1.5" opacity=".5"/></svg>',
+   sozler:['Xəbər','Xörək','Xəzər','Xalq'],
+   hw:'Dəftərə X hərfini 5 sətir yaz.'},
+  {h:'İ',k:'i',sz:'İT',mi:'🐕',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="65" rx="35" ry="24" fill="#d69e2e"/><circle cx="50" cy="44" r="22" fill="#d69e2e"/><ellipse cx="34" cy="36" rx="10" ry="15" fill="#b7791f" transform="rotate(-10 34 36)"/><ellipse cx="60" cy="30" rx="10" ry="15" fill="#d69e2e" transform="rotate(5 60 30)"/><circle cx="44" cy="42" r="4" fill="#1a202c"/><circle cx="45" cy="41" r="1.5" fill="white"/><ellipse cx="50" cy="54" rx="10" ry="7" fill="#b7791f"/><ellipse cx="50" cy="52" rx="7" ry="4" fill="#fc8181"/><path d="M92 50 Q105 44 108 56 Q100 62 92 56Z" fill="#d69e2e"/><line x1="72" y1="76" x2="72" y2="94" stroke="#b7791f" stroke-width="6" stroke-linecap="round"/><line x1="84" y1="76" x2="84" y2="94" stroke="#b7791f" stroke-width="6" stroke-linecap="round"/><line x1="44" y1="78" x2="44" y2="94" stroke="#b7791f" stroke-width="6" stroke-linecap="round"/><line x1="32" y1="78" x2="32" y2="94" stroke="#b7791f" stroke-width="6" stroke-linecap="round"/></svg>',
+   sozler:['İt','İnsan','İldırım','İp'],
+   hw:'Dəftərə İ hərfini 5 sətir yaz. İt çək.'},
+  {h:'K',k:'k',sz:'KƏND',mi:'🏡',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="25" y="52" width="70" height="42" fill="#f6ad55"/><polygon points="60,12 18,52 102,52" fill="#e53e3e"/><rect x="46" y="68" width="28" height="26" rx="3" fill="#744210"/><rect x="30" y="60" width="20" height="20" rx="2" fill="#bee3f8"/><rect x="70" y="60" width="20" height="20" rx="2" fill="#bee3f8"/><rect x="35" y="60" width="1" height="20" stroke="#7ec8e3" stroke-width="2"/><rect x="30" y="70" width="20" height="1" stroke="#7ec8e3" stroke-width="2"/><circle cx="88" cy="28" r="10" fill="#f6e05e"/></svg>',
+   sozler:['Kənd','Kitab','Karandaş','Körpə'],
+   hw:'Dəftərə K hərfini 5 sətir yaz. Kitab çək.'},
+  {h:'Q',k:'q',sz:'QUŞU',mi:'🐦',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="62" cy="60" rx="28" ry="20" fill="#4299e1"/><circle cx="52" cy="42" r="18" fill="#4299e1"/><path d="M20 44 Q10 30 22 22 Q26 40 44 42Z" fill="#63b3ed"/><path d="M104 44 Q114 30 102 22 Q98 40 76 42Z" fill="#63b3ed"/><circle cx="46" cy="38" r="4" fill="#1a202c"/><circle cx="47" cy="37" r="1.5" fill="white"/><path d="M36 46 Q32 52 38 54 Q44 54 42 46Z" fill="#f6ad55"/><path d="M88 62 Q108 58 110 72 Q96 78 88 70Z" fill="#63b3ed"/></svg>',
+   sozler:['Quş','Qaz','Qar','Qırmızı'],
+   hw:'Dəftərə Q hərfini 5 sətir yaz. Quş çək.'},
+  {h:'L',k:'l',sz:'LALƏ',mi:'🌷',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="56" y="55" width="8" height="40" rx="4" fill="#276749"/><ellipse cx="76" cy="66" rx="14" ry="8" fill="#48bb78" transform="rotate(-30 76 66)"/><ellipse cx="60" cy="30" rx="12" ry="20" fill="#fc8181"/><ellipse cx="48" cy="35" rx="10" ry="18" fill="#e53e3e" transform="rotate(-15 48 35)"/><ellipse cx="72" cy="35" rx="10" ry="18" fill="#e53e3e" transform="rotate(15 72 35)"/><ellipse cx="60" cy="20" rx="8" ry="14" fill="#fc8181" transform="rotate(0 60 20)"/></svg>',
+   sozler:['Lalə','Limon','Lövhə','Lent'],
+   hw:'Dəftərə L hərfini 5 sətir yaz. Lalə çək.'},
+  {h:'M',k:'m',sz:'MEYMUN',mi:'🐒',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="65" rx="30" ry="22" fill="#d69e2e"/><circle cx="60" cy="42" r="22" fill="#d69e2e"/><circle cx="38" cy="38" r="12" fill="#d69e2e" stroke="#b7791f" stroke-width="1"/><circle cx="82" cy="38" r="12" fill="#d69e2e" stroke="#b7791f" stroke-width="1"/><circle cx="38" cy="38" r="7" fill="#fc8181"/><circle cx="82" cy="38" r="7" fill="#fc8181"/><circle cx="53" cy="40" r="4" fill="#1a202c"/><circle cx="67" cy="40" r="4" fill="#1a202c"/><ellipse cx="60" cy="52" rx="12" ry="9" fill="#f6ad55"/><circle cx="57" cy="50" r="2" fill="#744210"/><circle cx="63" cy="50" r="2" fill="#744210"/><path d="M53 56 Q60 62 67 56" stroke="#744210" stroke-width="2" fill="none"/></svg>',
+   sozler:['Meymun','Mama','Mənzil','Məktəb'],
+   hw:'Dəftərə M hərfini 5 sətir yaz. Meymun çək.'},
+  {h:'N',k:'n',sz:'NAR',mi:'🍎',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx="60" cy="58" r="32" fill="#c53030"/><circle cx="60" cy="58" r="32" fill="url(#ng)"/><defs><radialGradient id="ng" cx="35%" cy="30%"><stop offset="0%" stop-color="#fc8181"/><stop offset="100%" stop-color="#9b2c2c"/></radialGradient></defs><rect x="55" y="22" width="10" height="14" rx="5" fill="#276749"/><ellipse cx="72" cy="26" rx="12" ry="6" fill="#276749" transform="rotate(-20 72 26)"/><circle cx="46" cy="50" r="5" fill="rgba(255,255,255,0.2)"/><path d="M48 72 Q60 82 72 72" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/></svg>',
+   sozler:['Nar','Nənə','Naxış','Növ'],
+   hw:'Dəftərə N hərfini 5 sətir yaz. Nar çək.'},
+  {h:'O',k:'o',sz:'ORDEK',mi:'🦆',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="65" cy="65" rx="32" ry="20" fill="#f6e05e"/><circle cx="48" cy="46" r="20" fill="#f6e05e"/><path d="M20 62 Q10 50 20 42 Q28 54 40 56Z" fill="#f6e05e" stroke="#d69e2e" stroke-width="1"/><path d="M28 44 Q20 34 28 28 Q36 38 32 48Z" fill="#f6ad55"/><path d="M62 44 Q80 38 86 30 Q82 46 70 50Z" fill="#48bb78"/><circle cx="42" cy="40" r="4" fill="#1a202c"/><circle cx="43" cy="39" r="1.5" fill="white"/><path d="M50 48 L36 52 L50 56Z" fill="#f6ad55"/></svg>',
+   sozler:['Ördək','Orman','Ot','Ordek'],
+   hw:'Dəftərə O hərfini 5 sətir yaz. Ördək çək.'},
+  {h:'Ö',k:'ö',sz:'ÖRDƏK',mi:'🦆',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="65" cy="68" rx="32" ry="20" fill="#4299e1"/><circle cx="48" cy="46" r="20" fill="#4299e1"/><path d="M20 65 Q10 52 20 44 Q28 56 40 58Z" fill="#4299e1" stroke="#2b6cb0" stroke-width="1"/><path d="M30 46 Q22 36 30 28 Q38 38 34 50Z" fill="#63b3ed"/><path d="M62 44 Q80 38 86 30 Q82 46 70 50Z" fill="#276749"/><circle cx="42" cy="40" r="4" fill="#1a202c"/><circle cx="43" cy="39" r="1.5" fill="white"/><path d="M50 48 L36 52 L50 56Z" fill="#f6ad55"/></svg>',
+   sozler:['Ördək','Öküz','Öyrənmək'],
+   hw:'Dəftərə Ö hərfini 5 sətir yaz. Ördək çək.'},
+  {h:'P',k:'p',sz:'POMIDOR',mi:'🍅',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx="60" cy="60" r="30" fill="#e53e3e"/><circle cx="60" cy="60" r="30" fill="url(--pg)"/><defs><radialGradient id="pg" cx="35%" cy="30%"><stop offset="0%" stop-color="#fc8181"/><stop offset="100%" stop-color="#c53030"/></radialGradient></defs><rect x="56" y="26" width="8" height="12" rx="4" fill="#276749"/><path d="M56 30 Q44 20 38 28" stroke="#276749" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M64 30 Q76 20 82 28" stroke="#276749" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="46" cy="52" r="5" fill="rgba(255,255,255,0.25)"/><path d="M46 74 Q60 84 74 74" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/></svg>',
+   sozler:['Pomidor','Papa','Palıd','Parça'],
+   hw:'Dəftərə P hərfini 5 sətir yaz. Pomidor çək.'},
+  {h:'R',k:'r',sz:'RƏNG',mi:'🎨',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx="40" cy="38" r="18" fill="#e53e3e" opacity=".9"/><circle cx="80" cy="38" r="18" fill="#4299e1" opacity=".9"/><circle cx="60" cy="68" r="18" fill="#f6e05e" opacity=".9"/><circle cx="60" cy="52" r="14" fill="#805ad5" opacity=".85"/><circle cx="48" cy="55" r="12" fill="#ed8936" opacity=".85"/><circle cx="72" cy="55" r="12" fill="#48bb78" opacity=".85"/><circle cx="60" cy="55" r="10" fill="white"/><circle cx="60" cy="55" r="6" fill="#2d3748"/></svg>',
+   sozler:['Rəng','Rəsm','Riyaziyyat','Rüzgar'],
+   hw:'Dəftərə R hərfini 5 sətir yaz. Rənglər çək.'},
+  {h:'S',k:'s',sz:'SU',mi:'💧',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><path d="M60 10 Q90 40 90 65 Q90 90 60 90 Q30 90 30 65 Q30 40 60 10Z" fill="#4299e1"/><path d="M60 10 Q90 40 90 65 Q90 90 60 90 Q30 90 30 65 Q30 40 60 10Z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="20%" y1="10%" x2="80%" y2="90%"><stop offset="0%" stop-color="#bee3f8"/><stop offset="100%" stop-color="#2b6cb0"/></linearGradient></defs><ellipse cx="46" cy="52" rx="10" ry="7" fill="rgba(255,255,255,0.3)" transform="rotate(-30 46 52)"/></svg>',
+   sozler:['Su','Səma','Sinif','Saat'],
+   hw:'Dəftərə S hərfini 5 sətir yaz. Su damcısı çək.'},
+  {h:'Ş',k:'ş',sz:'ŞİR',mi:'🦁',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx="60" cy="52" r="22" fill="#d69e2e"/><ellipse cx="60" cy="55" rx="32" ry="24" fill="#d69e2e" opacity=".5"/><circle cx="60" cy="48" r="28" fill="#e53e3e" opacity=".15"/><circle cx="60" cy="48" r="22" fill="#d69e2e"/><circle cx="52" cy="44" r="4" fill="#1a202c"/><circle cx="53" cy="43" r="1.5" fill="white"/><circle cx="68" cy="44" r="4" fill="#1a202c"/><circle cx="69" cy="43" r="1.5" fill="white"/><ellipse cx="60" cy="56" rx="10" ry="7" fill="#f6ad55"/><circle cx="57" cy="53" r="2" fill="#744210"/><circle cx="63" cy="53" r="2" fill="#744210"/><path d="M53 60 Q60 66 67 60" stroke="#744210" stroke-width="2" fill="none"/><path d="M36 30 Q28 14 40 18 Q42 28 48 32Z" fill="#b7791f"/><path d="M84 30 Q92 14 80 18 Q78 28 72 32Z" fill="#b7791f"/></svg>',
+   sozler:['Şir','Şəkil','Şirniyyat','Şam'],
+   hw:'Dəftərə Ş hərfini 5 sətir yaz. Şir çək.'},
+  {h:'T',k:'t',sz:'TÜLKÜ',mi:'🦊',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><ellipse cx="60" cy="65" rx="30" ry="20" fill="#c05621"/><circle cx="54" cy="46" r="20" fill="#c05621"/><path d="M34 36 Q18 20 24 10 Q38 18 38 34Z" fill="#c05621"/><path d="M36 36 Q22 22 28 12 Q36 22 36 36Z" fill="white"/><path d="M74 36 Q90 20 84 10 Q70 18 70 34Z" fill="#c05621"/><path d="M72 36 Q86 22 80 12 Q72 22 72 36Z" fill="white"/><circle cx="48" cy="44" r="4" fill="#1a202c"/><circle cx="49" cy="43" r="1.5" fill="white"/><ellipse cx="54" cy="54" rx="9" ry="7" fill="#f6ad55"/><circle cx="51" cy="52" r="2" fill="#744210"/><circle cx="57" cy="52" r="2" fill="#744210"/><path d="M47 58 Q54 64 61 58" stroke="#744210" stroke-width="2" fill="none"/><path d="M88 70 Q100 60 104 72 Q98 80 90 76Z" fill="white"/></svg>',
+   sozler:['Tülkü','Tam','Torpaq','Top'],
+   hw:'Dəftərə T hərfini 5 sətir yaz. Tülkü çək.'},
+  {h:'U',k:'u',sz:'ÜZÜM',mi:'🍇',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="57" y="10" width="6" height="16" rx="3" fill="#744210"/><path d="M44 26 Q36 16 44 12 Q52 18 52 26Z" fill="#276749"/><path d="M76 26 Q84 16 76 12 Q68 18 68 26Z" fill="#276749"/><circle cx="60" cy="38" r="10" fill="#805ad5"/><circle cx="44" cy="48" r="10" fill="#805ad5"/><circle cx="76" cy="48" r="10" fill="#805ad5"/><circle cx="36" cy="62" r="10" fill="#6b46c1"/><circle cx="60" cy="62" r="10" fill="#6b46c1"/><circle cx="84" cy="62" r="10" fill="#6b46c1"/><circle cx="44" cy="76" r="10" fill="#553c9a"/><circle cx="68" cy="76" r="10" fill="#553c9a"/><circle cx="58" cy="38" r="3" fill="rgba(255,255,255,0.4)"/><circle cx="42" cy="48" r="3" fill="rgba(255,255,255,0.4)"/></svg>',
+   sozler:['Üzüm','Uçmaq','Uzun'],
+   hw:'Dəftərə U/Ü hərfini 5 sətir yaz. Üzüm çək.'},
+  {h:'V',k:'v',sz:'VƏTƏN',mi:'🇦🇿',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="10" y="25" width="100" height="50" rx="4"/><rect x="10" y="25" width="100" height="16.7" fill="#0092BC"/><rect x="10" y="41.7" width="100" height="16.7" fill="#e53e3e"/><rect x="10" y="58.3" width="100" height="16.7" fill="#276749"/><circle cx="46" cy="50" r="8" fill="white"/><circle cx="50" cy="50" r="8" fill="#e53e3e"/><path d="M52 44 L54 50 L60 50 L55 54 L57 60 L52 56 L47 60 L49 54 L44 50 L50 50Z" fill="white" transform="translate(4,-2) scale(0.7)"/></svg>',
+   sozler:['Vətən','Vaz','Val','Vida'],
+   hw:'Dəftərə V hərfini 5 sətir yaz. Azərbaycan bayrağı çək.'},
+  {h:'Y',k:'y',sz:'YARPAQ',mi:'🍃',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><path d="M60 85 Q40 70 30 50 Q22 32 40 18 Q60 10 80 22 Q98 38 90 60 Q78 78 60 85Z" fill="#48bb78"/><path d="M60 85 Q40 70 30 50 Q22 32 40 18 Q60 10 80 22 Q98 38 90 60 Q78 78 60 85Z" fill="url(#yg)" opacity=".5"/><defs><linearGradient id="yg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#9ae6b4"/><stop offset="100%" stop-color="#276749"/></linearGradient></defs><line x1="60" y1="85" x2="60" y2="20" stroke="#276749" stroke-width="2"/><line x1="60" y1="55" x2="40" y2="40" stroke="#276749" stroke-width="1.5"/><line x1="60" y1="55" x2="80" y2="40" stroke="#276749" stroke-width="1.5"/><line x1="60" y1="68" x2="44" y2="58" stroke="#276749" stroke-width="1.5"/><line x1="60" y1="68" x2="76" y2="58" stroke="#276749" stroke-width="1.5"/></svg>',
+   sozler:['Yarpaq','Yol','Yağış','Yemək'],
+   hw:'Dəftərə Y hərfini 5 sətir yaz. Yarpaq çək.'},
+  {h:'Z',k:'z',sz:'ZÜRAFƏl',mi:'🦒',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><rect x="54" y="25" width="12" height="40" rx="6" fill="#d69e2e"/><ellipse cx="60" cy="70" rx="22" ry="18" fill="#d69e2e"/><circle cx="60" cy="22" r="14" fill="#d69e2e"/><circle cx="56" cy="18" r="4" fill="#d69e2e"/><circle cx="64" cy="18" r="4" fill="#d69e2e"/><circle cx="54" cy="18" r="2" fill="#b7791f"/><circle cx="62" cy="18" r="2" fill="#b7791f"/><circle cx="54" cy="20" r="3" fill="#1a202c"/><circle cx="66" cy="20" r="3" fill="#1a202c"/><path d="M52 28 L48 32 L52 32Z" fill="#f6ad55"/><rect x="42" y="78" width="8" height="18" rx="4" fill="#b7791f"/><rect x="54" y="78" width="8" height="18" rx="4" fill="#b7791f"/><rect x="66" y="78" width="8" height="18" rx="4" fill="#b7791f"/><rect x="78" y="78" width="8" height="18" rx="4" fill="#b7791f"/><ellipse cx="52" cy="52" rx="5" ry="5" fill="#b7791f" opacity=".7"/><ellipse cx="68" cy="45" rx="4" ry="4" fill="#b7791f" opacity=".7"/><ellipse cx="62" cy="60" rx="4" ry="4" fill="#b7791f" opacity=".7"/></svg>',
+   sozler:['Zürafə','Zəng','Zənbil','Zərif'],
+   hw:'Dəftərə Z hərfini 5 sətir yaz. Zürafə çək.'},
 ];
 
 // ================================================================
 // RIYAZIYYAT ARDICIЛ DATA
 // ================================================================
 var RIYAZIYYAT=[
-  {n:1,ad:'Bir',ing:'One',icon:'☝️',desc:'Tək, yeganə, ilk',misallar:['1 günəş var','1 ayım var','1 burnun var'],hw:'Dəftərə 1 rəqəmini 5 sətir yaz. Yanına 1 ulduz çək. Evdə tək olan 5 şey tap.'},
-  {n:2,ad:'İki',ing:'Two',icon:'✌️',desc:'Cüt, qoşa, ikili',misallar:['2 gözüm var','2 qulağım var','2 əlim var'],hw:'Dəftərə 2 rəqəmini 5 sətir yaz. 2 alma çək. Cüt olan 5 şey tap evdə.'},
-  {n:3,ad:'Üç',ing:'Three',icon:'🤟',desc:'Üçlük, üçbucaq',misallar:['3 köşəli üçbucaq','3 meyvə','Trafik işarəsinin 3 rəngi'],hw:'Dəftərə 3 rəqəmini 5 sətir yaz. Üçbucaq çək. 3 ulduz çək.'},
-  {n:4,ad:'Dörd',ing:'Four',icon:'🖐️',desc:'Dördlük, kvadrat',misallar:['4 kvadrat küncü','4 fəsil','4 istiqamət'],hw:'Dəftərə 4 rəqəmini 5 sətir yaz. Kvadrat çək. 4 çiçək çək.'},
-  {n:5,ad:'Beş',ing:'Five',icon:'✋',desc:'Beşlik, əlin barmaqları',misallar:['5 barmaq','5 həftə iş günü','5/5 əla qiymət'],hw:'Dəftərə 5 rəqəmini 5 sətir yaz. Əl şəkli çək (5 barmaq). 5 ulduzu say.'},
-  {n:6,ad:'Altı',ing:'Six',icon:'🎲',desc:'Altılıq, zarın üzü',misallar:['6 bal arısı','Zarda 6 nöqtə','6 rəng göy qurşağında'],hw:'Dəftərə 6 rəqəmini 5 sətir yaz. Zar çək (6 nöqtə). 6 şey say evdə.'},
-  {n:7,ad:'Yeddi',ing:'Seven',icon:'🌈',desc:'Yeddilik, göy qurşağı',misallar:['7 rəng','7 nota','Həftənin 7 günü'],hw:'Dəftərə 7 rəqəmini 5 sətir yaz. Göy qurşağı çək (7 rəng). Həftənin günlərini say.'},
-  {n:8,ad:'Səkkiz',ing:'Eight',icon:'🕷️',desc:'Səkkizlik, hörümçək ayaqları',misallar:['8 hörümçək ayağı','8 not','Kəpənəyin 8 qanadı yox — 4 var! Bəs səkkiz olan nədir?'],hw:'Dəftərə 8 rəqəmini 5 sətir yaz. Hörümçək çək (8 ayaq say!).'},
-  {n:9,ad:'Doqquz',ing:'Nine',icon:'🔵',desc:'Doqquzluq',misallar:['9 planet var idi (indi 8!)','3x3 = 9','Futbol komandası 9+2'],hw:'Dəftərə 9 rəqəmini 5 sətir yaz. 9 nöqtə çək (3x3 sıra).'},
-  {n:10,ad:'On',ing:'Ten',icon:'🙌',desc:'Onluq, iki əlin barmaqları',misallar:['10 barmaq','10 nağıl','10/10 mükəmməl!'],hw:'Dəftərə 10 rəqəmini 5 sətir yaz. İki əl çək (10 barmaq). 1-10-a qədər say.'},
-  {n:0,ad:'Sıfır',ing:'Zero',icon:'⭕',desc:'Heç nə, boş, başlanğıc',misallar:['0 alma = boş masa','Termometrdə 0°','0-dan hər şey başlayır'],hw:'Dəftərə 0 rəqəmini 5 sətir yaz. Boş dairə çək. "Sıfır nədir?" izah et.'},
+  {n:0,ad:'Sıfır',icon:'⭕',c:'#718096',desc:'Heç nə, boş, başlanğıc',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'60\' cy=\'50\' r=\'30\' fill=\'none\' stroke=\'#718096\' stroke-width=\'4\' stroke-dasharray=\'8\'/><text x=\'60\' y=\'56\' text-anchor=\'middle\' font-size=\'24\' font-weight=\'900\' fill=\'#718096\'>∅</text></svg>',
+   misallar:["0 alma = boş masa", "Termometrdə 0°", "0-dan hər şey başlayır"],
+   hw:'Dəftərə 0 rəqəmini 5 sətir yaz. Boş dairə çək.'},
+  {n:1,ad:'Bir',icon:'☝️',c:'#e53e3e',desc:'Tək, yeganə, ilk',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'60\' cy=\'50\' r=\'14\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'56\' cy=\'46\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'54\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text></svg>',
+   misallar:["1 günəş var göydə", "1 burnun var", "1 ürəyin var"],
+   hw:'Dəftərə 1 rəqəmini 5 sətir yaz. 1 ulduz çək.'},
+  {n:2,ad:'İki',icon:'✌️',c:'#3182ce',desc:'Cüt, qoşa',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'40\' cy=\'50\' r=\'14\' fill=\'#3182ce\' opacity=\'.9\'/><circle cx=\'36\' cy=\'46\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'40\' y=\'54\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text><circle cx=\'80\' cy=\'50\' r=\'14\' fill=\'#3182ce\' opacity=\'.9\'/><circle cx=\'76\' cy=\'46\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'80\' y=\'54\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text></svg>',
+   misallar:["2 gözüm var", "2 qulağım var", "2 əlim var"],
+   hw:'Dəftərə 2 rəqəmini 5 sətir yaz. 2 alma çək.'},
+  {n:3,ad:'Üç',icon:'🤟',c:'#38a169',desc:'Üçlük, üçbucaq',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'40\' cy=\'50\' r=\'14\' fill=\'#38a169\' opacity=\'.9\'/><circle cx=\'36\' cy=\'46\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'40\' y=\'54\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'35\' r=\'14\' fill=\'#38a169\' opacity=\'.9\'/><circle cx=\'56\' cy=\'31\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'39\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text><circle cx=\'80\' cy=\'50\' r=\'14\' fill=\'#38a169\' opacity=\'.9\'/><circle cx=\'76\' cy=\'46\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'80\' y=\'54\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text></svg>',
+   misallar:["3 küncü var üçbucağın", "3 rəng trafik işarəsində", "3 xörək: səhər, nahar, axşam"],
+   hw:'Dəftərə 3 rəqəmini 5 sətir yaz. 3 ulduz çək.'},
+  {n:4,ad:'Dörd',icon:'🖖',c:'#d69e2e',desc:'Dördlük, kvadrat',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'35\' cy=\'38\' r=\'14\' fill=\'#d69e2e\' opacity=\'.9\'/><circle cx=\'31\' cy=\'34\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'42\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text><circle cx=\'75\' cy=\'38\' r=\'14\' fill=\'#d69e2e\' opacity=\'.9\'/><circle cx=\'71\' cy=\'34\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'75\' y=\'42\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text><circle cx=\'35\' cy=\'62\' r=\'14\' fill=\'#d69e2e\' opacity=\'.9\'/><circle cx=\'31\' cy=\'58\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'66\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text><circle cx=\'75\' cy=\'62\' r=\'14\' fill=\'#d69e2e\' opacity=\'.9\'/><circle cx=\'71\' cy=\'58\' r=\'4\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'75\' y=\'66\' text-anchor=\'middle\' font-size=\'12\' fill=\'white\'>●</text></svg>',
+   misallar:["4 küncü var kvadratın", "4 fəsil: yaz,yay,payız,qış", "Masanın 4 ayağı"],
+   hw:'Dəftərə 4 rəqəmini 5 sətir yaz. 4 küncü olan kvadrat çək.'},
+  {n:5,ad:'Beş',icon:'✋',c:'#805ad5',desc:'Beşlik, əlin barmaqları',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'35\' cy=\'38\' r=\'11\' fill=\'#805ad5\' opacity=\'.9\'/><circle cx=\'32\' cy=\'35\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'42\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'75\' cy=\'38\' r=\'11\' fill=\'#805ad5\' opacity=\'.9\'/><circle cx=\'72\' cy=\'35\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'75\' y=\'42\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'50\' r=\'11\' fill=\'#805ad5\' opacity=\'.9\'/><circle cx=\'57\' cy=\'47\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'54\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'35\' cy=\'62\' r=\'11\' fill=\'#805ad5\' opacity=\'.9\'/><circle cx=\'32\' cy=\'59\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'66\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'75\' cy=\'62\' r=\'11\' fill=\'#805ad5\' opacity=\'.9\'/><circle cx=\'72\' cy=\'59\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'75\' y=\'66\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text></svg>',
+   misallar:["5 barmağım var əlimdə", "5 günlük iş həftəsi", "5 not musiliqidə: do,re,mi,fa,sol"],
+   hw:'Dəftərə 5 rəqəmini 5 sətir yaz. Əl çək (5 barmaq).'},
+  {n:6,ad:'Altı',icon:'🎲',c:'#e53e3e',desc:'Altılıq, zarın üzü',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'35\' cy=\'32\' r=\'11\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'32\' cy=\'29\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'36\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'32\' r=\'11\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'57\' cy=\'29\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'36\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'85\' cy=\'32\' r=\'11\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'82\' cy=\'29\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'85\' y=\'36\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'35\' cy=\'68\' r=\'11\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'32\' cy=\'65\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'72\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'68\' r=\'11\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'57\' cy=\'65\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'72\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text><circle cx=\'85\' cy=\'68\' r=\'11\' fill=\'#e53e3e\' opacity=\'.9\'/><circle cx=\'82\' cy=\'65\' r=\'3\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'85\' y=\'72\' text-anchor=\'middle\' font-size=\'9\' fill=\'white\'>●</text></svg>',
+   misallar:["Zarda 6 nöqtə var", "6 rəng göy qurşağında (bizdə 7!)", "6 dərs günü həftədə"],
+   hw:'Dəftərə 6 rəqəmini 5 sətir yaz. Zar çək (6 nöqtə).'},
+  {n:7,ad:'Yeddi',icon:'🌈',c:'#2b6cb0',desc:'Yeddilik, göy qurşağı',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'35\' cy=\'28\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'33\' cy=\'26\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'32\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'28\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'58\' cy=\'26\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'32\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'85\' cy=\'28\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'83\' cy=\'26\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'85\' y=\'32\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'35\' cy=\'55\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'33\' cy=\'53\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'59\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'70\' cy=\'55\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'68\' cy=\'53\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'70\' y=\'59\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'35\' cy=\'82\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'33\' cy=\'80\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'35\' y=\'86\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'70\' cy=\'82\' r=\'9\' fill=\'#2b6cb0\' opacity=\'.9\'/><circle cx=\'68\' cy=\'80\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'70\' y=\'86\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text></svg>',
+   misallar:["7 rəng göy qurşağında", "7 nota: do,re,mi,fa,sol,la,si", "Həftənin 7 günü"],
+   hw:'Dəftərə 7 rəqəmini 5 sətir yaz. Göy qurşağı çək.'},
+  {n:8,ad:'Səkkiz',icon:'🕷️',c:'#276749',desc:'Səkkizlik, hörümçək ayaqları',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'30\' cy=\'28\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'28\' cy=\'26\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'30\' y=\'32\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'28\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'58\' cy=\'26\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'32\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'90\' cy=\'28\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'88\' cy=\'26\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'90\' y=\'32\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'30\' cy=\'55\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'28\' cy=\'53\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'30\' y=\'59\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'90\' cy=\'55\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'88\' cy=\'53\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'90\' y=\'59\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'30\' cy=\'82\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'28\' cy=\'80\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'30\' y=\'86\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'82\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'58\' cy=\'80\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'86\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'90\' cy=\'82\' r=\'9\' fill=\'#276749\' opacity=\'.9\'/><circle cx=\'88\' cy=\'80\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'90\' y=\'86\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text></svg>',
+   misallar:["Hörümçəyin 8 ayağı", "8 saatlıq iş günü", "Oktopu 8 qolu"],
+   hw:'Dəftərə 8 rəqəmini 5 sətir yaz. Hörümçək çək (8 ayaq).'},
+  {n:9,ad:'Doqquz',icon:'🔵',c:'#744210',desc:'Doqquzluq',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'30\' cy=\'22\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'28\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'30\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'22\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'58\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'90\' cy=\'22\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'88\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'90\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'30\' cy=\'50\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'28\' cy=\'48\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'30\' y=\'54\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'50\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'58\' cy=\'48\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'54\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'90\' cy=\'50\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'88\' cy=\'48\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'90\' y=\'54\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'30\' cy=\'78\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'28\' cy=\'76\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'30\' y=\'82\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'60\' cy=\'78\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'58\' cy=\'76\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'60\' y=\'82\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'90\' cy=\'78\' r=\'8\' fill=\'#744210\' opacity=\'.9\'/><circle cx=\'88\' cy=\'76\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'90\' y=\'82\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text></svg>',
+   misallar:["3x3 = 9", "Futbol komandası 9+2 nəfər", "Pişiyin 9 canı varmış"],
+   hw:'Dəftərə 9 rəqəmini 5 sətir yaz. 9 nöqtə (3x3) çək.'},
+  {n:10,ad:'On',icon:'🙌',c:'#1a202c',desc:'Onluq, iki əlin barmaqları',
+   svg:'<svg viewBox="0 0 120 100" width="120" height="100"><circle cx=\'22\' cy=\'22\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'20\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'22\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'46\' cy=\'22\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'44\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'46\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'70\' cy=\'22\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'68\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'70\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'94\' cy=\'22\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'92\' cy=\'20\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'94\' y=\'26\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'22\' cy=\'55\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'20\' cy=\'53\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'22\' y=\'59\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'94\' cy=\'55\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'92\' cy=\'53\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'94\' y=\'59\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'22\' cy=\'88\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'20\' cy=\'86\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'22\' y=\'92\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'46\' cy=\'88\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'44\' cy=\'86\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'46\' y=\'92\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'70\' cy=\'88\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'68\' cy=\'86\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'70\' y=\'92\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text><circle cx=\'94\' cy=\'88\' r=\'8\' fill=\'#1a202c\' opacity=\'.9\'/><circle cx=\'92\' cy=\'86\' r=\'2\' fill=\'rgba(255,255,255,0.4)\'/><text x=\'94\' y=\'92\' text-anchor=\'middle\' font-size=\'8\' fill=\'white\'>●</text></svg>',
+   misallar:["10 barmağım var", "10/10 mükəmməl nəticə!", "10-luq say sistemi"],
+   hw:'Dəftərə 10 rəqəmini 5 sətir yaz. İki əl çək (10 barmaq).'},
 ];
 
 // ================================================================
@@ -1649,11 +1775,11 @@ function renderElifba(){
   if(!cont) return;
   var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">';
   ELIFBA.forEach(function(h,i){
-    html+='<div onclick="openHerfPopup('+i+')" class="hov-card" style="background:white;border-radius:16px;padding:16px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:.25s">'+
-      '<div style="font-size:36px;font-weight:900;color:var(--g1);line-height:1">'+h.h+'</div>'+
-      '<div style="font-size:20px;color:var(--text2);margin-top:2px">'+h.k+'</div>'+
-      '<div style="font-size:20px;margin-top:6px">'+h.mi+'</div>'+
-      '<div style="font-size:11px;font-weight:700;color:var(--g2);margin-top:4px">'+h.sz+'</div>'+
+    html+='<div onclick="openHerfPopup('+i+')" class="hov-card" style="background:white;border-radius:16px;padding:14px 10px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:.25s">'+
+      '<div style="font-size:40px;font-weight:900;color:var(--g1);line-height:1">'+h.h+'</div>'+
+      '<div style="font-size:18px;color:var(--text2)">'+h.k+'</div>'+
+      (h.svg?'<div style="margin:6px auto;display:flex;justify-content:center">'+h.svg+'</div>':'<div style="font-size:28px;margin:6px 0">'+h.mi+'</div>')+
+      '<div style="font-size:11px;font-weight:700;color:var(--g2);margin-top:2px">'+h.sz+'</div>'+
     '</div>';
   });
   html+='</div>';
@@ -1664,10 +1790,16 @@ function openHerfPopup(i){
   var h=ELIFBA[i];
   _currentHerf=h;
   var html='<div style="text-align:center;margin-bottom:20px">'+
-    '<div style="font-size:80px;font-weight:900;color:var(--g1);line-height:1;text-shadow:0 4px 12px rgba(15,76,58,.2)">'+h.h+'</div>'+
-    '<div style="font-size:40px;color:var(--text2);margin-top:4px">'+h.k+'</div>'+
-    '<div style="font-size:48px;margin-top:8px">'+h.mi+'</div>'+
-    '<div style="font-size:18px;font-weight:800;color:var(--g2);margin-top:6px">'+h.sz+'</div>'+
+    '<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px">'+
+      '<div>'+
+        '<div style="font-size:72px;font-weight:900;color:var(--g1);line-height:1;text-shadow:0 4px 12px rgba(15,76,58,.2)">'+h.h+'</div>'+
+        '<div style="font-size:36px;color:var(--text2)">'+h.k+'</div>'+
+      '</div>'+
+      (h.svg?'<div>'+h.svg+'</div>':'<div style="font-size:64px">'+h.mi+'</div>')+
+    '</div>'+
+    '<div style="background:linear-gradient(135deg,var(--bg2),#f0fff4);border-radius:12px;padding:8px 16px;display:inline-block">'+
+      '<span style="font-size:16px;font-weight:800;color:var(--g2)">'+h.sz+'</span>'+
+    '</div>'+
   '</div>'+
   '<div style="margin-bottom:16px">'+
     '<div style="font-weight:800;color:var(--g1);font-size:13px;margin-bottom:8px">📝 Bu hərflə sözlər:</div>'+
@@ -1754,11 +1886,10 @@ function renderRiyaziyyat(){
   if(!cont) return;
   var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">';
   RIYAZIYYAT.forEach(function(r,i){
-    html+='<div onclick="openRaqamPopup('+i+')" class="hov-card" style="background:white;border-radius:16px;padding:16px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:.25s">'+
-      '<div style="font-size:48px;font-weight:900;color:var(--g1);line-height:1">'+r.n+'</div>'+
-      '<div style="font-size:28px;margin-top:4px">'+r.icon+'</div>'+
-      '<div style="font-size:15px;font-weight:800;color:var(--g2);margin-top:6px">'+r.ad+'</div>'+
-      '<div style="font-size:11px;color:var(--text2)">'+r.ing+'</div>'+
+    html+='<div onclick="openRaqamPopup('+i+')" class="hov-card" style="background:white;border-radius:16px;padding:12px 8px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:.25s">'+
+      '<div style="font-size:44px;font-weight:900;line-height:1" style="color:'+r.c+'">'+r.n+'</div>'+
+      (r.svg?'<div style="margin:4px auto;display:flex;justify-content:center">'+r.svg+'</div>':'<div style="font-size:24px;margin:4px 0">'+r.icon+'</div>')+
+      '<div style="font-size:13px;font-weight:800;color:var(--g2);margin-top:2px">'+r.ad+'</div>'+
     '</div>';
   });
   html+='</div>';
@@ -1769,10 +1900,14 @@ function openRaqamPopup(i){
   var r=RIYAZIYYAT[i];
   _currentRaqam=i;
   var html='<div style="text-align:center;margin-bottom:20px">'+
-    '<div style="font-size:96px;font-weight:900;color:var(--g1);line-height:1;text-shadow:0 4px 16px rgba(15,76,58,.2)">'+r.n+'</div>'+
-    '<div style="font-size:48px;margin-top:4px">'+r.icon+'</div>'+
-    '<div style="font-size:22px;font-weight:900;color:var(--g2);margin-top:6px">'+r.ad+' · '+r.ing+'</div>'+
-    '<div style="font-size:14px;color:var(--text2);margin-top:4px">'+r.desc+'</div>'+
+    '<div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">'+
+      '<div style="font-size:80px;font-weight:900;color:'+r.c+';line-height:1;text-shadow:0 4px 16px rgba(0,0,0,.15)">'+r.n+'</div>'+
+      (r.svg?'<div style="background:'+r.c+'10;border-radius:16px;padding:8px">'+r.svg+'</div>':'<div style="font-size:60px">'+r.icon+'</div>')+
+    '</div>'+
+    '<div style="margin-top:8px">'+
+      '<div style="font-size:20px;font-weight:900;color:var(--g2)">'+r.ad+'</div>'+
+      '<div style="font-size:13px;color:var(--text2);margin-top:2px">'+r.desc+'</div>'+
+    '</div>'+
   '</div>'+
   '<div style="margin-bottom:16px">'+
     '<div style="font-weight:800;color:var(--g1);font-size:13px;margin-bottom:8px">💡 Nümunələr:</div>'+
@@ -2072,6 +2207,109 @@ function removeUser(i){
   document.getElementById('app').style.display='none';
   checkSession();
 })();
+
+
+function exportDayHW(wi, di){
+  var wk = WEEKS[wi];
+  var day = wk.days[di];
+  var today = new Date().toLocaleDateString('az-AZ',{year:'numeric',month:'long',day:'numeric'});
+  var hwList = day.subjects.filter(function(s){ return s.hw; });
+  
+  if(!hwList.length){
+    showToast('Bu gün üçün ev tapşırığı yoxdur.');
+    return;
+  }
+
+  var sectionsHtml = hwList.map(function(s, idx){
+    var sc = SC[s.s] || {c:'#1f7a5e', bg:'#e3f3ec'};
+    var color = sc.c;
+    var tasksHtml = s.hw.tasks.map(function(t, i){
+      return '<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:#f0fdf4;border-radius:9px;margin-bottom:7px;border-left:3px solid '+color+'">'+
+        '<span style="background:'+color+';color:white;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0">'+(i+1)+'</span>'+
+        '<span style="font-size:13px;color:#166534;line-height:1.6">'+t+'</span>'+
+      '</div>';
+    }).join('');
+
+    return '<div style="margin-bottom:20px;border:2px solid '+color+'22;border-radius:14px;overflow:hidden">'+
+      '<div style="background:'+color+';padding:12px 16px;color:white;display:flex;align-items:center;gap:10px">'+
+        '<span style="font-size:22px">'+(SC[s.s]?SC[s.s].ic||'📘':'📘')+'</span>'+
+        '<div>'+
+          '<div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.5px">Fənn</div>'+
+          '<div style="font-size:16px;font-weight:900">'+s.s+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="padding:14px">'+
+        '<div style="font-weight:800;color:'+color+';font-size:13px;margin-bottom:4px">'+s.hw.title+'</div>'+
+        '<div style="font-size:12px;color:#374151;margin-bottom:10px;line-height:1.6">'+s.hw.desc+'</div>'+
+        tasksHtml+
+        // Writing lines
+        '<div style="margin-top:10px;border-top:1px dashed #86efac;padding-top:10px">'+
+          '<div style="font-size:11px;color:#6b7280;margin-bottom:6px;font-weight:600">✍️ Burada yaz / çək:</div>'+
+          '<div style="border:2px dashed #86efac;border-radius:10px;min-height:80px;background:#f9fff9"></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html lang="az"><head><meta charset="UTF-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Ev Tapşırığı — '+day.name+'</title>'+
+    '<style>'+
+      '*{margin:0;padding:0;box-sizing:border-box}'+
+      'body{font-family:system-ui,sans-serif;background:#f0fdf4;padding:16px;min-height:100vh}'+
+      '.card{background:white;border-radius:20px;padding:0;max-width:600px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08);overflow:hidden}'+
+      '.top-hdr{background:linear-gradient(135deg,#0f4c3a,#1f7a5e);padding:22px 24px;color:white}'+
+      '.top-hdr h1{font-size:20px;font-weight:900;margin-bottom:4px}'+
+      '.top-hdr p{font-size:12px;opacity:.75}'+
+      '.content{padding:20px}'+
+      '.parent-note{background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-top:16px}'+
+      '.parent-note h3{font-size:13px;font-weight:800;color:#92400e;margin-bottom:6px}'+
+      '.parent-note p{font-size:12px;color:#78350f;line-height:1.6}'+
+      '.footer{text-align:center;padding:16px;font-size:11px;color:#6b7280;border-top:1px solid #e5e7eb}'+
+      '.footer a{color:#1f7a5e;text-decoration:none;font-weight:700}'+
+      '@media print{body{padding:0;background:white}.card{box-shadow:none}}'+
+    '</style></head><body>'+
+    '<div class="card">'+
+      '<div class="top-hdr">'+
+        '<p>📚 AN Məktəbə Hazırlıq Mərkəzi · '+today+'</p>'+
+        '<h1>📅 '+day.name+' — Ev Tapşırıqları</h1>'+
+        '<p>🎯 Mövzu: '+day.topic+' · '+hwList.length+' fənn</p>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+
+          hwList.map(function(s){
+            var sc=SC[s.s]||{c:'#fff'};
+            return '<span style="background:rgba(255,255,255,.2);color:white;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">'+s.s+'</span>';
+          }).join('')+
+        '</div>'+
+      '</div>'+
+      '<div class="content">'+
+        sectionsHtml+
+        '<div class="parent-note">'+
+          '<h3>📞 Hörmətli Valideyn!</h3>'+
+          '<p>Bugün övladınız <strong>'+hwList.length+' fənndən</strong> ev tapşırığı alıb. Zəhmət olmasa hər fənn üçün tapşırıqları birlikdə yerinə yetirin. Bitirdikdən sonra müəllimə bildirin.</p>'+
+          '<p style="margin-top:8px"><strong>☎️ +994 55 415 72 15</strong> · 📱 <a href="https://instagram.com/s_akhundoff">@s_akhundoff</a></p>'+
+        '</div>'+
+      '</div>'+
+      '<div class="footer">AN Psixoloji Dəstək Mərkəzi · By <a href="https://instagram.com/s_akhundoff">s_akhundoff</a></div>'+
+    '</div>'+
+  '</body></html>';
+
+  try{
+    var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'ev-tapshirigi-'+day.name.replace(/\s/g,'-')+'-'+Date.now()+'.html';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    showToast('📤 '+day.name+' ev tapşırıqları yükləndi!', 'gold');
+  } catch(err){
+    var w = window.open('','_blank');
+    if(w){ w.document.write(html); w.document.close(); }
+    showToast('📤 Yeni tabda açıldı — saxlayın!', 'gold');
+  }
+}
 
 </script>
 </body>
