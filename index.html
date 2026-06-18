@@ -224,7 +224,11 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
 .role-btn.active{border-color:var(--primary);background:rgba(108,99,255,.08);color:var(--primary);}
 .divider{height:1px;background:var(--border);margin:16px 0;}
 </style>
-</head>
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- v1781769348 --></head>
 <body>
 
 <!-- TOAST -->
@@ -2213,10 +2217,12 @@ var SCHED = {
 function renderSchedule(){
   var dow = new Date().getDay();
   selDay = (dow>=1&&dow<=5) ? dow : 1;
+  console.log("renderSchedule called, selDay="+selDay);
   _buildSched();
 }
 
 function _buildSched(){
+  console.log("_buildSched called, day=",selDay, "SCHED keys=",Object.keys(SCHED));
   var day = SCHED[selDay];
   var dn = getDN();
   var dow = new Date().getDay();
