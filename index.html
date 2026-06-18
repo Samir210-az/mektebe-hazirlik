@@ -354,17 +354,15 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
 
       <!-- SCHEDULE -->
       <div class="page" id="page-schedule">
-        <div id="schedHero" style="border-radius:24px;padding:36px 32px;margin-bottom:20px;position:relative;overflow:hidden;color:white;min-height:160px">
-          <div style="position:absolute;inset:0;pointer-events:none">
-            <div style="position:absolute;width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent);border-radius:50%;top:-60px;right:-40px;animation:orbFloat 6s ease-in-out infinite"></div>
-            <div style="position:absolute;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent);border-radius:50%;bottom:-30px;left:25%;animation:orbFloat 9s ease-in-out infinite reverse"></div>
-          </div>
+        <div id="schedHero" style="background:linear-gradient(135deg,#6C63FF,#a78bfa);border-radius:24px;padding:30px;margin-bottom:18px;position:relative;overflow:hidden;color:white">
+          <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.1);border-radius:50%;animation:orbFloat 6s ease-in-out infinite"></div>
+          <div style="position:absolute;bottom:-30px;left:30%;width:120px;height:120px;background:rgba(255,255,255,0.07);border-radius:50%;animation:orbFloat 9s ease-in-out infinite reverse"></div>
           <div style="position:relative;z-index:1">
-            <div style="font-size:22px;font-weight:900;margin-bottom:14px" id="schedMainTitle">🗓️ Günlük Cədvəl</div>
+            <div style="font-size:22px;font-weight:900;margin-bottom:12px" id="schedMainTitle">🗓️ Günlük Cədvəl</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap" id="schedDayPills"></div>
           </div>
         </div>
-        <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:22px;-webkit-overflow-scrolling:touch" id="schedDayTabs"></div>
+        <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:22px" id="schedDayTabs"></div>
         <div id="schedDayContent"></div>
       </div>
 
@@ -1459,1151 +1457,899 @@ function showToast(msg,type='success'){
 
 
 
-// ============================================================
-// SCHEDULE PAGE
-// ============================================================
 
 // ============================================================
-// SCHEDULE PAGE - FULL INTERACTIVE
+// SCHEDULE PAGE - Interactive Daily Schedule
 // ============================================================
 
-const WEEKLY_SCHEDULE = {
+var WEEKS = {
+  az:['','Bazar ertesi','Cershembe ax.','Cershenbe','Cume ax.','Cume'],
+  ru:['','Ponedelnik','Vtornik','Sreda','Chetverg','Pyatnica'],
+  en:['','Monday','Tuesday','Wednesday','Thursday','Friday']
+};
+
+var DAYS_AZ = ['','Bazar ertəsi','Çərşənbə ax.','Çərşənbə','Cümə ax.','Cümə'];
+var DAYS_RU = ['','Понедельник','Вторник','Среда','Четверг','Пятница'];
+var DAYS_EN = ['','Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+function getDN(){ return lang==='ru'?DAYS_RU:lang==='en'?DAYS_EN:DAYS_AZ; }
+
+var SCI = {math:'🔢',language:'📝',reading:'📖',drawing:'🎨',music:'🎵',physical:'⚽',nature:'🌿',logic:'🧩',creativity:'✂️'};
+var SCC = {math:'#667eea',language:'#f5576c',reading:'#4facfe',drawing:'#43e97b',music:'#4facfe',physical:'#f093fb',nature:'#43e97b',logic:'#a855f7',creativity:'#fa8231'};
+var SCN_AZ = {math:'Riyaziyyat',language:'Az. Dili',reading:'Oxu',drawing:'Rəsm',music:'Musiqi',physical:'Bədən T.',nature:'Təbiət',logic:'Məntiq',creativity:'Yaradıcılıq'};
+var SCN_RU = {math:'Математика',language:'Язык',reading:'Чтение',drawing:'Рисование',music:'Музыка',physical:'Физ-ра',nature:'Природа',logic:'Логика',creativity:'Творчество'};
+var SCN_EN = {math:'Math',language:'Language',reading:'Reading',drawing:'Drawing',music:'Music',physical:'Physical',nature:'Nature',logic:'Logic',creativity:'Creativity'};
+function getSCN(){ return lang==='ru'?SCN_RU:lang==='en'?SCN_EN:SCN_AZ; }
+
+var selDay = 1;
+
+// ---- LESSON CONTENT BUILDERS ----
+function buildLessonBody(day, lessonIdx) {
+  var d = SCHED[day];
+  var l = d.lessons[lessonIdx];
+  var sn = getSCN();
+  var lc = l.color || SCC[l.subject] || '#6C63FF';
+
+  var matHtml = '';
+  if(l.materials && l.materials.length){
+    var chips = l.materials.map(function(m){ return '<span class="sl-mat-chip">'+m+'</span>'; }).join('');
+    matHtml = '<div class="sl-materials"><span style="font-size:12px;font-weight:700;color:#718096">🎒 Materiallar: </span>'+chips+'</div>';
+  }
+
+  return '<div class="sl-card-body" id="sl-body-'+lessonIdx+'">' +
+    l.body + matHtml +
+  '</div>';
+}
+
+// ---- SCHEDULE DATA ----
+// Each lesson has: time, dur, subject, icon, color, title, subtitle, desc, body (HTML string), materials[]
+var SCHED = {
   1: {
-    dayName: 'Bazar ertəsi',
-    theme: 'Tanışlıq & İlk Addımlar',
-    color: '#6C63FF', grad: 'linear-gradient(135deg,#6C63FF 0%,#a78bfa 100%)',
-    emoji: '🌟', bgEmoji: '✨',
-    lessons: [
+    theme:'Tanışlıq & İlk Addımlar', color:'#6C63FF',
+    grad:'linear-gradient(135deg,#6C63FF,#a78bfa)', emoji:'🌟',
+    lessons:[
       {
-        time:'09:00','dur':'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
+        time:'09:00', dur:'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
         title:'Azərbaycan Dili — "Salam" sözü',
         subtitle:'Nitq inkişafı · İlk söz',
-        desc:'Birinci dərsimiz sözlə başlayır: <b>SALAM</b>. Bu söz bizi bir-birimizə bağlayır!',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#f5576c22,#f093fb22)">
-    <div class="sl-big-word" style="color:#f5576c">SALAM</div>
-    <div class="sl-phonetic">S · A · L · A · M — 5 hərf</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">👋</div>
-      <div class="sl-img-label">Əl sallamaq</div>
-      <div class="sl-img-sub">Dostluq işarəsi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#6C63FF">
-      <div class="sl-img-emoji">😊</div>
-      <div class="sl-img-label">Gülümsəmək</div>
-      <div class="sl-img-sub">Sevinc ifadəsi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🤝</div>
-      <div class="sl-img-label">Əl vermək</div>
-      <div class="sl-img-sub">Hörmət göstərişi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">🏫</div>
-      <div class="sl-img-label">Məktəb</div>
-      <div class="sl-img-sub">Öyrənmə yeri</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎭 Rol oyunu: "Salam deyirəm"</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Uşaqlar iki sıraya düzülür, bir-birinə baxır</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Müəllim işarə verir — hamı eyni anda "Salam!" deyir</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Azərbaycan, rus, ingilis dilində salam deyirik</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Hər uşaq adını deyir: "Salam, mən Aydanam!"</span></div>
-    </div>
-  </div>
-  <div class="sl-text-box">
-    <div class="sl-text-title">📖 Dinləmə mətni</div>
-    <div class="sl-text-content">Sabah idi. Günəş parlıyırdı. Aydan məktəbə girdi. O, hər kəsə gülümsədi. "Salam, müəllimə xanım!" — dedi. Müəllimə xanım da gülümsədi: "Salam, Aydan! Xoş gəlmisən!" Sinif uşaqla doldu. Hamı salamlaşdı. Dərs başladı... 📚</div>
-  </div>
-  <div class="sl-tip">💡 <b>Müəllimə ipucu:</b> Hər gün sinifə girəndə "Salam" deyərək bu vərdişi formalaşdırın. Azərbaycanda "Salaməleyküm" — "Əleyküm salam" ənənəsini izah edin.</div>
-</div>`,
-        materials:['Güzgü (özünə baxmaq)','Ad etiketləri','Rəngli kartlar']
+        desc:'Birinci dərsimiz sözlə başlayır: <b>SALAM</b>. Bu söz hamımızı bir-birinə bağlayır!',
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#f5576c15,#f093fb15)">' +
+            '<div class="sl-big-word" style="color:#f5576c">SALAM</div>' +
+            '<div class="sl-phonetic">S · A · L · A · M — 5 hərf</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">👋</div><div class="sl-img-label">Əl sallamaq</div><div class="sl-img-sub">Dostluq işarəsi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#6C63FF"><div class="sl-img-emoji">😊</div><div class="sl-img-label">Gülümsəmək</div><div class="sl-img-sub">Sevinc ifadəsi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🤝</div><div class="sl-img-label">Əl vermək</div><div class="sl-img-sub">Hörmət göstərişi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">🏫</div><div class="sl-img-label">Məktəb</div><div class="sl-img-sub">Öyrənmə yeri</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎭 Rol oyunu: "Salam deyirəm"</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Uşaqlar iki sıraya düzülür, bir-birinə baxır</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Müəllim işarə verir — hamı eyni anda "Salam!" deyir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Azərbaycan, rus, ingilis dilində salam deyirik</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>Hər uşaq adını deyir: "Salam, mən Aydanam!"</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-text-box">' +
+            '<div class="sl-text-title">📖 Dinləmə mətni</div>' +
+            '<div class="sl-text-content">Sabah idi. Günəş parlıyırdı. Aydan məktəbə girdi. O, hər kəsə gülümsədi. "Salam, müəllimə xanım!" — dedi. Müəllimə xanım da gülümsədi: "Salam, Aydan! Xoş gəlmisən!" Sinif uşaqla doldu. Hamı salamlaşdı. Dərs başladı... 📚</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 <b>Müəllimə ipucu:</b> Hər gün sinifə girəndə "Salam" deyərək bu vərdişi formalaşdırın. "Salaməleyküm — Əleyküm salam" ənənəsini izah edin.</div>' +
+        '</div>',
+        materials:['Güzgü','Ad etiketləri','Rəngli kartlar']
       },
       {
-        time:'09:35','dur':'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
-        title:'Riyaziyyat — Saylardan əvvəl: Çox/Az/Bərabər',
+        time:'09:35', dur:'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — Çox / Az / Bərabər',
         subtitle:'Müqayisə anlayışı · Əsas konsept',
         desc:'Rəqəmə keçmədən əvvəl <b>çox, az, bərabər</b> anlayışlarını öyrənirik.',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#667eea22,#764ba222)">
-    <div style="display:flex;justify-content:center;gap:30px;font-size:44px">
-      <div style="text-align:center"><div>🍎🍎🍎</div><div style="font-size:14px;font-weight:800;color:#667eea;margin-top:6px">ÇOX</div></div>
-      <div style="text-align:center"><div>🍊</div><div style="font-size:14px;font-weight:800;color:#f5576c;margin-top:6px">AZ</div></div>
-      <div style="text-align:center"><div>🍇🍇</div><div style="font-size:14px;font-weight:800;color:#43e97b;margin-top:6px;display:flex;align-items:center;gap:4px"><span>=</span><span>BƏRABƏr</span></div></div>
-    </div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">🐘🐘🐘</div>
-      <div class="sl-img-label">3 fil — çoxdur</div>
-      <div class="sl-img-sub">Böyük say</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">🐭</div>
-      <div class="sl-img-label">1 siçan — azdır</div>
-      <div class="sl-img-sub">Kiçik say</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🌟🌟</div>
-      <div class="sl-img-label">2 ulduz = 2 ulduz</div>
-      <div class="sl-img-sub">Bərabər</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">🦴🦴🦴🦴</div>
-      <div class="sl-img-label">İt üçün çox sümük!</div>
-      <div class="sl-img-sub">Müqayisə</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎯 Sinif oyunu: "Əlləri say"</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Bir qrup 3 uşaq, digər qrup 5 uşaq durur</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>"Hansı qrupda çox uşaq var?" — uşaqlar cavablaşır</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Bərabər etmək üçün neçə uşaq lazımdır?</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Bu anlayışlar rəqəmlərdən daha əsasdır. Uşaqlar əvvəl məntiqi düşünməyi öyrənməlidir.</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#667eea15,#764ba215)">' +
+            '<div style="display:flex;justify-content:center;gap:30px;font-size:40px">' +
+              '<div style="text-align:center"><div>🍎🍎🍎</div><div style="font-size:13px;font-weight:800;color:#667eea;margin-top:6px">ÇOX</div></div>' +
+              '<div style="text-align:center"><div>🍊</div><div style="font-size:13px;font-weight:800;color:#f5576c;margin-top:6px">AZ</div></div>' +
+              '<div style="text-align:center"><div>🍇🍇</div><div style="font-size:13px;font-weight:800;color:#43e97b;margin-top:6px">BƏRABƏr</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">🐘🐘🐘</div><div class="sl-img-label">3 fil — çox</div><div class="sl-img-sub">Böyük say</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">🐭</div><div class="sl-img-label">1 siçan — az</div><div class="sl-img-sub">Kiçik say</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🌟🌟</div><div class="sl-img-label">2=2 ulduz</div><div class="sl-img-sub">Bərabər</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">🦴🦴🦴🦴</div><div class="sl-img-label">İt üçün çox!</div><div class="sl-img-sub">Müqayisə</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎯 Sinif oyunu: "Əlləri say"</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Bir qrup 3 uşaq, digər qrup 5 uşaq durur</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>"Hansı qrupda çox uşaq var?" — uşaqlar cavablaşır</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Bərabər etmək üçün neçə uşaq lazımdır?</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Bu anlayışlar rəqəmlərdən daha əsasdır. Uşaqlar əvvəl məntiqi düşünməyi öyrənməlidir.</div>' +
+        '</div>',
         materials:['Müxtəlif sayda top/kublar','Meyvə şəkilləri']
       },
       {
-        time:'10:10','dur':'30 dəq', subject:'drawing', icon:'🎨', color:'#43e97b',
+        time:'10:10', dur:'30 dəq', subject:'drawing', icon:'🎨', color:'#43e97b',
         title:'Rəsm — Özüm haqqında portret',
         subtitle:'Yaradıcılıq · Özünü ifadə',
-        desc:'Hər uşaq özünün portretini çəkir. Bu, özünüdərk və incəsənətin başlanğıcıdır.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🖍️ Addım-addım "Özüm" portreti</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Böyük dairə çəkin — baş 🔵</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>İki kiçik dairə — gözlər 👀</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Kiçik nöqtə — burun 👃</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Yarım dairə — gülümsəyən ağız 😊</span></div>
-      <div class="sl-step"><span class="sl-step-num">5</span><span>Yuxarıdan saç xətləri çəkin 💇</span></div>
-      <div class="sl-step"><span class="sl-step-num">6</span><span>Altında bədən, əllər, ayaqlar əlavə edin</span></div>
-      <div class="sl-step"><span class="sl-step-num">7</span><span>Sevdiyiniz rənglərlə boyayın 🌈</span></div>
-    </div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">😀</div>
-      <div class="sl-img-label">Xoşbəxt üz</div>
-      <div class="sl-img-sub">Gülümsəmə</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">👦</div>
-      <div class="sl-img-label">Oğlan portreti</div>
-      <div class="sl-img-sub">Kəsik saç</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">👧</div>
-      <div class="sl-img-label">Qız portreti</div>
-      <div class="sl-img-sub">Uzun saç</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">🎨</div>
-      <div class="sl-img-label">Rəng seçimi</div>
-      <div class="sl-img-sub">Yaradıcılıq</div>
-    </div>
-  </div>
-  <div class="sl-text-box">
-    <div class="sl-text-title">📖 Rəsm hekayəsi</div>
-    <div class="sl-text-content">Kağız üzərindəki o kiçik adam — SƏNSƏN! Sənin gözlərinin rəngi, saçının uzunluğu, sifətindəki gülüşün — hamısı sənin xüsusiyyətindir. Dünyada sənin kimi ikinci bir insan yoxdur. Sən unikalsaN! 🌟</div>
-  </div>
-  <div class="sl-tip">💡 Portreti sinifdə sərgi kimi asın. Hər uşaq öz portretini sinifə təqdim etsin.</div>
-</div>`,
+        desc:'Hər uşaq özünün portretini çəkir. Özünüdərk və incəsənətin başlanğıcıdır!',
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🖍️ Addım-addım "Özüm" portreti</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Böyük dairə çəkin — baş 🔵</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>İki kiçik dairə — gözlər 👀</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Kiçik nöqtə — burun 👃</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>Yarım dairə — gülümsəyən ağız 😊</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">5</span><span>Yuxarıdan saç xətləri çəkin 💇</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">6</span><span>Bədən, əllər, ayaqlar əlavə edin</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">7</span><span>Sevdiyiniz rənglərlə boyayın 🌈</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">😀</div><div class="sl-img-label">Xoşbəxt üz</div><div class="sl-img-sub">Gülümsəmə</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">👦</div><div class="sl-img-label">Oğlan</div><div class="sl-img-sub">Kəsik saç</div></div>' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">👧</div><div class="sl-img-label">Qız</div><div class="sl-img-sub">Uzun saç</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">🎨</div><div class="sl-img-label">Rəng seçimi</div><div class="sl-img-sub">Yaradıcılıq</div></div>' +
+          '</div>' +
+          '<div class="sl-text-box">' +
+            '<div class="sl-text-title">📖 Rəsm hekayəsi</div>' +
+            '<div class="sl-text-content">Kağız üzərindəki o kiçik adam — SƏNSƏN! Sənin gözlərinin rəngi, saçının uzunluğu, sifətindəki gülüşün — hamısı sənin xüsusiyyətindir. Dünyada sənin kimi ikinci bir insan yoxdur. Sən unikalsaN! 🌟</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Portreti sinifdə sərgi kimi asın. Hər uşaq öz portretini sinifə təqdim etsin.</div>' +
+        '</div>',
         materials:['A4 ağ kağız','Karandaş','Rəngli karandaşlar','Silgi']
       },
       {
-        time:'10:45','dur':'30 dəq', subject:'physical', icon:'⚽', color:'#f093fb',
+        time:'10:45', dur:'30 dəq', subject:'physical', icon:'⚽', color:'#f093fb',
         title:'Bədən Tərbiyəsi — "Ad deyirəm, hərəkət edirəm"',
         subtitle:'Motor inkişaf · Koordinasiya',
         desc:'Hər uşaq adını deyərək müəyyən hərəkət edir. Koordinasiya + yaddaş birləşir.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🏃 Oyunun qaydaları</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Dairəvi oturun — müəllim ortada dayanır</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Müəllim bir uşağın adını deyir</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>O uşaq qalxır, adını deyir, bir hərəkət göstərir</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Hamı o hərəkəti təkrar edir: sıçramaq, döndərмək, yellənmək</span></div>
-      <div class="sl-step"><span class="sl-step-num">5</span><span>Növbə sürətlənir — hərəkətlər daha da maraqlı olur!</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Bu oyun uşaqların bir-birinin adını öyrənməsini və hərəkət etməyini eyni anda həll edir.</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🏃 Oyunun qaydaları</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Dairəvi oturun — müəllim ortada dayanır</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Müəllim bir uşağın adını deyir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>O uşaq qalxır, adını deyir, bir hərəkət göstərir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>Hamı o hərəkəti təkrar edir: sıçramaq, dönmək, yellənmək</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">5</span><span>Növbə sürətlənir — hərəkətlər daha maraqlı olur!</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#f093fb"><div class="sl-img-emoji">🦘</div><div class="sl-img-label">Sıçramaq</div><div class="sl-img-sub">Ayaqlar birlikdə</div></div>' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">🌀</div><div class="sl-img-label">Dönmək</div><div class="sl-img-sub">Dairəvi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🌊</div><div class="sl-img-label">Yellənmək</div><div class="sl-img-sub">Sol-sağ</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">⭐</div><div class="sl-img-label">Ulduz duruşu</div><div class="sl-img-sub">Əllər-ayaqlar açıq</div></div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Bu oyun uşaqların bir-birinin adını öyrənməsini və hərəkət etməyini eyni anda həll edir.</div>' +
+        '</div>',
         materials:['Geniş yer','Musiqi (isteğe bağlı)']
       },
       {
-        time:'11:20','dur':'30 dəq', subject:'music', icon:'🎵', color:'#4facfe',
+        time:'11:20', dur:'30 dəq', subject:'music', icon:'🎵', color:'#4facfe',
         title:'Musiqi — "Adım var, mən xoşbəxtəm" nəğməsi',
         subtitle:'Ritm · Nitq · Emosional inkişaf',
         desc:'Sadə melodiya ilə hər uşaq öz adını nəğməyə əlavə edir.',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#4facfe22,#00f2fe22)">
-    <div class="sl-text-content" style="font-style:italic;font-size:15px;line-height:2.2;text-align:center;color:#2D3748">
-      🎵 Adım var, mən xoşbəxtəm,<br>
-      Hər gün məktəbə gəlirəm,<br>
-      Dost tapıram, oyun oynayıram,<br>
-      Bilik alıram, böyüyürəm! 🎵
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎤 Fərdi oxuma</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Mahnını birlikdə 2 dəfə oxuyun</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Hər uşaq "Adım — [öz adı] — var" deyərək solo oxuyur</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Əllə masaya vuraraq ritm yaradın</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Mahnıda öz adını eşitmək uşaqda özünə hörmət hissi yaradır.</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#4facfe15,#00f2fe15)">' +
+            '<div class="sl-text-content" style="font-style:italic;font-size:15px;line-height:2.2;text-align:center;color:#2D3748">' +
+              '🎵 Adım var, mən xoşbəxtəm,<br>Hər gün məktəbə gəlirəm,<br>Dost tapıram, oyun oynayıram,<br>Bilik alıram, böyüyürəm! 🎵' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎤 Fərdi oxuma</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Mahnını birlikdə 2 dəfə oxuyun</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Hər uşaq "Adım — [öz adı] — var" deyərək solo oxuyur</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Əllə masaya vuraraq ritm yaradın</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Mahnıda öz adını eşitmək uşaqda özünə hörmət hissi yaradır.</div>' +
+        '</div>',
         materials:['Musiqi / akustik gitar / telefon']
       }
     ]
   },
   2: {
-    dayName: 'Çərşənbə axşamı',
-    theme: 'Ailə & Sevgi',
-    color: '#f5576c', grad: 'linear-gradient(135deg,#f5576c 0%,#f093fb 100%)',
-    emoji: '❤️', bgEmoji: '💝',
-    lessons: [
+    theme:'Ana & A hərfi', color:'#f5576c',
+    grad:'linear-gradient(135deg,#f5576c,#f093fb)', emoji:'❤️',
+    lessons:[
       {
-        time:'09:00','dur':'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
-        title:'Azərbaycan Dili — "Ana" sözü & "A" hərfi',
+        time:'09:00', dur:'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "ANA" sözü & "A" hərfi',
         subtitle:'Birinci hərf · Ən sevimli söz',
         desc:'Hər kəsin ən sevdiyi söz — <b>ANA</b>. Bu sözdəki <b>A</b> hərfini öyrənirik!',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#f5576c22,#f093fb22)">
-    <div class="sl-big-word" style="color:#f5576c">A — ANA</div>
-    <div class="sl-phonetic">A hərfi · 1-ci hərf · Ən gözəl söz</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">👩</div>
-      <div class="sl-img-label">Ana</div>
-      <div class="sl-img-sub">Sevgi mənbəyi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">🍎</div>
-      <div class="sl-img-label">Alma</div>
-      <div class="sl-img-sub">A ilə başlayır</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🐴</div>
-      <div class="sl-img-label">At</div>
-      <div class="sl-img-sub">A ilə başlayır</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#4facfe">
-      <div class="sl-img-emoji">🌺</div>
-      <div class="sl-img-label">Ağac</div>
-      <div class="sl-img-sub">A ilə başlayır</div>
-    </div>
-  </div>
-  <div class="sl-letter-write">
-    <div class="sl-lw-title">✍️ A hərfini yazırıq</div>
-    <div class="sl-lw-steps">
-      <div class="sl-lw-step"><div class="sl-lw-num">①</div><div>Sol yuxarıdan sağa aşağı çəkin — / </div></div>
-      <div class="sl-lw-step"><div class="sl-lw-num">②</div><div>Sağ yuxarıdan sola aşağı çəkin — \ </div></div>
-      <div class="sl-lw-step"><div class="sl-lw-num">③</div><div>Ortadan xətt çəkin — — → A ✅</div></div>
-    </div>
-    <div class="sl-lw-big" style="color:#f5576c">A a</div>
-  </div>
-  <div class="sl-text-box">
-    <div class="sl-text-title">📖 "Ana" şeiri</div>
-    <div class="sl-text-content" style="font-style:italic;line-height:2.2">
-      Ana — dünyada ən gözəl sözdür,<br>
-      Ana — könüldə ən isti közüm,<br>
-      Ana — səsini eşidəndə gülürəm,<br>
-      Ana — sənin üçün həmişə büyürəm. 💕
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎯 A hərfi axtarışı</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Sinifə baxın — A hərfi olan şey tapın (adlar, lövhə, kitab)</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Uşaqların adında A hərfi varmı? (Aysel, Anar, Aytən...)</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>5 dəfə böyük A, 5 dəfə kiçik a yazın</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 "ANA" sözünü hissə-hissə: A-NA. Hər uşaq "ANA" yazıb evə aparır — valideyn üçün sürpriz!</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#f5576c15,#f093fb15)">' +
+            '<div class="sl-big-word" style="color:#f5576c">A — ANA</div>' +
+            '<div class="sl-phonetic">A hərfi · 1-ci hərf · Ən gözəl söz</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">👩</div><div class="sl-img-label">Ana</div><div class="sl-img-sub">Sevgi mənbəyi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">🍎</div><div class="sl-img-label">Alma</div><div class="sl-img-sub">A ilə başlayır</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🐴</div><div class="sl-img-label">At</div><div class="sl-img-sub">A ilə başlayır</div></div>' +
+            '<div class="sl-img-card" style="--ic:#4facfe"><div class="sl-img-emoji">🌺</div><div class="sl-img-label">Ağac</div><div class="sl-img-sub">A ilə başlayır</div></div>' +
+          '</div>' +
+          '<div class="sl-letter-write">' +
+            '<div class="sl-lw-title">✍️ A hərfini yazırıq</div>' +
+            '<div class="sl-lw-steps">' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">①</div><div>Sol yuxarıdan sağ aşağıya çəkin: /</div></div>' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">②</div><div>Sağ yuxarıdan sol aşağıya çəkin: \\</div></div>' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">③</div><div>Ortadan xətt çəkin → A ✅</div></div>' +
+            '</div>' +
+            '<div class="sl-lw-big" style="color:#f5576c">A a</div>' +
+          '</div>' +
+          '<div class="sl-text-box">' +
+            '<div class="sl-text-title">📖 "Ana" şeiri</div>' +
+            '<div class="sl-text-content" style="font-style:italic;line-height:2.2">Ana — dünyada ən gözəl sözdür,<br>Ana — könüldə ən isti közüm,<br>Ana — səsini eşidəndə gülürəm,<br>Ana — sənin üçün həmişə büyürəm. 💕</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 "ANA" sözünü hissə-hissə: A-NA. Hər uşaq "ANA" yazıb evə aparır — valideyn üçün sürpriz!</div>' +
+        '</div>',
         materials:['Kağız','Qələm','Qırmızı rəngli karandaş']
       },
       {
-        time:'09:35','dur':'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
+        time:'09:35', dur:'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
         title:'Riyaziyyat — 1 rəqəmi',
         subtitle:'Birinci rəqəm · Tək anlayışı',
         desc:'<b>1</b> rəqəmi — birinci, tək, vahid. Ən kiçik tam say!',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#667eea22,#764ba222)">
-    <div class="sl-big-word" style="color:#667eea;font-size:96px">1</div>
-    <div class="sl-phonetic">Bir · Tək · İlk · Vahid</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">☝️</div>
-      <div class="sl-img-label">1 barmaq</div>
-      <div class="sl-img-sub">"Bir" demək</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">☀️</div>
-      <div class="sl-img-label">1 günəş</div>
-      <div class="sl-img-sub">Göydə tək</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🌙</div>
-      <div class="sl-img-label">1 ay</div>
-      <div class="sl-img-sub">Gecənin işığı</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">❤️</div>
-      <div class="sl-img-label">1 ürək</div>
-      <div class="sl-img-sub">Hamımızda</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🔍 "Birini tap" oyunu</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Sinifde tək olan şeyləri tapın: 1 qapı, 1 lövhə...</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Bədənimizdə tək olan nədir? (burun, ağız, göbək)</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Kağıza 1 hərfi böyük yazıb alma ilə bəzəyin 🍎</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 "1 ana, 1 dnya, 1 şans" — 1 rəqəminin dəyərini emosional şəkildə çatdırın.</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#667eea15,#764ba215)">' +
+            '<div class="sl-big-word" style="color:#667eea;font-size:96px">1</div>' +
+            '<div class="sl-phonetic">Bir · Tək · İlk · Vahid</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">☝️</div><div class="sl-img-label">1 barmaq</div><div class="sl-img-sub">"Bir" demək</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">☀️</div><div class="sl-img-label">1 günəş</div><div class="sl-img-sub">Göydə tək</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🌙</div><div class="sl-img-label">1 ay</div><div class="sl-img-sub">Gecənin işığı</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">❤️</div><div class="sl-img-label">1 ürək</div><div class="sl-img-sub">Hamımızda var</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🔍 "Birini tap" oyunu</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Sinifde tək olan şeyləri tapın: 1 qapı, 1 lövhə...</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Bədənimizdə tək olan nədir? (burun, ağız, göbək)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Kağıza 1 hərfi böyük yazıb alma ilə bəzəyin 🍎</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 "1 ana, 1 dünya, 1 şans" — 1 rəqəminin dəyərini emosional şəkildə çatdırın.</div>' +
+        '</div>',
         materials:['Sayma kubları','Ağ kağız']
       },
       {
-        time:'10:10','dur':'30 dəq', subject:'nature', icon:'🌿', color:'#43e97b',
-        title:'Təbiət — Ailə üzvləri & bədən hissələri',
-        subtitle:'Canlı dünya · İnsan anatomiyası',
-        desc:'Ailə üzvlərini tanıyır, bədənimizin hissələrini öyrənirik.',
-        body:`<div class="sl-section">
-  <div class="sl-image-grid" style="grid-template-columns:repeat(3,1fr)">
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">👨</div>
-      <div class="sl-img-label">Ata</div>
-      <div class="sl-img-sub">Qoruyucu</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f093fb">
-      <div class="sl-img-emoji">👩</div>
-      <div class="sl-img-label">Ana</div>
-      <div class="sl-img-sub">Sevgi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">👦</div>
-      <div class="sl-img-label">Qardaş</div>
-      <div class="sl-img-sub">Dost</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">👧</div>
-      <div class="sl-img-label">Bacı</div>
-      <div class="sl-img-sub">Yoldaş</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">👴</div>
-      <div class="sl-img-label">Baba</div>
-      <div class="sl-img-sub">Hikayələr</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#fa8231">
-      <div class="sl-img-emoji">👵</div>
-      <div class="sl-img-label">Nənə</div>
-      <div class="sl-img-sub">Şirniyyat 😋</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎨 Ailə ağacı</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Kağıza böyük ağac çəkin</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Hər budaqda ailə üzvünün adını yazın</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Öz şəklinizi kökə yaxın yerləşdirin</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Evdən ailə şəkli gətirməsini əvvəlcədən söyləyin — bu dərs daha personal olacaq.</div>
-</div>`,
-        materials:['A3 kağız','Rəngli karandaş','Ailə şəkli (əgər varsa)']
+        time:'10:10', dur:'30 dəq', subject:'nature', icon:'🌿', color:'#43e97b',
+        title:'Təbiət — Ailə üzvləri',
+        subtitle:'Canlı dünya · İnsan & ailə',
+        desc:'Ailə üzvlərini tanıyır, ailə ağacı hazırlayırıq.',
+        body:'<div class="sl-section">' +
+          '<div class="sl-image-grid" style="grid-template-columns:repeat(3,1fr)">' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">👨</div><div class="sl-img-label">Ata</div><div class="sl-img-sub">Qoruyucu</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f093fb"><div class="sl-img-emoji">👩</div><div class="sl-img-label">Ana</div><div class="sl-img-sub">Sevgi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">👦</div><div class="sl-img-label">Qardaş</div><div class="sl-img-sub">Dost</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">👧</div><div class="sl-img-label">Bacı</div><div class="sl-img-sub">Yoldaş</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">👴</div><div class="sl-img-label">Baba</div><div class="sl-img-sub">Hikayələr</div></div>' +
+            '<div class="sl-img-card" style="--ic:#fa8231"><div class="sl-img-emoji">👵</div><div class="sl-img-label">Nənə</div><div class="sl-img-sub">Şirniyyat 😋</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🌳 Ailə ağacı hazırlayırıq</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Kağıza böyük ağac çəkin</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Hər budaqda ailə üzvünün adını yazın</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Öz şəklinizi kökə yaxın yerləşdirin</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Evdən ailə şəkli gətirməsini əvvəlcədən söyləyin — bu dərs daha personal olacaq.</div>' +
+        '</div>',
+        materials:['A3 kağız','Rəngli karandaş','Ailə şəkli']
       },
       {
-        time:'10:45','dur':'30 dəq', subject:'reading', icon:'📖', color:'#4facfe',
+        time:'10:45', dur:'30 dəq', subject:'reading', icon:'📖', color:'#4facfe',
         title:'Oxu hazırlığı — Şəkilə baxıb danış',
         subtitle:'Şifahi nitq · Müşahidə bacarığı',
-        desc:'Şəkil görürük, təsvir edirik. Oxuya hazırlığın birinci addımı budur.',
-        body:`<div class="sl-section">
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#4facfe">
-      <div class="sl-img-emoji">🏠</div>
-      <div class="sl-img-label">Ev şəkli</div>
-      <div class="sl-img-sub">Nə görürsən?</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🌳</div>
-      <div class="sl-img-label">Bağ şəkli</div>
-      <div class="sl-img-sub">Nə var orada?</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">👨‍👩‍👧</div>
-      <div class="sl-img-label">Ailə şəkli</div>
-      <div class="sl-img-sub">Kimdir bunlar?</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">🌅</div>
-      <div class="sl-img-label">Günbatan</div>
-      <div class="sl-img-sub">Hissiyyat?</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">💬 "Şəkil danışdır" oyunu</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Müəllim ailə şəkli göstərir</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Uşaqlar "Bu şəkildə nə görürsən?" sualına cavab verir</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Ən çox söz işlədən uşaq "Danışqan ulduz" 🌟 alır</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Uşaq hər şeyi düzgün deməsə də düzəltməyin — söz çıxarmaq vacibdir!</div>
-</div>`,
-        materials:['Rəngli şəkillər','Jurnaldan kəsilmiş ailə fotoları']
+        desc:'Şəkil görürük, təsvir edirik. Oxuya hazırlığın birinci addımı.',
+        body:'<div class="sl-section">' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#4facfe"><div class="sl-img-emoji">🏠</div><div class="sl-img-label">Ev şəkli</div><div class="sl-img-sub">Nə görürsən?</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🌳</div><div class="sl-img-label">Bağ şəkli</div><div class="sl-img-sub">Nə var orada?</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">👨‍👩‍👧</div><div class="sl-img-label">Ailə şəkli</div><div class="sl-img-sub">Kimdir bunlar?</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">🌅</div><div class="sl-img-label">Günbatan</div><div class="sl-img-sub">Hissiyyat?</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">💬 "Şəkil danışdır" oyunu</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Müəllim ailə şəkli göstərir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Uşaqlar "Bu şəkildə nə görürsən?" sualına cavab verir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Ən çox söz işlədən uşaq "Danışqan ulduz" 🌟 alır</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Uşaq hər şeyi düzgün deməsə də düzəltməyin — söz çıxarmaq vacibdir!</div>' +
+        '</div>',
+        materials:['Rəngli şəkillər','Jurnaldan kəsilmiş fotolar']
       },
       {
-        time:'11:20','dur':'30 dəq', subject:'creativity', icon:'✂️', color:'#fa8231',
-        title:'Yaradıcılıq — Ana üçün kart',
+        time:'11:20', dur:'30 dəq', subject:'creativity', icon:'✂️', color:'#fa8231',
+        title:'Yaradıcılıq — Ana / Ata üçün kart',
         subtitle:'Əl işi · Sevgi ifadəsi',
         desc:'Anaya/atasına kart hazırlayırıq. Ürəkdən bir hədiyyə!',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">💌 Kart hazırlayaq</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>A4 kağızı ikiyə qatlayın — bu kart olur</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Üzünə böyük ❤️ çəkin və rəngləyin</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>İçinə "ANA" yazın (A hərfini öyrəndik!)</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Özünüzün şəklini çəkin</span></div>
-      <div class="sl-step"><span class="sl-step-num">5</span><span>Çiçək, ulduz, ürəklər əlavə edin 🌸⭐</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Bu kart A hərfini praktik şəkildə möhkəmləndirir. Uşaqlar evə böyük sevinclə aparır!</div>
-</div>`,
-        materials:['Rəngli kağız','Rəngli karandaş','Bəzək üçün stikerlər']
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">💌 Kart hazırlayaq</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>A4 kağızı ikiyə qatlayın — bu kart olur</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Üzünə böyük ❤️ çəkin və rəngləyin</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>İçinə "ANA" yazın (A hərfini öyrəndik!)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>Özünüzün şəklini çəkin</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">5</span><span>Çiçək, ulduz, ürəklər əlavə edin 🌸⭐</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Bu kart A hərfini praktik möhkəmləndirir. Uşaqlar evə böyük sevinclə aparır!</div>' +
+        '</div>',
+        materials:['Rəngli kağız','Rəngli karandaş','Stikerlər']
       }
     ]
   },
   3: {
-    dayName: 'Çərşənbə',
-    theme: 'Rənglər & B hərfi',
-    color: '#43e97b', grad: 'linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)',
-    emoji: '🌈', bgEmoji: '🎨',
-    lessons: [
+    theme:'Rənglər & B hərfi', color:'#43e97b',
+    grad:'linear-gradient(135deg,#43e97b,#38f9d7)', emoji:'🌈',
+    lessons:[
       {
-        time:'09:00','dur':'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
-        title:'Azərbaycan Dili — "B" hərfi & "Bax" əmri',
-        subtitle:'İkinci hərf · Əmr cümləsi',
+        time:'09:00', dur:'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "B" hərfi',
+        subtitle:'İkinci hərf · Bal, Bağ, Balıq',
         desc:'<b>B</b> hərfi öyrənirik. "Bax, budur, bu!" — B ilə başlayan söz ailəsi.',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#43e97b22,#38f9d722)">
-    <div class="sl-big-word" style="color:#43e97b">B — BAX</div>
-    <div class="sl-phonetic">B hərfi · İkinci hərf · Dilimizin sütunu</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🐝</div>
-      <div class="sl-img-label">Bal arısı</div>
-      <div class="sl-img-sub">B — BAL</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">🌿</div>
-      <div class="sl-img-label">Bağ</div>
-      <div class="sl-img-sub">B — BAĞ</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">🐟</div>
-      <div class="sl-img-label">Balıq</div>
-      <div class="sl-img-sub">B — BALIQ</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">👆</div>
-      <div class="sl-img-label">Barmaq</div>
-      <div class="sl-img-sub">B — BARMAQ</div>
-    </div>
-  </div>
-  <div class="sl-letter-write">
-    <div class="sl-lw-title">✍️ B hərfini yazırıq</div>
-    <div class="sl-lw-steps">
-      <div class="sl-lw-step"><div class="sl-lw-num">①</div><div>Yuxarıdan aşağıya düz xətt: |</div></div>
-      <div class="sl-lw-step"><div class="sl-lw-num">②</div><div>Yuxarı hissədən sağa dairə: )</div></div>
-      <div class="sl-lw-step"><div class="sl-lw-num">③</div><div>Aşağı hissədən böyük dairə: ) → B ✅</div></div>
-    </div>
-    <div class="sl-lw-big" style="color:#43e97b">B b</div>
-  </div>
-  <div class="sl-text-box">
-    <div class="sl-text-title">📖 "B" hərfinin hekayəsi</div>
-    <div class="sl-text-content">Bala adlı bir balıq var idi. O, baxışlı gözləri ilə hər şeyə baxardı. Bir gün baxdı — bağda bir bal arısı gördu. "Bax, bax!" — dedi balıq. "Bu necə gözəl baqdır!" Arı da gülümsədi: "Bəli, bu dünyada hər şey gözəldir — yalnız BAX!" 🐝🐟</div>
-  </div>
-  <div class="sl-tip">💡 "B kimi böyük barmaq" — baş barmağı göstərərək B hərfini xatırlatmaq olar. Solda 2 dairə = B!</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#43e97b15,#38f9d715)">' +
+            '<div class="sl-big-word" style="color:#43e97b">B — BAL</div>' +
+            '<div class="sl-phonetic">B hərfi · İkinci hərf · Dilimizin sütunu</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🐝</div><div class="sl-img-label">Bal arısı</div><div class="sl-img-sub">B — BAL</div></div>' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">🌿</div><div class="sl-img-label">Bağ</div><div class="sl-img-sub">B — BAĞ</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">🐟</div><div class="sl-img-label">Balıq</div><div class="sl-img-sub">B — BALIQ</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">👆</div><div class="sl-img-label">Barmaq</div><div class="sl-img-sub">B — BARMAQ</div></div>' +
+          '</div>' +
+          '<div class="sl-letter-write">' +
+            '<div class="sl-lw-title">✍️ B hərfini yazırıq</div>' +
+            '<div class="sl-lw-steps">' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">①</div><div>Yuxarıdan aşağıya düz xətt: |</div></div>' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">②</div><div>Yuxarı hissədən sağa kiçik dairə</div></div>' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">③</div><div>Aşağı hissədən böyük dairə → B ✅</div></div>' +
+            '</div>' +
+            '<div class="sl-lw-big" style="color:#43e97b">B b</div>' +
+          '</div>' +
+          '<div class="sl-text-box">' +
+            '<div class="sl-text-title">📖 "B" hərfinin hekayəsi</div>' +
+            '<div class="sl-text-content">Bala adlı bir balıq var idi. O, baxışlı gözləri ilə hər şeyə baxardı. Bir gün baxdı — bağda bir bal arısı gördü. "Bax, bax!" — dedi balıq. "Bu necə gözəl bağdır!" Arı da gülümsədi: "Bəli, bu dünyada hər şey gözəldir — yalnız BAX!" 🐝🐟</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 "B kimi böyük barmaq" — baş barmağı göstərərək B hərfini xatırlatmaq olar. Solda 2 dairə = B!</div>' +
+        '</div>',
         materials:['Kağız','Qələm','Yaşıl karandaş']
       },
       {
-        time:'09:35','dur':'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
+        time:'09:35', dur:'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
         title:'Riyaziyyat — 2 rəqəmi & Cütlük',
         subtitle:'Cüt anlayışı · 1+1=2',
-        desc:'<b>2</b> rəqəmini öyrənirik. Cütlük nədir? Bədənimizdə cüt olan nədir?',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#667eea22,#764ba222)">
-    <div class="sl-big-word" style="color:#667eea;font-size:96px">2</div>
-    <div class="sl-phonetic">İki · Cüt · 1+1 = 2</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">👀</div>
-      <div class="sl-img-label">2 göz</div>
-      <div class="sl-img-sub">Cüt!</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">👂👂</div>
-      <div class="sl-img-label">2 qulaq</div>
-      <div class="sl-img-sub">Cüt!</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🦶🦶</div>
-      <div class="sl-img-label">2 ayaq</div>
-      <div class="sl-img-sub">Cüt!</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">✋✋</div>
-      <div class="sl-img-label">2 əl</div>
-      <div class="sl-img-sub">Cüt!</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎮 1+1=2 oyunu</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>1 alma masaya qoyun</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Daha 1 alma əlavə edin</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Hamı birlikdə: "Bir, iki — iki alma!" 🍎🍎</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Fərqli əşyalarla təkrarlayın</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 "Cüt" anlayışını geyim ilə əlaqələndirin: 2 corab, 2 əlcək — cütlər həmişə birlikdədir!</div>
-</div>`,
-        materials:['2-2 ədəd müxtəlif əşyalar','Sayma kartları']
+        desc:'<b>2</b> rəqəmini öyrənirik. Bədənimizdə cüt olan nədir?',
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#667eea15,#764ba215)">' +
+            '<div class="sl-big-word" style="color:#667eea;font-size:96px">2</div>' +
+            '<div class="sl-phonetic">İki · Cüt · 1+1 = 2</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">👀</div><div class="sl-img-label">2 göz</div><div class="sl-img-sub">Cüt!</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">👂👂</div><div class="sl-img-label">2 qulaq</div><div class="sl-img-sub">Cüt!</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🦶🦶</div><div class="sl-img-label">2 ayaq</div><div class="sl-img-sub">Cüt!</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">✋✋</div><div class="sl-img-label">2 əl</div><div class="sl-img-sub">Cüt!</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎮 1+1=2 oyunu</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>1 alma masaya qoyun</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Daha 1 alma əlavə edin</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Hamı birlikdə: "Bir, iki — iki alma!" 🍎🍎</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 "Cüt" anlayışını geyim ilə əlaqələndirin: 2 corab, 2 əlcək — cütlər həmişə birlikdədir!</div>' +
+        '</div>',
+        materials:['2-2 ədəd müxtəlif əşyalar']
       },
       {
-        time:'10:10','dur':'30 dəq', subject:'drawing', icon:'🎨', color:'#43e97b',
-        title:'Rəsm — Göy qurşağı & Rənglər',
+        time:'10:10', dur:'30 dəq', subject:'drawing', icon:'🎨', color:'#43e97b',
+        title:'Rəsm — Göy qurşağı & 7 rəng',
         subtitle:'Rəng nəzəriyyəsi · Əsas rənglər',
         desc:'7 rəng, 7 möcüzə. Göy qurşağı çəkirik, rəngləri öyrənirik.',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#ff0000,#ff7700,#ffff00,#00ff00,#0000ff,#8b00ff);border-radius:16px;padding:24px;margin-bottom:16px">
-    <div style="text-align:center;font-size:48px">🌈</div>
-    <div style="text-align:center;color:white;font-weight:900;font-size:14px;margin-top:8px;text-shadow:0 1px 3px rgba(0,0,0,0.5)">Qırmızı · Narıncı · Sarı · Yaşıl · Mavi · Göy · Bənövşəyi</div>
-  </div>
-  <div class="sl-image-grid" style="grid-template-columns:repeat(4,1fr)">
-    <div class="sl-img-card" style="--ic:#ff4444;background:#ff444422">
-      <div class="sl-img-emoji">🍎</div>
-      <div class="sl-img-label" style="color:#cc0000">Qırmızı</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#ff8800;background:#ff880022">
-      <div class="sl-img-emoji">🍊</div>
-      <div class="sl-img-label" style="color:#cc6600">Narıncı</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D;background:#FFD93D22">
-      <div class="sl-img-emoji">🌻</div>
-      <div class="sl-img-label" style="color:#997700">Sarı</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b;background:#43e97b22">
-      <div class="sl-img-emoji">🌿</div>
-      <div class="sl-img-label" style="color:#1a8a3f">Yaşıl</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#4facfe;background:#4facfe22">
-      <div class="sl-img-emoji">🌊</div>
-      <div class="sl-img-label" style="color:#0066cc">Mavi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#0033ff;background:#0033ff22">
-      <div class="sl-img-emoji">🫐</div>
-      <div class="sl-img-label" style="color:#001199">Göy</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#8b00ff;background:#8b00ff22">
-      <div class="sl-img-emoji">🍇</div>
-      <div class="sl-img-label" style="color:#550099">Bənövşəyi</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#888;background:#88888822">
-      <div class="sl-img-emoji">☁️</div>
-      <div class="sl-img-label" style="color:#555">Ağ/Boz</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🖍️ Göy qurşağı çəkirik</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Kağızın altında 7 iri yarım dairə çəkin (birinin içinə)</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Xaricidən: qırmızı → narıncı → sarı → yaşıl → mavi → göy → bənövşəyi</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Altına buludlar, yağış damcıları çəkin 🌧️</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 "Hər gün yağış yağanda göy qurşağı çıxır" — niyə? Uşaqlara işığın rənglərə bölündüyünü sadə izah edin.</div>
-</div>`,
-        materials:['A4 kağız','7 rəng karandaş/boya','Sirkul (isteğe bağlı)']
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(90deg,#ff0000,#ff7700,#ffff00,#00ff00,#0000ff,#8b00ff);border-radius:16px;padding:24px">' +
+            '<div style="text-align:center;font-size:48px">🌈</div>' +
+            '<div style="text-align:center;color:white;font-weight:900;font-size:13px;margin-top:8px;text-shadow:0 1px 3px rgba(0,0,0,0.5)">Qırmızı · Narıncı · Sarı · Yaşıl · Mavi · Göy · Bənövşəyi</div>' +
+          '</div>' +
+          '<div class="sl-image-grid" style="grid-template-columns:repeat(4,1fr)">' +
+            '<div class="sl-img-card" style="--ic:#ff4444;background:#ff444415"><div class="sl-img-emoji">🍎</div><div class="sl-img-label" style="color:#cc0000">Qırmızı</div></div>' +
+            '<div class="sl-img-card" style="--ic:#ff8800;background:#ff880015"><div class="sl-img-emoji">🍊</div><div class="sl-img-label" style="color:#cc6600">Narıncı</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D;background:#FFD93D15"><div class="sl-img-emoji">🌻</div><div class="sl-img-label" style="color:#997700">Sarı</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b;background:#43e97b15"><div class="sl-img-emoji">🌿</div><div class="sl-img-label" style="color:#1a8a3f">Yaşıl</div></div>' +
+            '<div class="sl-img-card" style="--ic:#4facfe;background:#4facfe15"><div class="sl-img-emoji">🌊</div><div class="sl-img-label" style="color:#0066cc">Mavi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#0033ff;background:#0033ff15"><div class="sl-img-emoji">🫐</div><div class="sl-img-label" style="color:#001199">Göy</div></div>' +
+            '<div class="sl-img-card" style="--ic:#8b00ff;background:#8b00ff15"><div class="sl-img-emoji">🍇</div><div class="sl-img-label" style="color:#550099">Bənövşəyi</div></div>' +
+            '<div class="sl-img-card" style="--ic:#888"><div class="sl-img-emoji">☁️</div><div class="sl-img-label">Ağ/Boz</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🖍️ Göy qurşağı çəkirik</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Kağızın altında 7 yarım dairə çəkin (birinin içinə)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Xaricidən: qırmızı → narıncı → sarı → yaşıl → mavi → göy → bənövşəyi</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Altına buludlar, yağış damcıları çəkin 🌧️</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 "Hər yağışdan sonra göy qurşağı çıxır" — işığın rənglərə bölündüyünü sadə izah edin.</div>' +
+        '</div>',
+        materials:['A4 kağız','7 rəng karandaş']
       },
       {
-        time:'10:45','dur':'30 dəq', subject:'logic', icon:'🧩', color:'#a855f7',
-        title:'Məntiq — Rəng cütləşdirməsi & Fərqli olan',
-        subtitle:'Analitik düşüncə · Müşahidə',
+        time:'10:45', dur:'30 dəq', subject:'logic', icon:'🧩', color:'#a855f7',
+        title:'Məntiq — Rəng cütləşdirməsi',
+        subtitle:'Analitik düşüncə · Pattern',
         desc:'Rəng tapşırıqları ilə məntiq inkişaf edir: hansı fərqlidir, cütlər.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🎯 "Hansı fərqlidir?" oyunu</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>🔴🔴🔴🔵 — Mavi fərqlidir!</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>🟡🟡🟢🟡 — Yaşıl fərqlidir!</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>🐶🐶🐱🐶 — Pişik fərqlidir!</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Uşaqlar öz nümunələrini yaratsin</span></div>
-    </div>
-  </div>
-  <div class="sl-activity" style="margin-top:12px">
-    <div class="sl-act-title">🌈 Rəng cütləşdirmə</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Müəllim rəngli kartları qarışdırır</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Uşaqlar eyni rəngli kartları cütləşdirir</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Kim tez qurtarır? 🏆</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Rəng cütləşdirməsi oxuma hazırlığına yardım edir: hərfləri tanımaq da bu tip pattern-recognition-dır.</div>
-</div>`,
-        materials:['Rəngli kartlar (cüt-cüt)','Rəngli kublar']
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎯 "Hansı fərqlidir?" oyunu</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">🔴</span><span>🔴🔴🔴🔵 — Mavi fərqlidir!</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🟡</span><span>🟡🟡🟢🟡 — Yaşıl fərqlidir!</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🐶</span><span>🐶🐶🐱🐶 — Pişik fərqlidir!</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🌟</span><span>Uşaqlar öz nümunələrini yaratsin!</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-activity" style="margin-top:12px">' +
+            '<div class="sl-act-title">🌈 Rəng cütləşdirmə yarışı</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Müəllim rəngli kartları qarışdırır</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Uşaqlar eyni rəngli kartları cütləşdirir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Kim tez qurtarır? 🏆</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Rəng cütləşdirməsi oxuma hazırlığına yardım edir: hərfləri tanımaq da bu tip pattern-recognition-dır.</div>' +
+        '</div>',
+        materials:['Rəngli kartlar (cüt-cüt)']
       },
       {
-        time:'11:20','dur':'30 dəq', subject:'music', icon:'🎵', color:'#4facfe',
+        time:'11:20', dur:'30 dəq', subject:'music', icon:'🎵', color:'#4facfe',
         title:'Musiqi — "Göy qurşağının mahnısı"',
         subtitle:'Ritm · Rəng & musiqi əlaqəsi',
-        desc:'Hər rəngə bir not, hər nota bir addım. Göy qurşağını mahnıya çeviririk!',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#4facfe22,#00f2fe22)">
-    <div class="sl-text-content" style="font-style:italic;font-size:15px;line-height:2.4;text-align:center">
-      🎵 Qırmızı-narıncı-sarı-yaşıl,<br>
-      Mavi-göy-bənövşəyi — göy qurşağı!<br>
-      Yağışdan sonra gözəl çıxar,<br>
-      Biz uşaqlar sevinirik, baxar! 🌈🎵
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎨 Hərəkətli mahnı</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Hər rəng deyiləndə müvafiq rəngli karandaşı qaldırın</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Mahnını oxuyaraq əllə ritm vurun</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Uşaqlar öz rəng sırasını söyləsin</span></div>
-    </div>
-  </div>
-</div>`,
-        materials:['Rəngli karandaşlar (əldə tutmaq üçün)']
+        desc:'Hər rəngə bir not! Göy qurşağını mahnıya çeviririk.',
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#4facfe15,#00f2fe15)">' +
+            '<div class="sl-text-content" style="font-style:italic;font-size:15px;line-height:2.4;text-align:center;color:#2D3748">' +
+              '🎵 Qırmızı-narıncı-sarı-yaşıl,<br>Mavi-göy-bənövşəyi — göy qurşağı!<br>Yağışdan sonra gözəl çıxar,<br>Biz uşaqlar sevinirik, baxar! 🌈🎵' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎨 Hərəkətli mahnı</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Hər rəng deyiləndə müvafiq rəngli karandaşı qaldırın</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Mahnını oxuyaraq əllə ritm vurun</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Uşaqlar öz rəng sırasını söyləsin</span></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>',
+        materials:['Rəngli karandaşlar']
       }
     ]
   },
   4: {
-    dayName: 'Cümə axşamı',
-    theme: 'Heyvanlar & V hərfi',
-    color: '#f7b733', grad: 'linear-gradient(135deg,#f7b733 0%,#fc4a1a 100%)',
-    emoji: '🦁', bgEmoji: '🐾',
-    lessons: [
+    theme:'Heyvanlar & V hərfi', color:'#f7b733',
+    grad:'linear-gradient(135deg,#f7b733,#fc4a1a)', emoji:'🦁',
+    lessons:[
       {
-        time:'09:00','dur':'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
-        title:'Azərbaycan Dili — "V" hərfi & Vətən sözü',
+        time:'09:00', dur:'30 dəq', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "V" hərfi & Vətən',
         subtitle:'Üçüncü hərf · Milli duyğu',
-        desc:'<b>V</b> hərfi — Vətən, vaz, val, varlı sözlərinin başlanğıcı. Ən şərəfli söz!',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#f7b73322,#fc4a1a22)">
-    <div class="sl-big-word" style="color:#fc4a1a">V — VƏTƏN</div>
-    <div class="sl-phonetic">V hərfi · Üçüncü hərf · Qürur simvolu</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#0092BC">
-      <div class="sl-img-emoji">🇦🇿</div>
-      <div class="sl-img-label">Azərbaycan</div>
-      <div class="sl-img-sub">Bizim Vətən</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#fc4a1a">
-      <div class="sl-img-emoji">🌹</div>
-      <div class="sl-img-label">Vaz</div>
-      <div class="sl-img-sub">V — VAZ</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f7b733">
-      <div class="sl-img-emoji">🌊</div>
-      <div class="sl-img-label">Val</div>
-      <div class="sl-img-sub">V — VAL</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">✌️</div>
-      <div class="sl-img-label">Victory!</div>
-      <div class="sl-img-sub">V işarəsi</div>
-    </div>
-  </div>
-  <div class="sl-letter-write">
-    <div class="sl-lw-title">✍️ V hərfini yazırıq</div>
-    <div class="sl-lw-steps">
-      <div class="sl-lw-step"><div class="sl-lw-num">①</div><div>Sol yuxarıdan sağ ortaya çəkin: \</div></div>
-      <div class="sl-lw-step"><div class="sl-lw-num">②</div><div>Sağ ortadan yuxarıya çəkin: / → V ✅</div></div>
-      <div class="sl-lw-step"><div class="sl-lw-num">③</div><div>Quş kimi görünür! 🐦</div></div>
-    </div>
-    <div class="sl-lw-big" style="color:#fc4a1a">V v</div>
-  </div>
-  <div class="sl-text-box">
-    <div class="sl-text-title">📖 "Vətən" şeiri</div>
-    <div class="sl-text-content" style="font-style:italic;line-height:2.2">
-      Vətən — torpağın ən gözəlidir,<br>
-      Vətən — dağların, dənizin sesidir,<br>
-      Vətən — ananın xoş nəfəsidir,<br>
-      Azərbaycan — biz sənin şirin bəhridir! 🇦🇿
-    </div>
-  </div>
-  <div class="sl-tip">💡 "V — Victory (qələbə)" — barmaqlarla V işarəsi göstərin. Uşaqlar bu işarəni heç unutmaz!</div>
-</div>`,
-        materials:['Azərbaycan bayrağı şəkli','Kağız','Qırmızı/mavi/yaşıl karandaş']
+        desc:'<b>V</b> hərfi — Vətən, vaz, val sözlərinin başlanğıcı. Ən şərəfli söz!',
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#f7b73315,#fc4a1a15)">' +
+            '<div class="sl-big-word" style="color:#fc4a1a">V — VƏTƏN</div>' +
+            '<div class="sl-phonetic">V hərfi · Üçüncü hərf · Qürur simvolu</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#0092BC"><div class="sl-img-emoji">🇦🇿</div><div class="sl-img-label">Azərbaycan</div><div class="sl-img-sub">Bizim Vətən</div></div>' +
+            '<div class="sl-img-card" style="--ic:#fc4a1a"><div class="sl-img-emoji">🌹</div><div class="sl-img-label">Vaz</div><div class="sl-img-sub">V — VAZ</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f7b733"><div class="sl-img-emoji">🌊</div><div class="sl-img-label">Val</div><div class="sl-img-sub">V — VAL</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">✌️</div><div class="sl-img-label">Victory!</div><div class="sl-img-sub">V işarəsi</div></div>' +
+          '</div>' +
+          '<div class="sl-letter-write">' +
+            '<div class="sl-lw-title">✍️ V hərfini yazırıq</div>' +
+            '<div class="sl-lw-steps">' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">①</div><div>Sol yuxarıdan sağ ortaya çəkin: \\</div></div>' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">②</div><div>Sağ ortadan yuxarıya çəkin: / → V ✅</div></div>' +
+              '<div class="sl-lw-step"><div class="sl-lw-num">③</div><div>Quş kimi görünür! 🐦</div></div>' +
+            '</div>' +
+            '<div class="sl-lw-big" style="color:#fc4a1a">V v</div>' +
+          '</div>' +
+          '<div class="sl-text-box">' +
+            '<div class="sl-text-title">📖 "Vətən" şeiri</div>' +
+            '<div class="sl-text-content" style="font-style:italic;line-height:2.2">Vətən — torpağın ən gözəlidir,<br>Vətən — dağların, dənizin sesidir,<br>Vətən — ananın xoş nəfəsidir,<br>Azərbaycan — biz sənin şirin bəhridir! 🇦🇿</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 "V — Victory (qələbə)" — barmaqlarla V işarəsi göstərin. Uşaqlar bu işarəni heç unutmaz!</div>' +
+        '</div>',
+        materials:['Azərbaycan bayrağı şəkli','Kağız','Qələm']
       },
       {
-        time:'09:35','dur':'30 dəq', subject:'nature', icon:'🌿', color:'#43e97b',
-        title:'Təbiət — Heyvanlar: Ev & Vəhşi',
+        time:'09:35', dur:'30 dəq', subject:'nature', icon:'🌿', color:'#43e97b',
+        title:'Təbiət — Heyvanlar: Ev & Meşə & Su',
         subtitle:'Canlı aləm · Klassifikasiya',
         desc:'Heyvanları öyrənirik: evdə yaşayan, meşədə yaşayan, suda yaşayan.',
-        body:`<div class="sl-section">
-  <div class="sl-image-grid" style="grid-template-columns:repeat(3,1fr)">
-    <div class="sl-img-card" style="--ic:#43e97b;grid-column:span 3;background:linear-gradient(135deg,#43e97b22,#38f9d722)">
-      <div class="sl-img-emoji" style="font-size:36px">🏠 Ev heyvanları</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🐕</div><div class="sl-img-label">İt</div><div class="sl-img-sub">Sadiq dost</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">🐈</div><div class="sl-img-label">Pişik</div><div class="sl-img-sub">Mırrıldayan</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">🐇</div><div class="sl-img-label">Dovşan</div><div class="sl-img-sub">Uzun qulaq</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#fc4a1a;grid-column:span 3;background:linear-gradient(135deg,#fc4a1a22,#f7b73322)">
-      <div class="sl-img-emoji" style="font-size:36px">🌲 Meşə heyvanları</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#8B4513">
-      <div class="sl-img-emoji">🐻</div><div class="sl-img-label">Ayı</div><div class="sl-img-sub">Güclü & yavaş</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f7b733">
-      <div class="sl-img-emoji">🦊</div><div class="sl-img-label">Tülkü</div><div class="sl-img-sub">Hiyləgər</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">🐺</div><div class="sl-img-label">Canavar</div><div class="sl-img-sub">Sürü lideri</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🎭 "Heyvan kimiyəm?" oyunu</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Uşağın alnına heyvan şəkli yapışdırılır (görə bilmir)</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Suallar verir: "Evdəmi yaşayıram? Böyükəmmi?"</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Cəmi 5 sual ilə tapmağa çalışır</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Bu oyun məntiqi düşüncə + heyvan bilikləri + dil bacarığını eyni anda inkişaf etdirir.</div>
-</div>`,
-        materials:['Heyvan şəkilləri','Yapışqan lent (alın üçün)']
+        body:'<div class="sl-section">' +
+          '<div class="sl-image-grid" style="grid-template-columns:repeat(3,1fr)">' +
+            '<div class="sl-img-card" style="--ic:#43e97b;grid-column:span 3;background:linear-gradient(135deg,#43e97b15,#38f9d715);text-align:left;flex-direction:row;gap:8px"><div class="sl-img-emoji">🏠</div><div><div class="sl-img-label">Ev heyvanları</div></div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🐕</div><div class="sl-img-label">İt</div><div class="sl-img-sub">Sadiq dost</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">🐈</div><div class="sl-img-label">Pişik</div><div class="sl-img-sub">Mırrıldayan</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">🐇</div><div class="sl-img-label">Dovşan</div><div class="sl-img-sub">Uzun qulaq</div></div>' +
+            '<div class="sl-img-card" style="--ic:#fc4a1a;grid-column:span 3;background:linear-gradient(135deg,#fc4a1a15,#f7b73315);text-align:left;flex-direction:row;gap:8px"><div class="sl-img-emoji">🌲</div><div><div class="sl-img-label">Meşə heyvanları</div></div></div>' +
+            '<div class="sl-img-card" style="--ic:#8B4513"><div class="sl-img-emoji">🐻</div><div class="sl-img-label">Ayı</div><div class="sl-img-sub">Güclü</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f7b733"><div class="sl-img-emoji">🦊</div><div class="sl-img-label">Tülkü</div><div class="sl-img-sub">Hiyləgər</div></div>' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">🐺</div><div class="sl-img-label">Canavar</div><div class="sl-img-sub">Sürü lideri</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎭 "Heyvan kimiyəm?" oyunu</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Uşağın alnına heyvan şəkli yapışdırılır (görə bilmir)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Suallar verir: "Evdəmi yaşayıram? Böyükəmmi?"</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Cəmi 5 sual ilə tapmağa çalışır</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Bu oyun məntiqi düşüncə + heyvan bilikləri + dil bacarığını eyni anda inkişaf etdirir.</div>' +
+        '</div>',
+        materials:['Heyvan şəkilləri','Yapışqan lent']
       },
       {
-        time:'10:10','dur':'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
+        time:'10:10', dur:'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
         title:'Riyaziyyat — 3 rəqəmi & Toplama',
         subtitle:'Üçüncü rəqəm · 1+2=3',
         desc:'<b>3</b> rəqəmini öyrənirik. 1+1+1=3. Heyvanlarla sayırıq!',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#667eea22,#764ba222)">
-    <div class="sl-big-word" style="color:#667eea;font-size:96px">3</div>
-    <div class="sl-phonetic">Üç · 1+2 = 3 · 2+1 = 3</div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji">🐾🐾🐾</div>
-      <div class="sl-img-label">3 iz</div>
-      <div class="sl-img-sub">Heyvan keçib</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji">🦁🐯🐻</div>
-      <div class="sl-img-label">3 heyvan</div>
-      <div class="sl-img-sub">Üçü məşhur</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji">🍎🍊🍋</div>
-      <div class="sl-img-label">3 meyvə</div>
-      <div class="sl-img-sub">Rəngli sayım</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#FFD93D">
-      <div class="sl-img-emoji">⭐⭐⭐</div>
-      <div class="sl-img-label">3 ulduz</div>
-      <div class="sl-img-sub">Hamısı qazandı!</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🦁 "Heyvan toplama" oyunu</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Masaya 1 aslan şəkli qoyun: "Bir aslan var"</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>2 pişik əlavə edin: "İki pişik gəldi"</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Hamısını sayın: "Bir, iki, üç — üç heyvan!"</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Uşaqlar heyvan sevir. Rəqəmləri sevdikləri ilə əlaqələndirmək öyrənməni sürətləndirir.</div>
-</div>`,
-        materials:['Heyvan fiqurları / şəkilləri','3 ədəd hər şeydən']
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#667eea15,#764ba215)">' +
+            '<div class="sl-big-word" style="color:#667eea;font-size:96px">3</div>' +
+            '<div class="sl-phonetic">Üç · 1+2 = 3 · 2+1 = 3</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji">🐾🐾🐾</div><div class="sl-img-label">3 iz</div><div class="sl-img-sub">Heyvan keçib</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji">🦁🐯🐻</div><div class="sl-img-label">3 heyvan</div><div class="sl-img-sub">Üçü məşhur</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji">🍎🍊🍋</div><div class="sl-img-label">3 meyvə</div><div class="sl-img-sub">Rəngli sayım</div></div>' +
+            '<div class="sl-img-card" style="--ic:#FFD93D"><div class="sl-img-emoji">⭐⭐⭐</div><div class="sl-img-label">3 ulduz</div><div class="sl-img-sub">Hamı qazandı!</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🦁 "Heyvan toplama" oyunu</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Masaya 1 aslan şəkli qoyun: "Bir aslan var"</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>2 pişik əlavə edin: "İki pişik gəldi"</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Hamısını sayın: "Bir, iki, üç — üç heyvan!" 🏆</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Uşaqlar heyvan sevir. Rəqəmləri sevdikləri ilə əlaqələndirmək öyrənməni sürətləndirir.</div>' +
+        '</div>',
+        materials:['Heyvan fiqurları / şəkilləri']
       },
       {
-        time:'10:45','dur':'30 dəq', subject:'drawing', icon:'🎨', color:'#43e97b',
+        time:'10:45', dur:'30 dəq', subject:'drawing', icon:'🎨', color:'#43e97b',
         title:'Rəsm — Sevimli heyvanı çəkirik',
         subtitle:'Yaradıcılıq · Emosional ifadə',
         desc:'Hər uşaq sevdiyi heyvanı çəkir. Rəsm vasitəsilə özünü ifadə edir.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🖍️ Heyvan çəkmək addımları (pişik nümunəsi)</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>Dairə — baş 🔵</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>İki üçbucaq — qulaqlar △△</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Oval — bədən ⬭</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>4 xətt — ayaqlar</span></div>
-      <div class="sl-step"><span class="sl-step-num">5</span><span>S əyri — quyruq 〰️</span></div>
-      <div class="sl-step"><span class="sl-step-num">6</span><span>Sevinclə boyayın! 🎨</span></div>
-    </div>
-  </div>
-  <div class="sl-text-box">
-    <div class="sl-text-title">📖 "Mənim sevimli heyvanam" mini-kompozisiya</div>
-    <div class="sl-text-content">Uşaqlar rəsminin altına müəllimlə birlikdə 1 cümlə yazır: "Mənim sevimli heyvanam _____ -dır. O, _____ rənglidir." Bu, ilk yazı cümləsidir! 🌟</div>
-  </div>
-  <div class="sl-tip">💡 Rəsm sərgisinə çevirin: hər uşaq rəsmini sinifə nümayiş etdirir, 1 cümləlik təqdimat edir.</div>
-</div>`,
-        materials:['A4 ağ kağız','Rəngli karandaş','Marker (kontur üçün)']
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🖍️ Pişik çəkmək addımları</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>Dairə — baş 🔵</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>İki üçbucaq — qulaqlar △△</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Oval — bədən ⬭</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>4 xətt — ayaqlar</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">5</span><span>S əyri — quyruq 〰️</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">6</span><span>Sevinclə boyayın! 🎨</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-text-box">' +
+            '<div class="sl-text-title">📖 Mini-kompozisiya</div>' +
+            '<div class="sl-text-content">Uşaqlar rəsminin altına müəllimlə birlikdə 1 cümlə yazır: "Mənim sevimli heyvanam _____ -dır. O, _____ rənglidir." Bu, ilk yazı cümləsidir! 🌟</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Rəsm sərgisinə çevirin: hər uşaq öz rəsmini sinifə nümayiş etdirir, 1 cümlə danışır.</div>' +
+        '</div>',
+        materials:['A4 ağ kağız','Rəngli karandaş','Marker']
       },
       {
-        time:'11:20','dur':'30 dəq', subject:'physical', icon:'⚽', color:'#f093fb',
+        time:'11:20', dur:'30 dəq', subject:'physical', icon:'⚽', color:'#f093fb',
         title:'Bədən Tərbiyəsi — "Heyvan olmaq" oyunu',
         subtitle:'Mimika · Motor inkişaf · Yaradıcılıq',
         desc:'Heyvanları imitasiya edərək bədən koordinasiyası, yaradıcılıq inkişaf edir.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🦁 Heyvan Hərəkətləri</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">🐘</span><span>Fil — ağır addımlar, uzun burun (qol) yellənir</span></div>
-      <div class="sl-step"><span class="sl-step-num">🐸</span><span>Qurbağa — çömbəlib sıçramaq</span></div>
-      <div class="sl-step"><span class="sl-step-num">🐍</span><span>İlan — yerə uzanıb sürünmək</span></div>
-      <div class="sl-step"><span class="sl-step-num">🦅</span><span>Qartal — əllər açıq, süzərək qaçmaq</span></div>
-      <div class="sl-step"><span class="sl-step-num">🐢</span><span>Tısbağa — çox yavaş, ehtiyatla hərəkət</span></div>
-      <div class="sl-step"><span class="sl-step-num">🐆</span><span>Bəbir — sürətlə, diz bükülmüş qaçmaq</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Musiqi fonunda daha maraqlı olur. Sürəti artırdıqca uşaqlar daha çox güldürür!</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🦁 Heyvan Hərəkətləri</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">🐘</span><span>Fil — ağır addımlar, uzun burun (qol) yellənir</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🐸</span><span>Qurbağa — çömbəlib sıçramaq</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🐍</span><span>İlan — yerə uzanıb sürünmək</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🦅</span><span>Qartal — əllər açıq, süzərək qaçmaq</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🐢</span><span>Tısbağa — çox yavaş, ehtiyatla hərəkət</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🐆</span><span>Bəbir — sürətlə, diz bükülmüş qaçmaq</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Musiqi fonunda daha maraqlı olur. Sürəti artırdıqca uşaqlar daha çox güldürür!</div>' +
+        '</div>',
         materials:['Geniş yer','Musiqi']
       }
     ]
   },
   5: {
-    dayName: 'Cümə',
-    theme: 'Yekun & Məzuniyyət Günü 🎉',
-    color: '#a855f7', grad: 'linear-gradient(135deg,#a855f7 0%,#6C63FF 100%)',
-    emoji: '🎓', bgEmoji: '🏆',
-    lessons: [
+    theme:'Yekun & Məzuniyyət 🎓', color:'#a855f7',
+    grad:'linear-gradient(135deg,#a855f7,#6C63FF)', emoji:'🎓',
+    lessons:[
       {
-        time:'09:00','dur':'30 dəq', subject:'reading', icon:'📖', color:'#4facfe',
-        title:'Oxu — A, B, V hərflərini təkrarlayırıq',
+        time:'09:00', dur:'30 dəq', subject:'reading', icon:'📖', color:'#4facfe',
+        title:'Oxu — A, B, V hərflərini birləşdiririk',
         subtitle:'Həftənin yekunu · Möhkəmləndirmə',
-        desc:'Bu həftə öyrəndiklərimizi oxuyuruq. A+B=AB, A+V=AV, BABA, AVA...',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#4facfe22,#00f2fe22)">
-    <div style="display:flex;justify-content:center;gap:16px">
-      <div style="text-align:center">
-        <div style="font-size:64px;font-weight:900;color:#f5576c">A</div>
-        <div style="font-size:12px;color:#718096;margin-top:4px">Ana · At · Alma</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:64px;font-weight:900;color:#43e97b">B</div>
-        <div style="font-size:12px;color:#718096;margin-top:4px">Bal · Bağ · Balıq</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:64px;font-weight:900;color:#fc4a1a">V</div>
-        <div style="font-size:12px;color:#718096;margin-top:4px">Vətən · Vaz · Val</div>
-      </div>
-    </div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#4facfe">
-      <div class="sl-img-emoji" style="font-size:28px;font-weight:900;color:#4facfe">AB</div>
-      <div class="sl-img-label">Heca oxudu</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji" style="font-size:22px;font-weight:900;color:#f5576c">BABA</div>
-      <div class="sl-img-label">İlk söz!</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji" style="font-size:22px;font-weight:900;color:#43e97b">AVA</div>
-      <div class="sl-img-label">Ad (qız)</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#a855f7">
-      <div class="sl-img-emoji" style="font-size:22px;font-weight:900;color:#a855f7">VAV</div>
-      <div class="sl-img-label">Söz qurulur</div>
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">📣 Yüksək səslə oxuyaq</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">A</span><span>Hər uşaq A hərfini lövhədən oxuyur</span></div>
-      <div class="sl-step"><span class="sl-step-num">AB</span><span>Birlikdə "A-B, AB!" deyirik</span></div>
-      <div class="sl-step"><span class="sl-step-num">BABA</span><span>"BA-BA, BABA!" — hamı birlikdə 3 dəfə</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 İlk "BABA" sözünü oxuyan uşaqda böyük qürur hissi yaranır. Bu ani alqışlayın! 👏</div>
-</div>`,
+        desc:'Bu həftə öyrəndiklərimizi oxuyuruq. A+B=AB, BABA, AVA...',
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#4facfe15,#00f2fe15)">' +
+            '<div style="display:flex;justify-content:center;gap:16px">' +
+              '<div style="text-align:center"><div style="font-size:64px;font-weight:900;color:#f5576c">A</div><div style="font-size:11px;color:#718096;margin-top:4px">Ana · At · Alma</div></div>' +
+              '<div style="text-align:center"><div style="font-size:64px;font-weight:900;color:#43e97b">B</div><div style="font-size:11px;color:#718096;margin-top:4px">Bal · Bağ · Balıq</div></div>' +
+              '<div style="text-align:center"><div style="font-size:64px;font-weight:900;color:#fc4a1a">V</div><div style="font-size:11px;color:#718096;margin-top:4px">Vətən · Vaz · Val</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#4facfe"><div class="sl-img-emoji" style="font-size:28px;font-weight:900;color:#4facfe">AB</div><div class="sl-img-label">Heca oxudu</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji" style="font-size:22px;font-weight:900;color:#f5576c">BABA</div><div class="sl-img-label">İlk söz! 🎉</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji" style="font-size:22px;font-weight:900;color:#43e97b">AVA</div><div class="sl-img-label">Ad (qız) 👧</div></div>' +
+            '<div class="sl-img-card" style="--ic:#a855f7"><div class="sl-img-emoji" style="font-size:22px;font-weight:900;color:#a855f7">VAV</div><div class="sl-img-label">Söz qurulur!</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">📣 Yüksək səslə oxuyaq</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">A</span><span>Hər uşaq A hərfini lövhədən oxuyur</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">AB</span><span>Birlikdə "A-B, AB!" deyirik</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">BABA</span><span>"BA-BA, BABA!" — hamı birlikdə 3 dəfə</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 İlk "BABA" sözünü oxuyan uşaqda böyük qürur hissi yaranır. Bu anı alqışlayın! 👏</div>' +
+        '</div>',
         materials:['Hərfli kartlar: A, B, V','Lövhə']
       },
       {
-        time:'09:35','dur':'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
-        title:'Riyaziyyat — 1, 2, 3 Təkrar & Mini Yarış',
-        subtitle:'Həftənin yekunu · Yarışma',
-        desc:'1, 2, 3 rəqəmlərini təkrarlayırıq. Toplama, müqayisə, sayma — hamısı birlikdə!',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🏁 "Riyaziyyat yarışı"</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">🟡</span><span>Müəllim kartı qaldırır (1, 2 ya 3) — uşaqlar o qədər sıçrayır</span></div>
-      <div class="sl-step"><span class="sl-step-num">🟢</span><span>"1+1 nədir?" — əl qaldıran cavablaşır: "İki!"</span></div>
-      <div class="sl-step"><span class="sl-step-num">🔵</span><span>"2+1 nədir?" — "Üç!" 🏆</span></div>
-      <div class="sl-step"><span class="sl-step-num">🔴</span><span>Kim 3 düzgün cavab verir, "Riyaziyyat ulduzu" olur ⭐</span></div>
-    </div>
-  </div>
-  <div class="sl-image-grid">
-    <div class="sl-img-card" style="--ic:#667eea">
-      <div class="sl-img-emoji" style="font-size:48px;font-weight:900;color:#667eea">1</div>
-      <div class="sl-img-label">Bir</div><div class="sl-img-sub">☀️ tək günəş</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#f5576c">
-      <div class="sl-img-emoji" style="font-size:48px;font-weight:900;color:#f5576c">2</div>
-      <div class="sl-img-label">İki</div><div class="sl-img-sub">👀 cüt göz</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#43e97b">
-      <div class="sl-img-emoji" style="font-size:48px;font-weight:900;color:#43e97b">3</div>
-      <div class="sl-img-label">Üç</div><div class="sl-img-sub">🍀 yonca</div>
-    </div>
-    <div class="sl-img-card" style="--ic:#a855f7">
-      <div class="sl-img-emoji">🏆</div>
-      <div class="sl-img-label">Çempion!</div><div class="sl-img-sub">Hamı qazandı</div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Hər uşağın qazanacağı bir nominasiya hazırlayın: ən sürətli, ən diqqətli, ən yaradıcı...</div>
-</div>`,
-        materials:['1, 2, 3 yazılı kartlar','Mükafat ulduzları']
+        time:'09:35', dur:'30 dəq', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — 1,2,3 Yekun Yarışı',
+        subtitle:'Möhkəmləndirmə · Mini olimpiada',
+        desc:'1, 2, 3 rəqəmlərini təkrarlayırıq. Toplama, müqayisə, sayma — hamısı!',
+        body:'<div class="sl-section">' +
+          '<div class="sl-image-grid">' +
+            '<div class="sl-img-card" style="--ic:#667eea"><div class="sl-img-emoji" style="font-size:48px;font-weight:900;color:#667eea">1</div><div class="sl-img-label">Bir</div><div class="sl-img-sub">☀️ tək günəş</div></div>' +
+            '<div class="sl-img-card" style="--ic:#f5576c"><div class="sl-img-emoji" style="font-size:48px;font-weight:900;color:#f5576c">2</div><div class="sl-img-label">İki</div><div class="sl-img-sub">👀 cüt göz</div></div>' +
+            '<div class="sl-img-card" style="--ic:#43e97b"><div class="sl-img-emoji" style="font-size:48px;font-weight:900;color:#43e97b">3</div><div class="sl-img-label">Üç</div><div class="sl-img-sub">🍀 yonca</div></div>' +
+            '<div class="sl-img-card" style="--ic:#a855f7"><div class="sl-img-emoji">🏆</div><div class="sl-img-label">Çempion!</div><div class="sl-img-sub">Hamı qazandı</div></div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🏁 Riyaziyyat yarışı</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">🟡</span><span>Müəllim kartı qaldırır (1, 2 ya 3) — uşaqlar o qədər sıçrayır</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🟢</span><span>"1+1 nədir?" — əl qaldıran cavablaşır: "İki!"</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🔵</span><span>"2+1 nədir?" — "Üç!" 🏆</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">⭐</span><span>Kim 3 düzgün cavab verir, "Riyaziyyat ulduzu" olur</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Hər uşağın qazanacağı bir nominasiya hazırlayın: ən sürətli, ən diqqətli, ən yaradıcı...</div>' +
+        '</div>',
+        materials:['1,2,3 kartlar','Mükafat ulduzları']
       },
       {
-        time:'10:10','dur':'30 dəq', subject:'creativity', icon:'✂️', color:'#fa8231',
-        title:'Yaradıcılıq — "Həftəmin kitabçası"',
-        subtitle:'Portfolio hazırlama · Özünüifadə',
+        time:'10:10', dur:'30 dəq', subject:'creativity', icon:'✂️', color:'#fa8231',
+        title:'Yaradıcılıq — "Həftəmin Kitabçası"',
+        subtitle:'Portfolio · Özünü ifadə',
         desc:'Bu həftənin hər günündən bir şey toplayıb kiçik kitabça hazırlayırıq.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">📒 Kitabça hazırlayaq</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>5 vərəq A4 kağız ortadan qatlayın → mini kitab</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>Üzünə: 🎒 + "Mənim Kitabçam" + Öz adın</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>Səhifə 1: A hərfi + alma şəkli</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Səhifə 2: B hərfi + bal arısı şəkli</span></div>
-      <div class="sl-step"><span class="sl-step-num">5</span><span>Səhifə 3: V hərfi + Vətən bayrağı</span></div>
-      <div class="sl-step"><span class="sl-step-num">6</span><span>Səhifə 4: 1, 2, 3 rəqəmləri + şəkilləri</span></div>
-      <div class="sl-step"><span class="sl-step-num">7</span><span>Son səhifə: "Mən bunu öyrəndim! ⭐"</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Bu kitabça evə aparılır — valideynlər üçün həftənin əsas hədiyyəsi!</div>
-</div>`,
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">📒 Kitabça hazırlayaq</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>5 vərəq A4 kağız ortadan qatlayın → mini kitab</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>Üzünə: 🎒 + "Mənim Kitabçam" + Öz adın</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>Səhifə 1: A hərfi + alma şəkli</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>Səhifə 2: B hərfi + bal arısı şəkli</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">5</span><span>Səhifə 3: V hərfi + Vətən bayrağı</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">6</span><span>Səhifə 4: 1, 2, 3 rəqəmləri + şəkilləri</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">7</span><span>Son: "Mən bunu öyrəndim! ⭐"</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Bu kitabça evə aparılır — valideynlər üçün həftənin əsas hədiyyəsi!</div>' +
+        '</div>',
         materials:['5 vərəq A4','Zımba','Rəngli karandaş','Stiker']
       },
       {
-        time:'10:45','dur':'30 dəq', subject:'logic', icon:'🧩', color:'#a855f7',
+        time:'10:45', dur:'30 dəq', subject:'logic', icon:'🧩', color:'#a855f7',
         title:'Məntiq — "Kim mənəm?" Tapmaca Günü',
         subtitle:'Yaradıcı düşüncə · Nitq',
         desc:'Uşaqlar öyrəndikləri heyvan, hərf, rəqəm haqqında tapmaca söyləyir.',
-        body:`<div class="sl-section">
-  <div class="sl-activity">
-    <div class="sl-act-title">🎭 Tapmaca söyləmək</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">1</span><span>"Mən sarıyam, şirinəm, B ilə başlayıram — nəyəm?" (Bal 🍯)</span></div>
-      <div class="sl-step"><span class="sl-step-num">2</span><span>"Mən rəqəməm, cütəm, iki gözə bənzəyirəm — nəyəm?" (2 👀)</span></div>
-      <div class="sl-step"><span class="sl-step-num">3</span><span>"Mən qırmızıyam, A ilə başlayıram, şirinəm — nəyəm?" (Alma 🍎)</span></div>
-      <div class="sl-step"><span class="sl-step-num">4</span><span>Uşaqlar öz tapmacalarını yaratsin!</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Öz tapmacasını yaradan uşaq analitik düşüncənin zirvəsinə çatıb — əlaqə qurmaq + yaratmaq!</div>
-</div>`,
-        materials:['Tapmaca kartları (hazır)']
+        body:'<div class="sl-section">' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🎭 Tapmaca söyləmək</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">1</span><span>"Mən sarıyam, şirinəm, B ilə başlayıram — nəyəm?" (Bal 🍯)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">2</span><span>"Mən rəqəməm, cütəm, iki gözə bənzəyirəm — nəyəm?" (2 👀)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">3</span><span>"Mən qırmızıyam, A ilə başlayıram, şirinəm — nəyəm?" (Alma 🍎)</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">4</span><span>Uşaqlar öz tapmacalarını yaratsin!</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Öz tapmacasını yaradan uşaq analitik düşüncənin zirvəsinə çatıb — əlaqə qurmaq + yaratmaq!</div>' +
+        '</div>',
+        materials:['Tapmaca kartları']
       },
       {
-        time:'11:20','dur':'30 dəq', subject:'music', icon:'🎵', color:'#4facfe',
-        title:'🎓 Həftənin Yekun Nəğməsi & Mükafat Günü',
+        time:'11:20', dur:'30 dəq', subject:'music', icon:'🎵', color:'#4facfe',
+        title:'🎓 Həftənin Yekun Nəğməsi & Mükafat',
         subtitle:'Emosional bitiriş · Motivasiya',
         desc:'Həftəni böyük nəğmə ilə, alqışlarla, uğurla bitiririk! Hamı ulduz qazanır.',
-        body:`<div class="sl-section">
-  <div class="sl-showcase" style="background:linear-gradient(135deg,#a855f722,#6C63FF22)">
-    <div class="sl-text-content" style="font-style:italic;font-size:16px;line-height:2.4;text-align:center;color:#2D3748">
-      🎵 A, B, V öyrəndik biz bu həftə,<br>
-      Bir, iki, üç saydıq şən şəkildə,<br>
-      Heyvanları tanıdıq, rəsmlər çəkdik,<br>
-      Məktəbə hazırıq — hamımız gəldik! 🎒🎓🎵
-    </div>
-  </div>
-  <div class="sl-activity">
-    <div class="sl-act-title">🏆 Mükafat Mərasimi</div>
-    <div class="sl-act-steps">
-      <div class="sl-step"><span class="sl-step-num">⭐</span><span>Hər uşaq "Həftənin Ulduzu" sertifikatı alır</span></div>
-      <div class="sl-step"><span class="sl-step-num">👏</span><span>Hamı hamını alqışlayır — 10 saniyə alqış!</span></div>
-      <div class="sl-step"><span class="sl-step-num">📒</span><span>Kitabçanı evə aparırlar</span></div>
-      <div class="sl-step"><span class="sl-step-num">🤝</span><span>Cümə salamı: "Həftə sonu gözəl keçirin!"</span></div>
-    </div>
-  </div>
-  <div class="sl-tip">💡 Hər uşaq fərqli nominasiya ilə mükafatlandırılsın: "Ən gülümsəyən", "Ən diqqətli", "Ən yaradıcı" — heç kim mükafatsız qalmasın!</div>
-</div>`,
-        materials:['Sertifikat kağızları','Ulduz stikerlər','Konfeti 🎉 (isteğe bağlı)']
+        body:'<div class="sl-section">' +
+          '<div class="sl-showcase" style="background:linear-gradient(135deg,#a855f715,#6C63FF15)">' +
+            '<div class="sl-text-content" style="font-style:italic;font-size:16px;line-height:2.4;text-align:center;color:#2D3748">' +
+              '🎵 A, B, V öyrəndik biz bu həftə,<br>Bir, iki, üç saydıq şən şəkildə,<br>Heyvanları tanıdıq, rəsmlər çəkdik,<br>Məktəbə hazırıq — hamımız gəldik! 🎒🎓🎵' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-activity">' +
+            '<div class="sl-act-title">🏆 Mükafat Mərasimi</div>' +
+            '<div class="sl-act-steps">' +
+              '<div class="sl-step"><span class="sl-step-num">⭐</span><span>Hər uşaq "Həftənin Ulduzu" sertifikatı alır</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">👏</span><span>Hamı hamını alqışlayır — 10 saniyə alqış!</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">📒</span><span>Kitabçanı evə aparırlar</span></div>' +
+              '<div class="sl-step"><span class="sl-step-num">🤝</span><span>Cümə salamı: "Həftə sonu gözəl keçirin!"</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="sl-tip">💡 Hər uşaq fərqli nominasiya ilə mükafatlandırılsın: "Ən gülümsəyən", "Ən diqqətli", "Ən yaradıcı" — heç kim mükafatsız qalmasın!</div>' +
+        '</div>',
+        materials:['Sertifikat kağızları','Ulduz stikerlər','Konfeti 🎉']
       }
     ]
   }
 };
 
-const DAY_NAMES = {
-  az:['','Bazar ertəsi','Çərşənbə ax.','Çərşənbə','Cümə ax.','Cümə'],
-  ru:['','Понедельник','Вторник','Среда','Четверг','Пятница'],
-  en:['','Monday','Tuesday','Wednesday','Thursday','Friday']
-};
-
-let selDay = 1;
-let openLesson = null;
-
 function renderSchedule(){
-  const dow = new Date().getDay();
+  var dow = new Date().getDay();
   selDay = (dow>=1&&dow<=5) ? dow : 1;
-  _buildSchedPage();
+  _buildSched();
 }
 
-function _buildSchedPage(){
-  const day = WEEKLY_SCHEDULE[selDay];
-  const dn = DAY_NAMES[lang]||DAY_NAMES.az;
-  const dow = new Date().getDay();
+function _buildSched(){
+  var day = SCHED[selDay];
+  var dn = getDN();
+  var dow = new Date().getDay();
+  var sn = getSCN();
 
-  // Hero
-  const heroEl = document.getElementById('schedHero');
-  if(heroEl){
-    heroEl.style.background = day.grad;
-    document.getElementById('schedMainTitle').textContent = '🗓️ ' + (lang==='ru'?'Расписание дня':lang==='en'?'Daily Schedule':'Günlük Cədvəl');
-  }
+  // Hero background
+  var heroEl = document.getElementById('schedHero');
+  if(heroEl) heroEl.style.background = day.grad;
 
-  // Day pills in hero
-  const pillsEl = document.getElementById('schedDayPills');
+  var titleEl = document.getElementById('schedMainTitle');
+  if(titleEl) titleEl.textContent = (lang==='ru'?'🗓️ Расписание':lang==='en'?'🗓️ Daily Schedule':'🗓️ Günlük Cədvəl');
+
+  // Pills
+  var pillsEl = document.getElementById('schedDayPills');
   if(pillsEl){
-    pillsEl.innerHTML = Object.keys(WEEKLY_SCHEDULE).map(d=>{
-      const dday = WEEKLY_SCHEDULE[d];
-      const sel = parseInt(d)===selDay;
-      const today = parseInt(d)===dow;
-      return `<button onclick="schedSelectDay(${d})" style="padding:8px 16px;border-radius:20px;border:2px solid ${sel?'white':'rgba(255,255,255,0.5)'};background:${sel?'rgba(255,255,255,0.28)':'rgba(255,255,255,0.08)'};color:white;font-weight:800;font-size:12px;cursor:pointer;font-family:Nunito,sans-serif;transition:all .25s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap">
-        ${today?'📍 ':''}${dday.emoji} ${dn[d]}
-      </button>`;
-    }).join('');
+    var pillHtml = '';
+    for(var pd in SCHED){
+      var pday = SCHED[pd];
+      var psel = parseInt(pd)===selDay;
+      var ptoday = parseInt(pd)===dow;
+      pillHtml += '<button onclick="schedSelectDay('+pd+')" style="padding:7px 14px;border-radius:20px;border:2px solid '+(psel?'white':'rgba(255,255,255,0.4)')+';background:'+(psel?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.06)')+';color:white;font-weight:800;font-size:12px;cursor:pointer;font-family:Nunito,sans-serif;transition:all .2s;white-space:nowrap">'+(ptoday?'📍 ':'')+pday.emoji+' '+dn[pd]+'</button>';
+    }
+    pillsEl.innerHTML = pillHtml;
   }
 
   // Tabs
-  const tabsEl = document.getElementById('schedDayTabs');
+  var tabsEl = document.getElementById('schedDayTabs');
   if(tabsEl){
-    tabsEl.innerHTML = Object.keys(WEEKLY_SCHEDULE).map(d=>{
-      const dday = WEEKLY_SCHEDULE[d];
-      const sel = parseInt(d)===selDay;
-      const today = parseInt(d)===dow;
-      return `<button onclick="schedSelectDay(${d})" style="flex-shrink:0;padding:14px 22px;border-radius:18px;border:2px solid ${sel?dday.color:'#E2E8F0'};background:${sel?dday.color:'white'};color:${sel?'white':'#2D3748'};font-weight:800;font-size:13px;cursor:pointer;font-family:Nunito,sans-serif;transition:all .3s;transform:${sel?'scale(1.06)':'scale(1)'};box-shadow:${sel?'0 6px 20px '+dday.color+'55':'none'};display:flex;align-items:center;gap:6px">
-        <span style="font-size:18px">${dday.emoji}</span>
-        <div style="text-align:left">
-          <div>${dn[d]}${today?' 📍':''}</div>
-          <div style="font-size:10px;opacity:0.75;font-weight:600">${dday.theme}</div>
-        </div>
-      </button>`;
-    }).join('');
+    var tabHtml = '';
+    for(var td in SCHED){
+      var tday = SCHED[td];
+      var tsel = parseInt(td)===selDay;
+      var ttoday = parseInt(td)===dow;
+      tabHtml += '<button onclick="schedSelectDay('+td+')" style="flex-shrink:0;padding:13px 20px;border-radius:16px;border:2px solid '+(tsel?tday.color:'#E2E8F0')+';background:'+(tsel?tday.color:'white')+';color:'+(tsel?'white':'#2D3748')+';font-weight:800;font-size:13px;cursor:pointer;font-family:Nunito,sans-serif;transition:all .3s;transform:'+(tsel?'scale(1.05)':'scale(1)')+';box-shadow:'+(tsel?'0 6px 20px '+tday.color+'55':'none')+'">' +
+        '<span style="font-size:18px">'+tday.emoji+'</span> ' +
+        '<div style="display:inline-block;text-align:left;vertical-align:middle;margin-left:4px">'+
+          '<div>'+dn[td]+(ttoday?' 📍':'')+'</div>' +
+          '<div style="font-size:10px;opacity:.7;font-weight:600">'+tday.theme+'</div>' +
+        '</div>' +
+      '</button>';
+    }
+    tabsEl.innerHTML = tabHtml;
   }
 
-  // Day content
-  const contentEl = document.getElementById('schedDayContent');
+  // Content
+  var contentEl = document.getElementById('schedDayContent');
   if(!contentEl) return;
-  openLesson = null;
 
-  const SC_C={math:'#667eea',language:'#f5576c',reading:'#4facfe',drawing:'#43e97b',music:'#4facfe',physical:'#f093fb',nature:'#43e97b',logic:'#a855f7',creativity:'#fa8231'};
-  const SC_I={math:'🔢',language:'📝',reading:'📖',drawing:'🎨',music:'🎵',physical:'⚽',nature:'🌿',logic:'🧩',creativity:'✂️'};
-  const SC_N={az:{math:'Riyaziyyat',language:'Az. Dili',reading:'Oxu',drawing:'Rəsm',music:'Musiqi',physical:'Bədən T.',nature:'Təbiət',logic:'Məntiq',creativity:'Yaradıcılıq'},ru:{math:'Математика',language:'Язык',reading:'Чтение',drawing:'Рисование',music:'Музыка',physical:'Физ-ра',nature:'Природа',logic:'Логика',creativity:'Творчество'},en:{math:'Math',language:'Language',reading:'Reading',drawing:'Drawing',music:'Music',physical:'Physical',nature:'Nature',logic:'Logic',creativity:'Creativity'}};
-  const sn = SC_N[lang]||SC_N.az;
+  // Theme banner
+  var badges = '';
+  for(var li=0; li<day.lessons.length; li++){
+    var ll = day.lessons[li];
+    badges += '<span style="background:rgba(255,255,255,0.22);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">'+(SCI[ll.subject]||'📘')+' '+(sn[ll.subject]||ll.subject)+'</span>';
+  }
+  var html = '<div style="background:'+day.grad+';border-radius:20px;padding:22px 26px;margin-bottom:22px;color:white;display:flex;align-items:center;gap:16px;box-shadow:0 8px 30px '+day.color+'44;animation:slideUp .4s ease">' +
+    '<div style="font-size:56px">'+day.emoji+'</div>' +
+    '<div>' +
+      '<div style="font-size:20px;font-weight:900">'+dn[selDay]+'</div>' +
+      '<div style="font-size:13px;opacity:0.85;margin-top:4px">📌 '+day.theme+'</div>' +
+      '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+badges+'</div>' +
+    '</div>' +
+  '</div>';
 
-  let html = `<div style="background:${day.grad};border-radius:20px;padding:22px 26px;margin-bottom:22px;color:white;display:flex;align-items:center;gap:16px;box-shadow:0 8px 30px ${day.color}44;animation:slideUp .4s ease">
-    <div style="font-size:56px;animation:bounceIn .6s ease">${day.emoji}</div>
-    <div>
-      <div style="font-size:20px;font-weight:900">${dn[selDay]}</div>
-      <div style="font-size:13px;opacity:0.85;margin-top:4px">📌 ${day.theme}</div>
-      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-        ${day.lessons.map(l=>`<span style="background:rgba(255,255,255,0.22);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700">${SC_I[l.subject]||'📘'} ${sn[l.subject]||l.subject}</span>`).join('')}
-      </div>
-    </div>
-  </div>`;
+  // Lessons
+  for(var i=0; i<day.lessons.length; i++){
+    var lesson = day.lessons[i];
+    var lc = lesson.color || SCC[lesson.subject] || '#6C63FF';
+    var matHtml = '';
+    if(lesson.materials && lesson.materials.length){
+      var chips = '';
+      for(var m=0;m<lesson.materials.length;m++){
+        chips += '<span class="sl-mat-chip">'+lesson.materials[m]+'</span>';
+      }
+      matHtml = '<div class="sl-materials"><span style="font-size:12px;font-weight:700;color:#718096">🎒 Materiallar: </span>'+chips+'</div>';
+    }
+    html += '<div class="sl-card" id="sl-card-'+i+'" style="--lc:'+lc+';animation:slideUp '+(0.1+i*0.08)+'s ease both">' +
+      '<div class="sl-card-header" onclick="schedToggle('+i+')">' +
+        '<div class="sl-card-icon">'+(lesson.icon||SCI[lesson.subject]||'📘')+'</div>' +
+        '<div class="sl-card-info">' +
+          '<div class="sl-card-title">'+lesson.title+'</div>' +
+          '<div class="sl-card-sub">'+(lesson.subtitle||'')+'</div>' +
+          '<div class="sl-card-desc">'+lesson.desc+'</div>' +
+        '</div>' +
+        '<div class="sl-card-right">' +
+          '<div class="sl-time-badge">⏰ '+lesson.time+'</div>' +
+          '<div style="font-size:11px;color:'+lc+';font-weight:700;margin-top:3px">'+(sn[lesson.subject]||lesson.subject)+'</div>' +
+          '<div class="sl-chevron" id="sl-chev-'+i+'">▼</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sl-card-body" id="sl-body-'+i+'">' +
+        lesson.body + matHtml +
+      '</div>' +
+    '</div>';
+  }
 
-  day.lessons.forEach((lesson,i)=>{
-    const lc = lesson.color || SC_C[lesson.subject] || '#6C63FF';
-    html += `<div class="sl-card" id="sl-card-${i}" style="--lc:${lc};animation:slideUp ${.15+i*.1}s ease both">
-      <div class="sl-card-header" onclick="schedToggle(${i})">
-        <div class="sl-card-icon">${lesson.icon||SC_I[lesson.subject]||'📘'}</div>
-        <div class="sl-card-info">
-          <div class="sl-card-title">${lesson.title}</div>
-          <div class="sl-card-sub">${lesson.subtitle||''}</div>
-          <div class="sl-card-desc">${lesson.desc}</div>
-        </div>
-        <div class="sl-card-right">
-          <div class="sl-time-badge">⏰ ${lesson.time} <span style="font-weight:400;opacity:.7">· ${lesson.dur||'30 dəq'}</span></div>
-          <div class="sl-card-sub" style="margin-top:4px">${sn[lesson.subject]||lesson.subject}</div>
-          <div class="sl-chevron" id="sl-chev-${i}">▼</div>
-        </div>
-      </div>
-      <div class="sl-card-body" id="sl-body-${i}">
-        ${lesson.body||''}
-        ${lesson.materials?`<div class="sl-materials">
-          <span style="font-size:12px;font-weight:700;color:#718096">🎒 Lazım olan materiallar:</span>
-          ${lesson.materials.map(m=>`<span class="sl-mat-chip">${m}</span>`).join('')}
-        </div>`:''}
-      </div>
-    </div>`;
-  });
-
-  // Weekend message
-  const todayDow = new Date().getDay();
-  if(todayDow===0||todayDow===6){
-    html += `<div class="card" style="text-align:center;padding:40px;background:linear-gradient(135deg,#f8f9ff,#eef0ff)">
-      <div style="font-size:56px;margin-bottom:12px;animation:bounceIn .6s">🎉</div>
-      <div style="font-weight:900;font-size:20px;color:#6C63FF">Bazar ertəsi görüşənədək!</div>
-      <div style="font-size:14px;color:#718096;margin-top:8px">Həftə sonu istirahət et, güc topla! 💪</div>
-    </div>`;
+  // Weekend msg
+  if(dow===0||dow===6){
+    html += '<div class="card" style="text-align:center;padding:40px;background:linear-gradient(135deg,#f8f9ff,#eef0ff)">' +
+      '<div style="font-size:56px;margin-bottom:12px">🎉</div>' +
+      '<div style="font-weight:900;font-size:20px;color:#6C63FF">Bazar ertəsi görüşənədək!</div>' +
+      '<div style="font-size:14px;color:#718096;margin-top:8px">Həftə sonu istirahət et! 💪</div>' +
+    '</div>';
   }
 
   contentEl.innerHTML = html;
 }
 
 function schedSelectDay(d){
-  selDay=parseInt(d);
-  _buildSchedPage();
-  document.getElementById('schedDayContent').scrollIntoView({behavior:'smooth',block:'start'});
+  selDay = parseInt(d);
+  _buildSched();
+  var el = document.getElementById('schedDayContent');
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function schedToggle(i){
-  const body = document.getElementById('sl-body-'+i);
-  const chev = document.getElementById('sl-chev-'+i);
-  const card = document.getElementById('sl-card-'+i);
-  const isOpen = body.classList.contains('open');
+  var body = document.getElementById('sl-body-'+i);
+  var chev = document.getElementById('sl-chev-'+i);
+  var card = document.getElementById('sl-card-'+i);
+  if(!body) return;
+  var isOpen = body.classList.contains('open');
   // close all
-  document.querySelectorAll('.sl-card-body').forEach(b=>b.classList.remove('open'));
-  document.querySelectorAll('.sl-chevron').forEach(c=>c.style.transform='rotate(0deg)');
-  document.querySelectorAll('.sl-card').forEach(c=>c.classList.remove('sl-active'));
+  var allBodies = document.querySelectorAll('.sl-card-body');
+  var allChevs = document.querySelectorAll('.sl-chevron');
+  var allCards = document.querySelectorAll('.sl-card');
+  for(var j=0;j<allBodies.length;j++) allBodies[j].classList.remove('open');
+  for(var j=0;j<allChevs.length;j++) allChevs[j].style.transform='rotate(0deg)';
+  for(var j=0;j<allCards.length;j++) allCards[j].classList.remove('sl-active');
   if(!isOpen){
     body.classList.add('open');
     if(chev) chev.style.transform='rotate(180deg)';
     if(card) card.classList.add('sl-active');
   }
 }
-
-'''
-
 
 // ============================================================
 // START
