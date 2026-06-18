@@ -144,6 +144,27 @@ tr:hover td{background:rgba(108,99,255,0.03);}
 /* GRADE BTN */
 .grade-btn{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;font-weight:800;font-size:13px;transition:all .15s;font-family:'Nunito',sans-serif;}
 
+/* SCHEDULE */
+@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.05)}}
+@keyframes slideInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.sched-lesson-card{background:white;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.07);border-left:4px solid var(--lc);transition:box-shadow .2s,transform .2s;}
+.sched-lesson-card:hover{box-shadow:0 8px 28px rgba(0,0,0,0.12);transform:translateY(-1px);}
+.sched-lesson-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.sched-lesson-body{animation:slideInUp .3s ease}
+.sched-letter-showcase{text-align:center;padding:20px;background:linear-gradient(135deg,#f8f9ff,#eef0ff);border-radius:16px;margin-bottom:16px;}
+.big-letter{font-size:72px;font-weight:900;color:#6C63FF;line-height:1;letter-spacing:-2px;}
+.letter-stroke{font-size:13px;color:#718096;margin-top:8px;font-weight:700;}
+.sched-words{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:600px){.sched-words{grid-template-columns:repeat(2,1fr);}}
+.sched-word-card{background:linear-gradient(135deg,var(--wc,#6C63FF)18,var(--wc,#6C63FF)08);border:2px solid var(--wc,#6C63FF);border-radius:14px;padding:14px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.word-emoji{font-size:28px;}
+.sched-word-card span:last-child{font-size:13px;font-weight:800;color:#2D3748;}
+.sched-activity{background:#f8f9ff;border-radius:14px;padding:16px;margin-bottom:12px;}
+.activity-title{font-weight:900;font-size:14px;margin-bottom:8px;color:#2D3748;}
+.activity-text{font-size:13px;line-height:1.7;color:#4a5568;}
+.sched-tip{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-left:4px solid #FFD93D;border-radius:12px;padding:12px 14px;font-size:12px;color:#6b5500;line-height:1.6;}
+
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:#2D3748;color:white;padding:14px 22px;border-radius:14px;font-weight:700;font-size:14px;z-index:9999;transform:translateY(100px);transition:transform .3s;box-shadow:0 8px 24px rgba(0,0,0,.25);}
 .toast.show{transform:translateY(0);}
@@ -201,12 +222,7 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
         </div>
         <button class="btn btn-primary btn-block" style="margin-top:8px" onclick="doLogin()">🔑 Daxil ol</button>
         <div class="divider"></div>
-        <div style="background:rgba(108,99,255,.06);border-radius:12px;padding:14px;font-size:12px;">
-          <div style="font-weight:800;color:var(--primary);margin-bottom:8px">🔐 Demo hesablar:</div>
-          <div style="cursor:pointer;padding:3px 0" onclick="fillDemo('admin@demo.az','admin123')">👑 admin@demo.az / admin123</div>
-          <div style="cursor:pointer;padding:3px 0" onclick="fillDemo('teacher@demo.az','teacher123')">👩‍🏫 teacher@demo.az / teacher123</div>
-          <div style="cursor:pointer;padding:3px 0" onclick="fillDemo('parent@demo.az','parent123')">👨‍👩‍👦 parent@demo.az / parent123</div>
-        </div>
+
       </div>
 
       <!-- REGISTER -->
@@ -304,24 +320,31 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
 
       <!-- SCHEDULE -->
       <div class="page" id="page-schedule">
-        <div class="page-header">
-          <div>
-            <div class="page-title" id="schedTitle">🗓️ Günlük Cədvəl</div>
-            <div class="page-sub">Həftəlik dərs cədvəli • 5-6 yaş qrupu</div>
+        <div id="schedHero" style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border-radius:24px;padding:36px 32px;margin-bottom:28px;position:relative;overflow:hidden;color:white">
+          <div class="parallax-bg" style="position:absolute;inset:0;pointer-events:none">
+            <div class="float-orb" style="position:absolute;width:200px;height:200px;background:radial-gradient(circle,rgba(108,99,255,0.4),transparent);border-radius:50%;top:-40px;right:-40px;animation:orbFloat 6s ease-in-out infinite"></div>
+            <div class="float-orb" style="position:absolute;width:150px;height:150px;background:radial-gradient(circle,rgba(255,107,157,0.3),transparent);border-radius:50%;bottom:-20px;left:30%;animation:orbFloat 8s ease-in-out infinite reverse"></div>
+            <div class="float-orb" style="position:absolute;width:100px;height:100px;background:radial-gradient(circle,rgba(255,217,61,0.3),transparent);border-radius:50%;top:20px;left:20%;animation:orbFloat 5s ease-in-out infinite 1s"></div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <div style="display:flex;gap:6px" id="schedWeekBtns"></div>
+          <div style="position:relative;z-index:1">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+              <div style="font-size:48px;animation:bounce 2s infinite">🗓️</div>
+              <div>
+                <div style="font-size:26px;font-weight:900;letter-spacing:-0.5px" id="schedMainTitle">Günlük Cədvəl</div>
+                <div style="font-size:13px;opacity:0.75;margin-top:4px">5–6 yaş · Həftəlik Dərs Proqramı</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap" id="schedDayPills"></div>
           </div>
         </div>
 
-        <!-- Time legend + grid -->
-        <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
-          <div id="schedGrid"></div>
-        </div>
+        <!-- Day selector tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px" id="schedDayTabs"></div>
 
-        <!-- Today highlight -->
-        <div id="schedToday"></div>
+        <!-- Selected day content -->
+        <div id="schedDayContent"></div>
       </div>
+
       <!-- LESSONS -->
       <div class="page" id="page-lessons">
         <div class="page-header">
@@ -507,7 +530,7 @@ function currentUser(){ const s=getState(); return getUsers().find(u=>u.id===s.u
 
 function defaultUsers(){
   return [
-    {id:'u1',name:'Admin İstifadəçi',email:'admin@demo.az',pwd:'admin123',role:'admin',phone:'+994501234567',lang:'az',createdAt:new Date().toISOString()},
+    {id:'u1',name:'Admin',email:'admin@hazirlik.az',pwd:'AN2026',role:'admin',phone:'+994501234567',lang:'az',createdAt:new Date().toISOString()},
     {id:'u2',name:'Leyla Müəllim',email:'teacher@demo.az',pwd:'teacher123',role:'teacher',phone:'+994507654321',lang:'az',createdAt:new Date().toISOString()},
     {id:'u3',name:'Əli Valideyn',email:'parent@demo.az',pwd:'parent123',role:'parent',phone:'+994559876543',lang:'az',createdAt:new Date().toISOString(),childId:'s1'},
   ];
@@ -1429,4 +1452,658 @@ window.onload=function(){
 };
 </script>
 </body>
-</html>
+</html>// ============================================================
+// SCHEDULE PAGE
+// ============================================================
+
+// Full weekly schedule - 1 hərfdən başlayır, real məşğələlər
+const WEEKLY_SCHEDULE = {
+  1: { // Bazar ertəsi
+    theme: 'Tanışlıq & İlk addımlar',
+    color: '#6C63FF',
+    bg: 'linear-gradient(135deg,#6C63FF,#8B5CF6)',
+    emoji: '🌟',
+    lessons: [
+      {
+        time:'09:00–09:30', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "A" hərfi',
+        desc:'Bugün ilk hərfimiz — <b>"A"</b> hərfini öyrənirik. Bu hərf ən çox işlədilən hərfdir!',
+        content: `
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter">A a</div>
+              <div class="letter-stroke">Böyük A · Kiçik a</div>
+            </div>
+            <div class="sched-words">
+              <div class="sched-word-card" style="--wc:#6C63FF"><span class="word-emoji">🍎</span><span>Alma</span></div>
+              <div class="sched-word-card" style="--wc:#f5576c"><span class="word-emoji">🐴</span><span>At</span></div>
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">🌺</span><span>Ağac</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">🦌</span><span>Ayı</span></div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">✍️ Yazı məşqi</div>
+              <div class="activity-text">Barmağınızla havada böyük "A" hərfini çəkin. Sonra kağızda 5 dəfə yazın. Hər yazandan sonra bir alma şəkli çəkin! 🍎</div>
+            </div>
+            <div class="sched-tip">💡 <b>Müəllimə ipucu:</b> Hərfi göstərərkən "A — Alma" kimi assosiasiya yaradın. Uşaqlar bu yolla daha tez əzbərləyir.</div>
+          </div>`,
+        materials:['Kağız','Qələm','Rəngli karandaş']
+      },
+      {
+        time:'09:35–10:05', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — 1 rəqəmi',
+        desc:'Rəqəmlərin dünyasına ilk addım: <b>1</b> rəqəmini öyrənirik.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#667eea">1</div>
+              <div class="letter-stroke">Bir · Tək · Vahid</div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">🎮 Oyun: "1 nədir?"</div>
+              <div class="activity-text">Sinifə baxın — <b>1 pəncərə</b>, <b>1 qapı</b>, <b>1 müəllim</b>. Ətrafınızda tək olan şeyləri tapın!</div>
+            </div>
+            <div class="sched-words" style="grid-template-columns:repeat(2,1fr)">
+              <div class="sched-word-card" style="--wc:#667eea"><span class="word-emoji">☝️</span><span>1 barmaq</span></div>
+              <div class="sched-word-card" style="--wc:#f5576c"><span class="word-emoji">🌙</span><span>1 ay</span></div>
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">☀️</span><span>1 günəş</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">🌍</span><span>1 dünya</span></div>
+            </div>
+            <div class="sched-tip">💡 Uşaqlardan "evdə tək olan 3 şey" tapıb sabah danışmalarını xahiş edin.</div>
+          </div>`,
+        materials:['Sayma kubları','Lövhə']
+      },
+      {
+        time:'10:10–10:40', subject:'drawing', icon:'🎨', color:'#43e97b',
+        title:'Rəsm — Alma çəkirik',
+        desc:'Dairə formasını öyrənərək alma çəkirik. Rəng hissi inkişaf edir.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🖍️ Addım-addım alma</div>
+              <div class="activity-text">1️⃣ Böyük dairə çəkin<br>2️⃣ Yuxarıya kiçik sap əlavə edin<br>3️⃣ Yaşıl yarpaq çəkin<br>4️⃣ Qırmızı rənglə boyayın 🔴</div>
+            </div>
+            <div class="sched-tip">💡 Bu rəsm "A — Alma" hərfi ilə birləşdirilir. Uşaqlar rəsmin altına "A" hərfi yazır.</div>
+          </div>`,
+        materials:['Ağ kağız','Qırmızı/yaşıl karandaş','Marker']
+      },
+      {
+        time:'10:45–11:15', subject:'physical', icon:'⚽', color:'#f093fb',
+        title:'Bədən Tərbiyəsi — Koordinasiya',
+        desc:'Hərəkət oyunları ilə əl-göz koordinasiyası inkişaf edir.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🏃 "Bir addım — bir hərf" oyunu</div>
+              <div class="activity-text">Müəllim "A" deyir — uşaqlar 1 addım irəli atır. Başqa hərf deyiləndə dayanırlar. Sürəti tədricən artırın!</div>
+            </div>
+            <div class="sched-tip">💡 Bu oyun həm hərəkət, həm də hərfi əzbərləmə üçün əla vasitədir.</div>
+          </div>`,
+        materials:['Açıq yer / gimnastika zalı']
+      },
+      {
+        time:'11:20–11:50', subject:'music', icon:'🎵', color:'#4facfe',
+        title:'Musiqi — "ABC" mahnısı',
+        desc:'Sadə melodiya ilə hərflər öyrənilir. Ritm hissi inkişaf edir.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎤 Mahnı: "A hərfi alma"</div>
+              <div class="activity-text" style="font-style:italic;background:rgba(79,172,254,0.1);border-radius:12px;padding:14px;line-height:2">
+                🎵 A hərfi, A hərfi — alma kimi gözəl,<br>
+                A yazırıq, A deyirik — dərslər çox əzəl,<br>
+                Bir-bir öyrən hər hərfi — bilik nurla dolar,<br>
+                Məktəbimiz, dərsliyimiz — ürəyimiz olar! 🎵
+              </div>
+            </div>
+            <div class="sched-tip">💡 Uşaqlar mahnını əllərini çırparaq oxusun. Ritm koordinasiyanı gücləndirir.</div>
+          </div>`,
+        materials:['Musiqi aləti və ya telefon/planşet']
+      }
+    ]
+  },
+  2: { // Çərşənbə axşamı
+    theme: 'B hərfi & Rəqəm 2',
+    color: '#f5576c',
+    bg: 'linear-gradient(135deg,#f5576c,#f093fb)',
+    emoji: '🌸',
+    lessons: [
+      {
+        time:'09:00–09:30', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "B" hərfi',
+        desc:'İkinci hərfimiz <b>"B"</b> — barmaq, bal, baş sözlərinin ilk hərfi!',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#f5576c">B b</div>
+              <div class="letter-stroke">Böyük B · Kiçik b</div>
+            </div>
+            <div class="sched-words">
+              <div class="sched-word-card" style="--wc:#f5576c"><span class="word-emoji">🐝</span><span>Bal arısı</span></div>
+              <div class="sched-word-card" style="--wc:#6C63FF"><span class="word-emoji">🌿</span><span>Bağ</span></div>
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">🐸</span><span>Balıq</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">☁️</span><span>Bulud</span></div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">✍️ B hərfinin sirri</div>
+              <div class="activity-text">B hərfi 2 dairədən ibarətdir! Bir şaquli xətt çəkin, sonra sağdan 2 dairə yapışdırın. Böyük B belədir! Kiçik b isə birnədir — xətt + 1 dairə.</div>
+            </div>
+            <div class="sched-tip">💡 "B kimi bir barmaq" — baş barmağı göstərərək B hərfini xatırlatmaq olar.</div>
+          </div>`,
+        materials:['Kağız','Qələm','Bal şəkli']
+      },
+      {
+        time:'09:35–10:05', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — 2 rəqəmi',
+        desc:'Cütlük anlayışı: <b>2</b> rəqəmini öyrənir, cütləşdiririk.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#667eea">2</div>
+              <div class="letter-stroke">İki · Cüt · Qoşa</div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">🎮 Cütləşdirmə oyunu</div>
+              <div class="activity-text">Çəkmə — 2 ədəd. Əl — 2 ədəd. Qulaq — 2 ədəd. Göz — 2 ədəd! Öz bədəninizdə 2-li olan şeyləri sayın 👀</div>
+            </div>
+            <div class="sched-words" style="grid-template-columns:repeat(2,1fr)">
+              <div class="sched-word-card" style="--wc:#667eea"><span class="word-emoji">👀</span><span>2 göz</span></div>
+              <div class="sched-word-card" style="--wc:#f5576c"><span class="word-emoji">👂</span><span>2 qulaq</span></div>
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">🦶</span><span>2 ayaq</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">✋</span><span>2 əl</span></div>
+            </div>
+            <div class="sched-tip">💡 1+1=2 anlayışını iki alma ilə göstərin. Bir alma + bir alma = iki alma!</div>
+          </div>`,
+        materials:['Sayma kubları','2 ədəd istənilən əşya']
+      },
+      {
+        time:'10:10–10:40', subject:'reading', icon:'📖', color:'#4facfe',
+        title:'Oxu — "AB" hecası',
+        desc:'A və B hərflərini birləşdirərək ilk hecamızı oxuyuruq.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#4facfe;font-size:52px">A + B</div>
+              <div class="letter-stroke">AB — ABA — BABA</div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">📢 Yüksək səslə oxuyaq</div>
+              <div class="activity-text">A — B → AB<br>B — A → BA<br>A — B — A → ABA<br>B — A — B — A → BABA 👨‍👧</div>
+            </div>
+            <div class="sched-tip">💡 "BABA" sözü uşaqları sevindirəcək — bu onların atasıdır! Emosional bağ yaradır.</div>
+          </div>`,
+        materials:['Hərfli kartlar (A, B)','Lövhə']
+      },
+      {
+        time:'10:45–11:15', subject:'nature', icon:'🌿', color:'#43e97b',
+        title:'Təbiət — Alma ağacı',
+        desc:'Bitkinin hissələrini öyrənirik: kök, gövdə, budaqlar, yarpaqlar, meyvə.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🌳 Alma ağacı hissələri</div>
+              <div class="activity-text">
+                🌱 <b>Kök</b> — torpaqda gizlidir, su içir<br>
+                🪵 <b>Gövdə</b> — ağacın özüdür<br>
+                🌿 <b>Yarpaqlar</b> — işıqdan enerji alır<br>
+                🍎 <b>Meyvə</b> — ALMA! A hərfi ilə başlayır
+              </div>
+            </div>
+            <div class="sched-tip">💡 Alma ağacının şəklini lövhəyə çəkin, uşaqlar hissələrini əl qaldıraraq adlandırsın.</div>
+          </div>`,
+        materials:['Alma ağacı posteri və ya şəkil']
+      },
+      {
+        time:'11:20–11:50', subject:'creativity', icon:'✂️', color:'#fa8231',
+        title:'Yaradıcılıq — Kağızdan B çəkirik',
+        desc:'Əl bacarığı inkişafı: B hərfini rəngli kağızla bəzəyirik.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎨 B hərfi kollajı</div>
+              <div class="activity-text">Böyük B hərfini kağıza çəkin. İçini rəngli kağız parçaları ilə doldurun. B — BAL rəngi sarı 🟡, B — BAĞ rəngi yaşıl 🟢!</div>
+            </div>
+            <div class="sched-tip">💡 Əl hərəkəti fine motor skills-i inkişaf etdirir — məktəbə hazırlığın əsasıdır.</div>
+          </div>`,
+        materials:['Rəngli kağız','Qayçı (uşaq üçün)','Yapışqan']
+      }
+    ]
+  },
+  3: { // Çərşənbə
+    theme: 'V hərfi & Rəqəm 3',
+    color: '#43e97b',
+    bg: 'linear-gradient(135deg,#43e97b,#38f9d7)',
+    emoji: '🌿',
+    lessons: [
+      {
+        time:'09:00–09:30', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "V" hərfi',
+        desc:'<b>"V"</b> hərfi: vətən, vaxt, val, vaz sözlərindən tanış hərfdir!',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#43e97b">V v</div>
+              <div class="letter-stroke">Böyük V · Kiçik v</div>
+            </div>
+            <div class="sched-words">
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">🏠</span><span>Vətən</span></div>
+              <div class="sched-word-card" style="--wc:#6C63FF"><span class="word-emoji">🌹</span><span>Vaz</span></div>
+              <div class="sched-word-card" style="--wc:#f5576c"><span class="word-emoji">⏰</span><span>Vaxt</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">🌊</span><span>Val</span></div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">✍️ V hərfi — 2 xətt</div>
+              <div class="activity-text">V hərfi çox sadədir! Sol yuxarıdan aşağıya doğru xətt, sonra aşağıdan sağ yuxarıya doğru xətt. V — tam bir quş kimi! 🐦</div>
+            </div>
+            <div class="sched-tip">💡 "V — Victory (qələbə)" — barmaqlarla V işarəsi göstərin. Uşaqlar bu hərfi unutmaz!</div>
+          </div>`,
+        materials:['Kağız','Qələm']
+      },
+      {
+        time:'09:35–10:05', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — 3 rəqəmi & Toplama',
+        desc:'<b>3</b> rəqəmi və 1+2=3 toplama əməliyyatı.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#667eea">3</div>
+              <div class="letter-stroke">Üç · 1+2=3 · 2+1=3</div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">🍎 Alma ilə toplama</div>
+              <div class="activity-text">Stolda 1 alma var. Daha 2 alma qoyuruq. Cəmi: <b>3 alma</b>! 🍎+🍎🍎=🍎🍎🍎</div>
+            </div>
+            <div class="sched-tip">💡 Fiziki əşyalarla toplama soyut ədədi konkretləşdirir.</div>
+          </div>`,
+        materials:['3 ədəd alma/top/kub']
+      },
+      {
+        time:'10:10–10:40', subject:'reading', icon:'📖', color:'#4facfe',
+        title:'Oxu — "AV, BAV, VAB" hecaları',
+        desc:'A, B, V hərflərini birləşdirərək yeni hecalar oxuyuruq.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#4facfe;font-size:40px">AV · BAV · AVA</div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">🔤 Söz inşaatı</div>
+              <div class="activity-text">Hərfli kartları masaya qoyun.<br>A+V = AV (it hürür beləcə!)<br>B+A+V = BAV<br>A+V+A = AVA (ad!) 👧</div>
+            </div>
+            <div class="sched-tip">💡 "AVA" adı olan uşaq varsa, onu xüsusi vurğulayın!</div>
+          </div>`,
+        materials:['A, B, V hərfli kartlar']
+      },
+      {
+        time:'10:45–11:15', subject:'logic', icon:'🧩', color:'#a855f7',
+        title:'Məntiq — Böyük / Kiçik',
+        desc:'Müqayisə anlayışı: böyük-kiçik, çox-az, uzun-qısa.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎯 Müqayisə oyunu</div>
+              <div class="activity-text">
+                🐘 Fil böyükdür — 🐭 Siçan kiçikdir<br>
+                🌲 Ağac uzundur — 🌱 Şitil qısadır<br>
+                3 alma çoxdur — 1 alma azdır
+              </div>
+            </div>
+            <div class="sched-tip">💡 Sinif əşyalarını müqayisə etdirin — hansı qalem daha uzundur?</div>
+          </div>`,
+        materials:['Müxtəlif ölçülü əşyalar']
+      },
+      {
+        time:'11:20–11:50', subject:'drawing', icon:'🎨', color:'#43e97b',
+        title:'Rəsm — Vaz çəkirik',
+        desc:'V hərfi ilə başlayan vaz! Forma təsəvvürü inkişaf edir.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🖍️ Gül vazası</div>
+              <div class="activity-text">1️⃣ Aşağıda kiçik dairə (vaz dibi)<br>2️⃣ Yuxarıya getdikcə genişlənən forma<br>3️⃣ İçinə 3 gül çəkin (3 rəqəmini xatırlayın!)<br>4️⃣ İstədiyiniz rəngdə boyayın 🌈</div>
+            </div>
+            <div class="sched-tip">💡 V — vaz, 3 gül = bugünkü hər iki dərsi (V hərfi + 3 rəqəmi) birləşdirir.</div>
+          </div>`,
+        materials:['Ağ kağız','Rəngli karandaşlar']
+      }
+    ]
+  },
+  4: { // Cümə axşamı
+    theme: 'Q hərfi & Hesablama',
+    color: '#FFD93D',
+    bg: 'linear-gradient(135deg,#f7b733,#fc4a1a)',
+    emoji: '☀️',
+    lessons: [
+      {
+        time:'09:00–09:30', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "Q" hərfi (Qalın Q)',
+        desc:'<b>"Q"</b> hərfi — quru, quş, qan, qara sözlərindən tanışdır!',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#fc4a1a">Q q</div>
+              <div class="letter-stroke">Böyük Q · Kiçik q</div>
+            </div>
+            <div class="sched-words">
+              <div class="sched-word-card" style="--wc:#fc4a1a"><span class="word-emoji">🐦</span><span>Quş</span></div>
+              <div class="sched-word-card" style="--wc:#6C63FF"><span class="word-emoji">🌸</span><span>Qönçə</span></div>
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">⬛</span><span>Qara</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">🥕</span><span>Qırmızı</span></div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">✍️ Q hərfinin sirri</div>
+              <div class="activity-text">Q hərfi O-ya oxşayır, amma aşağı uzanan kiçik quyruğu var. Dairə çəkin → aşağıya kiçik xətt əlavə edin → Q hazırdır!</div>
+            </div>
+            <div class="sched-tip">💡 "Q — quş" demək olar. Quşun quyruğu var, Q-nun da var!</div>
+          </div>`,
+        materials:['Kağız','Qələm','Quş şəkli']
+      },
+      {
+        time:'09:35–10:05', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — 1,2,3 sayma & çıxma',
+        desc:'1-dən 3-ə qədər sayma, sadə çıxma: 3-1=2, 3-2=1',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎪 Sirkdə say</div>
+              <div class="activity-text">
+                3 topu havaya atırıq: 1, 2, 3!<br>
+                1 top yıxıldı → 3-1 = <b>2 top</b> qaldı 🎪<br>
+                Daha 1 yıxıldı → 2-1 = <b>1 top</b> qaldı<br>
+                Son top da düşdü → 1-1 = <b>0</b> 😅
+              </div>
+            </div>
+            <div class="sched-tip">💡 Vizual əşyalarla çıxma çox asan mənimsənilir.</div>
+          </div>`,
+        materials:['3 ədəd top və ya kub']
+      },
+      {
+        time:'10:10–10:40', subject:'nature', icon:'🌿', color:'#43e97b',
+        title:'Təbiət — Quşlar haqqında',
+        desc:'Q hərfi ilə başlayan quşları tanıyırıq: qu quşu, qartal, qaranquş.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🐦 Quşları tanıyaq</div>
+              <div class="activity-text">
+                🦢 <b>Qu quşu</b> — ağdır, uzun boynu var, suda üzür<br>
+                🦅 <b>Qartal</b> — böyük, güclü, dağlarda yaşayır<br>
+                🐦 <b>Qaranquş</b> — yazda gəlir, payızda uçub gedir<br>
+                🐦 <b>Sərçə</b> — kiçik, şəhərdə yaşayır
+              </div>
+            </div>
+            <div class="sched-tip">💡 Pəncərədən quş görünürsə, uşaqların diqqətini cəlb edin!</div>
+          </div>`,
+        materials:['Quş şəkilləri / poster']
+      },
+      {
+        time:'10:45–11:15', subject:'music', icon:'🎵', color:'#4facfe',
+        title:'Musiqi — Quşun nəğməsi',
+        desc:'Quş səslərini dinləyir, ritmik çalğı alətləri ilə təkrarlayırıq.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎵 Quş nəğməsi</div>
+              <div class="activity-text" style="font-style:italic;background:rgba(79,172,254,0.1);border-radius:12px;padding:14px;line-height:2">
+                🎵 Qu-quş uçar havada,<br>
+                Qaranquş gələr yazda,<br>
+                Qartal qonar dağlara,<br>
+                Sərçə sevər bağları! 🎵
+              </div>
+            </div>
+            <div class="sched-tip">💡 Uşaqlar quş hərəkətlərini imitasiya etsin — əllər qanad kimi!</div>
+          </div>`,
+        materials:['Musiqi / YouTube quş səsləri']
+      },
+      {
+        time:'11:20–11:50', subject:'physical', icon:'⚽', color:'#f093fb',
+        title:'Bədən Tərbiyəsi — "Quş" oyunu',
+        desc:'Quş hərəkətlərini imitasiya edərək müxtəlif motor bacarıqları inkişaf edir.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🏃 Quş olmaq oyunu</div>
+              <div class="activity-text">
+                Müəllim deyir:<br>
+                "Qu quşu" → əllər yan-yana, yavaş yellənin<br>
+                "Qartal" → əllər geniş, qaçın<br>
+                "Qaranquş" → sürətlə qaçın<br>
+                "Sərçə" → qısa, sıçrayışlı addımlar
+              </div>
+            </div>
+            <div class="sched-tip">💡 Bu oyun reaksiya müddətini inkişaf etdirir.</div>
+          </div>`,
+        materials:['Geniş yer']
+      }
+    ]
+  },
+  5: { // Cümə
+    theme: 'D hərfi & Həftə yekunu',
+    color: '#a855f7',
+    bg: 'linear-gradient(135deg,#a855f7,#6C63FF)',
+    emoji: '🎉',
+    lessons: [
+      {
+        time:'09:00–09:30', subject:'language', icon:'📝', color:'#f5576c',
+        title:'Azərbaycan Dili — "D" hərfi',
+        desc:'<b>"D"</b> hərfi: dost, dağ, dəniz, dərs sözlərinin ilk hərfi!',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#a855f7">D d</div>
+              <div class="letter-stroke">Böyük D · Kiçik d</div>
+            </div>
+            <div class="sched-words">
+              <div class="sched-word-card" style="--wc:#a855f7"><span class="word-emoji">🏔️</span><span>Dağ</span></div>
+              <div class="sched-word-card" style="--wc:#4facfe"><span class="word-emoji">🌊</span><span>Dəniz</span></div>
+              <div class="sched-word-card" style="--wc:#43e97b"><span class="word-emoji">🤝</span><span>Dost</span></div>
+              <div class="sched-word-card" style="--wc:#FFD93D"><span class="word-emoji">📚</span><span>Dərs</span></div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">✍️ D hərfi — B kimi amma tərsinə!</div>
+              <div class="activity-text">D hərfi: şaquli xətt çəkin, sonra SOL tərəfə deyil, SAĞ tərəfə böyük dairə əlavə edin. B solda, D sağda!</div>
+            </div>
+            <div class="sched-tip">💡 B vs D qarışdırılır. "B — böyük bal arısı SOLDA, D — dəniz SAĞDA" deyin.</div>
+          </div>`,
+        materials:['Kağız','Qələm']
+      },
+      {
+        time:'09:35–10:05', subject:'math', icon:'🔢', color:'#667eea',
+        title:'Riyaziyyat — 1-3 Təkrar & Sayma oyunu',
+        desc:'Bu həftə öyrəndiklərimizi birlikdə təkrarlayırıq.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎮 "Nə qədər?" oyunu</div>
+              <div class="activity-text">
+                Müəllim əl çırpır — uşaqlar sayır:<br>
+                👏 → 1<br>
+                👏👏 → 2<br>
+                👏👏👏 → 3<br>
+                Sürəti artırın!
+              </div>
+            </div>
+            <div class="sched-activity" style="margin-top:12px">
+              <div class="activity-title">📝 Həftə sonu ev tapşırığı</div>
+              <div class="activity-text">Evdə A, B, V, Q, D hərfi ilə başlayan 5 əşya tapın. Valideynlə birgə yazın!</div>
+            </div>
+            <div class="sched-tip">💡 Ev tapşırığı uşaqları həvəsləndirməlidir, yormaz olsun.</div>
+          </div>`,
+        materials:['Sayma lövhəsi']
+      },
+      {
+        time:'10:10–10:40', subject:'reading', icon:'📖', color:'#4facfe',
+        title:'Oxu — Həftənin hərfləri: A, B, V, Q, D',
+        desc:'Bütün həftənin hərflərini birlikdə oxuyuruq, söz qururuq.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-letter-showcase">
+              <div class="big-letter" style="color:#4facfe;font-size:36px">A B V Q D</div>
+            </div>
+            <div class="sched-activity">
+              <div class="activity-title">🔤 Söz yaratmaq yarışı</div>
+              <div class="activity-text">Bu hərflərdən söz qurun:<br>🏆 BABA · DAVA · VAQD · AVAD<br>Kim daha çox söz tapır?</div>
+            </div>
+            <div class="sched-tip">💡 Yarışma mühiti uşaqların motivasiyasını artırır.</div>
+          </div>`,
+        materials:['Hərfli kartlar: A,B,V,Q,D']
+      },
+      {
+        time:'10:45–11:15', subject:'creativity', icon:'✂️', color:'#fa8231',
+        title:'Yaradıcılıq — Həftənin kitabçası',
+        desc:'Uşaqlar bu həftə öyrəndiklərini kiçik kitabçada toplayır.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">📒 Kitabça hazırlayaq</div>
+              <div class="activity-text">
+                5 vərəq kağız → Ortadan qatlayın → Sap/zımba ilə bağlayın<br>
+                Hər səhifə bir hərf:<br>
+                📄 A — alma şəkli<br>
+                📄 B — bal arısı şəkli<br>
+                📄 V — vaz şəkli<br>
+                📄 Q — quş şəkli<br>
+                📄 D — dağ şəkli
+              </div>
+            </div>
+            <div class="sched-tip">💡 Bu kitabçanı evə aparacaqlar — valideynlər üçün böyük sürpriz! 🎁</div>
+          </div>`,
+        materials:['Kağız','Zımba/ip','Rəngli karandaş']
+      },
+      {
+        time:'11:20–11:50', subject:'music', icon:'🎵', color:'#4facfe',
+        title:'Musiqi — Həftə sonu nəğməsi 🎉',
+        desc:'Həftəni şən nəğmə ilə yekunlaşdırırıq. Uşaqlar öz bacarıqlarını nümayiş etdirir.',
+        content:`
+          <div class="sched-lesson-body">
+            <div class="sched-activity">
+              <div class="activity-title">🎤 Bilik mahnısı</div>
+              <div class="activity-text" style="font-style:italic;background:rgba(108,99,255,0.1);border-radius:12px;padding:14px;line-height:2">
+                🎵 A, B, V, Q, D —<br>
+                Beş hərf öyrəndik bu həftə biz,<br>
+                Bir, iki, üç — sayırıq tez,<br>
+                Məktəbə hazırdır hamımız! 🎒🎵
+              </div>
+            </div>
+            <div class="sched-activity" style="margin-top:12px">
+              <div class="activity-title">🏆 Həftə qəhrəmanı</div>
+              <div class="activity-text">Müəllim bu həftə ən çox cəhd göstərən uşağı "Həftənin Ulduzu" ünvanı ilə mükafatlandırır ⭐</div>
+            </div>
+          </div>`,
+        materials:['Musiqi','Sertifikat/ulduz stikeri']
+      }
+    ]
+  }
+};
+
+const DAY_NAMES_AZ = ['','Bazar ertəsi','Çərşənbə ax.','Çərşənbə','Cümə ax.','Cümə'];
+const DAY_NAMES_RU = ['','Понедельник','Вторник','Среда','Четверг','Пятница'];
+const DAY_NAMES_EN = ['','Monday','Tuesday','Wednesday','Thursday','Friday'];
+
+let selectedSchedDay = 1;
+
+function renderSchedule(){
+  // Set today as default
+  const dow = new Date().getDay();
+  if(dow>=1&&dow<=5) selectedSchedDay=dow;
+  else selectedSchedDay=1;
+
+  buildSchedHero();
+  buildSchedTabs();
+  buildSchedDayContent();
+}
+
+function getDayNames(){
+  return lang==='ru'?DAY_NAMES_RU:lang==='en'?DAY_NAMES_EN:DAY_NAMES_AZ;
+}
+
+function buildSchedHero(){
+  const day = WEEKLY_SCHEDULE[selectedSchedDay];
+  document.getElementById('schedMainTitle').textContent = '🗓️ ' + (lang==='ru'?'Расписание':lang==='en'?'Daily Schedule':'Günlük Cədvəl');
+  const pills = document.getElementById('schedDayPills');
+  const dayNames = getDayNames();
+  const dow = new Date().getDay();
+  pills.innerHTML = Object.keys(WEEKLY_SCHEDULE).map(d=>{
+    const isToday = parseInt(d)===dow;
+    const isSelected = parseInt(d)===selectedSchedDay;
+    return `<button onclick="selectSchedDay(${d})" style="padding:8px 16px;border-radius:20px;border:2px solid ${isSelected?'white':'rgba(255,255,255,0.4)'};background:${isSelected?'rgba(255,255,255,0.25)':'transparent'};color:white;font-weight:800;font-size:13px;cursor:pointer;font-family:Nunito,sans-serif;transition:all .2s;display:flex;align-items:center;gap:6px">
+      ${isToday?'📍':''} ${dayNames[d]} ${WEEKLY_SCHEDULE[d].emoji}
+    </button>`;
+  }).join('');
+}
+
+function buildSchedTabs(){
+  const dayNames = getDayNames();
+  const dow = new Date().getDay();
+  const tabs = document.getElementById('schedDayTabs');
+  tabs.innerHTML = Object.keys(WEEKLY_SCHEDULE).map(d=>{
+    const day = WEEKLY_SCHEDULE[d];
+    const isSelected = parseInt(d)===selectedSchedDay;
+    const isToday = parseInt(d)===dow;
+    return `<button onclick="selectSchedDay(${d})" style="padding:12px 20px;border-radius:16px;border:2px solid ${isSelected?day.color:'#E2E8F0'};background:${isSelected?day.color:'white'};color:${isSelected?'white':'#2D3748'};font-weight:800;font-size:13px;cursor:pointer;font-family:Nunito,sans-serif;white-space:nowrap;transition:all .3s;transform:${isSelected?'scale(1.05)':'scale(1)'};box-shadow:${isSelected?'0 4px 16px '+day.color+'44':'none'}">
+      ${day.emoji} ${dayNames[d]}${isToday?' 📍':''}
+    </button>`;
+  }).join('');
+}
+
+function selectSchedDay(d){
+  selectedSchedDay=parseInt(d);
+  buildSchedHero();
+  buildSchedTabs();
+  buildSchedDayContent();
+}
+
+function buildSchedDayContent(){
+  const day = WEEKLY_SCHEDULE[selectedSchedDay];
+  const dayNames = getDayNames();
+  const el = document.getElementById('schedDayContent');
+
+  // Theme banner
+  let html = `<div style="background:${day.bg};border-radius:20px;padding:20px 24px;margin-bottom:20px;color:white;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px ${day.color}44">
+    <div style="font-size:48px">${day.emoji}</div>
+    <div>
+      <div style="font-size:18px;font-weight:900">${dayNames[selectedSchedDay]}</div>
+      <div style="font-size:14px;opacity:0.85;margin-top:4px">📌 ${day.theme}</div>
+      <div style="font-size:12px;opacity:0.7;margin-top:4px">${day.lessons.length} dərs · Bugünün proqramı</div>
+    </div>
+  </div>`;
+
+  // Lessons
+  day.lessons.forEach((lesson,i)=>{
+    const SC_colors={math:'#667eea',language:'#f5576c',reading:'#4facfe',drawing:'#43e97b',music:'#4facfe',physical:'#f093fb',nature:'#43e97b',logic:'#a855f7',creativity:'#fa8231'};
+    const c = lesson.color || SC_colors[lesson.subject] || '#6C63FF';
+    html += `<div class="sched-lesson-card" style="--lc:${c};animation:slideInUp ${0.1+i*0.1}s ease both">
+      <div class="sched-lesson-header" onclick="toggleLesson(${i})">
+        <div style="display:flex;align-items:center;gap:14px;flex:1">
+          <div style="width:52px;height:52px;border-radius:16px;background:${c}22;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">${lesson.icon}</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:900;color:#2D3748">${lesson.title}</div>
+            <div style="font-size:12px;color:#718096;margin-top:3px">${lesson.desc}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <span style="background:${c}22;color:${c};padding:5px 12px;border-radius:20px;font-size:11px;font-weight:800">⏰ ${lesson.time}</span>
+          <span class="lesson-chevron-${i}" style="font-size:18px;transition:transform .3s;color:${c}">▼</span>
+        </div>
+      </div>
+      <div class="sched-lesson-content" id="lesson-body-${i}" style="display:none;border-top:2px solid ${c}22;margin-top:14px;padding-top:14px">
+        ${lesson.content}
+        ${lesson.materials ? `<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:12px;font-weight:700;color:#718096">🎒 Lazım olan:</span>
+          ${lesson.materials.map(m=>`<span style="background:#f0f0ff;color:#6C63FF;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">${m}</span>`).join('')}
+        </div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function toggleLesson(i){
+  const body = document.getElementById('lesson-body-'+i);
+  const chevron = document.querySelector('.lesson-chevron-'+i);
+  const isOpen = body.style.display!=='none';
+  body.style.display = isOpen?'none':'block';
+  if(chevron) chevron.style.transform = isOpen?'rotate(0deg)':'rotate(180deg)';
+}
+
+
