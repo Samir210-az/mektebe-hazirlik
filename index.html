@@ -301,6 +301,27 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
         <div id="weekContent"></div>
       </div>
 
+
+      <!-- SCHEDULE -->
+      <div class="page" id="page-schedule">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="schedTitle">🗓️ Günlük Cədvəl</div>
+            <div class="page-sub">Həftəlik dərs cədvəli • 5-6 yaş qrupu</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <div style="display:flex;gap:6px" id="schedWeekBtns"></div>
+          </div>
+        </div>
+
+        <!-- Time legend + grid -->
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px">
+          <div id="schedGrid"></div>
+        </div>
+
+        <!-- Today highlight -->
+        <div id="schedToday"></div>
+      </div>
       <!-- LESSONS -->
       <div class="page" id="page-lessons">
         <div class="page-header">
@@ -418,7 +439,7 @@ footer a{color:var(--accent);text-decoration:none;font-weight:800;}
 // ============================================================
 const LANGS = {
   az:{
-    home:'🏠 Ana Səhifə',curriculum:'📅 Tədris Planı',lessons:'📚 Məşğələlər',
+    home:'🏠 Ana Səhifə',curriculum:'📅 Tədris Planı',lessons:'📚 Məşğələlər',schedule:'🗓️ Günlük Cədvəl',
     announcements:'📢 Elanlar',students:'👦 Uşaqlar',teachers:'👩‍🏫 Müəllimlər',admin:'⚙️ Admin',
     report:'📊 Hesabat',week:'Həftə',day:'Gün',min:'dəq',all:'Hamısı',
     weeks:['Tanışlıq və Məktəb','Ailə və Sevgi','Təbiət və Heyvanlar','Rənglər və Fiqurlar','Azərbaycan — Vətənimiz','Peşələr','Riyaziyyat Dünyası','Məktəbə Hazırlıq — Yekun 🎉'],
@@ -429,7 +450,7 @@ const LANGS = {
     behaviorLabels:{excellent:'🌟 Əla',good:'😊 Yaxşı',satisfactory:'😐 Qənaətbəxş',needs_improvement:'😢 Yaxşılaşdır.'}
   },
   ru:{
-    home:'🏠 Главная',curriculum:'📅 Учебный план',lessons:'📚 Занятия',
+    home:'🏠 Главная',curriculum:'📅 Учебный план',lessons:'📚 Занятия',schedule:'🗓️ Расписание',
     announcements:'📢 Объявления',students:'👦 Ученики',teachers:'👩‍🏫 Учителя',admin:'⚙️ Админ',
     report:'📊 Отчёт',week:'Неделя',day:'День',min:'мин',all:'Все',
     weeks:['Знакомство','Семья и любовь','Природа','Цвета и фигуры','Азербайджан','Профессии','Математика','Итог 🎉'],
@@ -440,7 +461,7 @@ const LANGS = {
     behaviorLabels:{excellent:'🌟 Отлично',good:'😊 Хорошо',satisfactory:'😐 Удовл.',needs_improvement:'😢 Нужно улучш.'}
   },
   en:{
-    home:'🏠 Home',curriculum:'📅 Curriculum',lessons:'📚 Lessons',
+    home:'🏠 Home',curriculum:'📅 Curriculum',lessons:'📚 Lessons',schedule:'🗓️ Daily Schedule',
     announcements:'📢 Announcements',students:'👦 Students',teachers:'👩‍🏫 Teachers',admin:'⚙️ Admin',
     report:'📊 Report',week:'Week',day:'Day',min:'min',all:'All',
     weeks:['Introduction','Family & Love','Nature','Colors & Shapes','Azerbaijan','Professions','Mathematics','Graduation 🎉'],
@@ -606,6 +627,7 @@ function getNavItems(role){
   const all=[
     {id:'home',label:L.home,icon:'🏠',roles:['admin','teacher','parent']},
     {id:'curriculum',label:L.curriculum,icon:'📅',roles:['admin','teacher','parent']},
+    {id:'schedule',label:L.schedule,icon:'🗓️',roles:['admin','teacher','parent']},
     {id:'lessons',label:L.lessons,icon:'📚',roles:['admin','teacher','parent']},
     {id:'announcements',label:L.announcements,icon:'📢',roles:['admin','teacher','parent']},
     {id:'students',label:L.students,icon:'👦',roles:['admin','teacher']},
@@ -634,6 +656,7 @@ function renderPage(id){
     case 'students': renderStudents(); break;
     case 'teachers': renderTeachers(); break;
     case 'admin': renderAdmin(); break;
+    case 'schedule': renderSchedule(); break;
     case 'report': renderReport(); break;
     case 'student-profile': renderStudentProfile(); break;
   }
