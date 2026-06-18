@@ -280,6 +280,7 @@ tbody tr:hover td{background:#f6fbf9}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--g1),var(--g2));border-radius:10px;transition:.6s}
 
 /* ===== TOAST ===== */
+.hov-card:hover{border-color:var(--g2) !important;transform:translateY(-3px)}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--g1);color:#fff;padding:12px 20px;border-radius:16px;font-weight:700;font-size:13px;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 6px 24px rgba(15,76,58,.3)}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.gold{background:var(--gold);color:var(--g1)}
@@ -321,21 +322,53 @@ tbody tr:hover td{background:#f6fbf9}
       <h2>AN Məktəbə Hazırlıq</h2>
       <p>Portalınıza xoş gəldiniz</p>
     </div>
-    <div class="login-field">
-      <label>👤 İstifadəçi adı</label>
-      <input type="text" id="loginUser" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"/>
+
+    <!-- LOGIN FORM -->
+    <div id="loginFormWrap">
+      <div class="login-field">
+        <label>👤 İstifadəçi adı</label>
+        <input type="text" id="loginUser" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="login-field">
+        <label>🔒 Şifrə</label>
+        <input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="login-btn" onclick="doLogin()">🚀 Daxil ol</button>
+      <div class="login-err" id="loginErr">❌ İstifadəçi adı və ya şifrə yanlışdır.</div>
+      <div style="text-align:center;margin-top:14px">
+        <button onclick="showRegForm()" style="background:transparent;border:none;color:var(--g2);font-weight:700;font-size:14px;cursor:pointer;text-decoration:underline">📝 Qeydiyyat</button>
+      </div>
     </div>
-    <div class="login-field">
-      <label>🔒 Şifrə</label>
-      <input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+
+    <!-- REGISTER FORM -->
+    <div id="regFormWrap" style="display:none">
+      <div class="login-field">
+        <label>👤 Ad Soyad</label>
+        <input type="text" id="regName" placeholder="Leyla Əliyeva"/>
+      </div>
+      <div class="login-field">
+        <label>🔑 İstifadəçi adı</label>
+        <input type="text" id="regUser" placeholder="leyla123"/>
+      </div>
+      <div class="login-field">
+        <label>🔒 Şifrə</label>
+        <input type="password" id="regPass" placeholder="••••••"/>
+      </div>
+      <div class="login-field">
+        <label>👔 Rol</label>
+        <select id="regRole" style="width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:14px;font-size:14px;font-family:inherit">
+          <option value="teacher">👩‍🏫 Müəllim</option>
+          <option value="parent">👨‍👩‍👧 Valideyn</option>
+        </select>
+      </div>
+      <button class="login-btn" onclick="submitReg()">📨 Müraciət göndər</button>
+      <div style="text-align:center;margin-top:14px">
+        <button onclick="hideRegForm()" style="background:transparent;border:none;color:var(--g2);font-weight:700;font-size:14px;cursor:pointer;text-decoration:underline">← Girişə qayıt</button>
+      </div>
     </div>
-    <button class="login-btn" onclick="doLogin()">🚀 Daxil ol</button>
-    <div class="login-err" id="loginErr">❌ Şifrə yanlışdır. Yenidən cəhd edin.</div>
+
     <div class="login-badge">
-      <span>🎓 8 Həftə</span>
-      <span>👶 5-6 Yaş</span>
-      <span>📚 6 Fənn</span>
-      <span>🌍 3 Dil</span>
+      <span>🎓 8 Həftə</span><span>👶 5-6 Yaş</span><span>📚 6 Fənn</span><span>🌍 3 Dil</span>
     </div>
   </div>
 </div>
@@ -493,6 +526,35 @@ tbody tr:hover td{background:#f6fbf9}
   </div>
 </div>
 
+<!-- ELIFBA PAGE -->
+<div class="page" id="page-elifba">
+<div class="container">
+  <div class="page-title">🔤 Azərbaycan Əlifbası</div>
+  <div class="page-sub">A-dan Z-ə qədər bütün hərflər — vurun, detallara baxın, ev tapşırığı göndərin</div>
+  <div id="elifbaContent"><p style="text-align:center;color:var(--text2);padding:40px">Yüklənir...</p></div>
+</div>
+</div>
+
+<!-- RIYAZIYYAT PAGE -->
+<div class="page" id="page-riyaziyyat">
+<div class="container">
+  <div class="page-title">🔢 Riyaziyyat — Rəqəmlər</div>
+  <div class="page-sub">0-dan 10-a qədər ardıcıl öyrənmə — vurun, detallara baxın, ev tapşırığı göndərin</div>
+  <div id="riyaziyyatContent"><p style="text-align:center;color:var(--text2);padding:40px">Yüklənir...</p></div>
+</div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div class="page admin-only" id="page-admin">
+<div class="container">
+  <div class="page-title">⚙️ Admin Panel</div>
+  <div class="page-sub">İstifadəçi idarəetməsi</div>
+  <div class="tbl-wrap" style="padding:20px" id="adminPanelContent">
+    <p style="text-align:center;color:var(--text2)">Yüklənir...</p>
+  </div>
+</div>
+</div>
+
 <nav style="position:fixed;bottom:0;left:0;right:0;background:var(--g1);display:flex;z-index:200;border-top:2px solid var(--g2);box-shadow:0 -4px 20px rgba(0,0,0,.2)">
   <button onclick="showPage('home')" id="mnav-home" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
     <span style="font-size:20px">🏠</span><span>Ana Səh.</span>
@@ -508,6 +570,15 @@ tbody tr:hover td{background:#f6fbf9}
   </button>
   <button onclick="showPage('report')" id="mnav-report" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s" class="mnav-btn">
     <span style="font-size:20px">📊</span><span>Hesabat</span>
+  </button>
+  <button onclick="showPage('elifba');renderElifba()" id="mnav-elifba" class="mnav-btn" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s">
+    <span style="font-size:20px">🔤</span><span>Əlifba</span>
+  </button>
+  <button onclick="showPage('riyaziyyat');renderRiyaziyyat()" id="mnav-riyaziyyat" class="mnav-btn" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s">
+    <span style="font-size:20px">🔢</span><span>Rəqəm</span>
+  </button>
+  <button onclick="showPage('admin');renderAdminPanel()" id="mnav-admin" class="mnav-btn admin-only" style="flex:1;padding:10px 4px;border:none;background:transparent;color:rgba(255,255,255,.7);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:.2s">
+    <span style="font-size:20px">⚙️</span><span>Admin</span>
   </button>
 </nav>
 <div style="height:70px"></div>
@@ -1064,13 +1135,22 @@ var currentWeekIdx=0;
 // ================================================================
 // LOGIN
 // ================================================================
+// USERS: admin + pending registrations
+var PENDING_USERS = JSON.parse(localStorage.getItem('an_pending')||'[]');
+var APPROVED_USERS = JSON.parse(localStorage.getItem('an_users')||'[]');
+
+function getAllUsers(){
+  var base=[{u:'admin',p:'AN2026',role:'admin',name:'Admin'},{u:'muellim',p:'Muellim2026',role:'teacher',name:'Müəllim'}];
+  return base.concat(APPROVED_USERS);
+}
+
 function doLogin(){
   var u=document.getElementById('loginUser').value.trim();
   var p=document.getElementById('loginPass').value.trim();
-  if((u==='admin'&&p==='AN2026')||(u==='muellim'&&p==='Muellim2026')){
-    document.getElementById('loginPage').style.display='none';
-    document.getElementById('app').style.display='block';
-    init();
+  var found=getAllUsers().find(function(x){return x.u===u&&x.p===p});
+  if(found){
+    localStorage.setItem('an_session',JSON.stringify({u:found.u,role:found.role,name:found.name,ts:Date.now()}));
+    showApp(found);
   } else {
     var err=document.getElementById('loginErr');
     err.style.display='block';
@@ -1078,15 +1158,66 @@ function doLogin(){
     setTimeout(function(){err.style.display='none'},3000);
   }
 }
+
+function showApp(user){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').style.display='block';
+  // show/hide admin features
+  document.querySelectorAll('.admin-only').forEach(function(el){
+    el.style.display=user.role==='admin'?'':'none';
+  });
+  init();
+}
+
 function doLogout(){
+  localStorage.removeItem('an_session');
   document.getElementById('loginPage').style.display='flex';
   document.getElementById('app').style.display='none';
   document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
 }
+
+function checkSession(){
+  var sess=localStorage.getItem('an_session');
+  if(sess){
+    try{
+      var s=JSON.parse(sess);
+      // 24 saat
+      if(Date.now()-s.ts < 86400000){
+        var found=getAllUsers().find(function(x){return x.u===s.u});
+        if(found){showApp(found);return;}
+      }
+    }catch(e){}
+  }
+  document.getElementById('loginPage').style.display='flex';
+}
+
 document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&document.getElementById('loginPage').style.display!=='none') doLogin();
 });
+
+// REGISTRATION
+function showRegForm(){
+  document.getElementById('regFormWrap').style.display='block';
+  document.getElementById('loginFormWrap').style.display='none';
+}
+function hideRegForm(){
+  document.getElementById('regFormWrap').style.display='none';
+  document.getElementById('loginFormWrap').style.display='block';
+}
+function submitReg(){
+  var name=document.getElementById('regName').value.trim();
+  var user=document.getElementById('regUser').value.trim();
+  var pass=document.getElementById('regPass').value.trim();
+  var role=document.getElementById('regRole').value;
+  if(!name||!user||!pass){showToast('❌ Bütün sahələri doldurun!');return;}
+  var all=getAllUsers().concat(PENDING_USERS);
+  if(all.find(function(x){return x.u===user})){showToast('❌ Bu istifadəçi adı mövcuddur!');return;}
+  PENDING_USERS.push({u:user,p:pass,role:role,name:name,ts:Date.now()});
+  localStorage.setItem('an_pending',JSON.stringify(PENDING_USERS));
+  showToast('✅ Müraciətiniz göndərildi! Admin təsdiq edəcək.');
+  hideRegForm();
+}
 
 // ================================================================
 // INIT
@@ -1149,6 +1280,9 @@ function showPage(p){
   if(p==='daily'&&document.getElementById('dailyContent')&&!document.getElementById('dailyContent').children.length) renderDaily();
   if(p==='report') renderReport();
   if(p==='grades') populateSelect();
+  if(p==='admin') renderAdminPanel();
+  if(p==='elifba'&&document.getElementById('elifbaContent')&&!document.getElementById('elifbaContent').children.length) renderElifba();
+  if(p==='riyaziyyat'&&document.getElementById('riyaziyyatContent')&&!document.getElementById('riyaziyyatContent').children.length) renderRiyaziyyat();
 }
 
 // ================================================================
@@ -1302,202 +1436,425 @@ function escStr(s){ return s.replace(/'/g,"\\'"); }
 // ================================================================
 // HOMEWORK EXPORT
 // ================================================================
+
+
+function approveUser(i){
+  PENDING_USERS=JSON.parse(localStorage.getItem('an_pending')||'[]');
+  var u=PENDING_USERS.splice(i,1)[0];
+  APPROVED_USERS=JSON.parse(localStorage.getItem('an_users')||'[]');
+  APPROVED_USERS.push(u);
+  localStorage.setItem('an_pending',JSON.stringify(PENDING_USERS));
+  localStorage.setItem('an_users',JSON.stringify(APPROVED_USERS));
+  showToast('✅ '+u.name+' təsdiqləndi!');
+  renderAdminPanel();
+}
+function rejectUser(i){
+  PENDING_USERS=JSON.parse(localStorage.getItem('an_pending')||'[]');
+  var u=PENDING_USERS.splice(i,1)[0];
+  localStorage.setItem('an_pending',JSON.stringify(PENDING_USERS));
+  showToast('❌ '+u.name+' rədd edildi.');
+  renderAdminPanel();
+}
+function removeUser(i){
+  APPROVED_USERS=JSON.parse(localStorage.getItem('an_users')||'[]');
+  var u=APPROVED_USERS.splice(i,1)[0];
+  localStorage.setItem('an_users',JSON.stringify(APPROVED_USERS));
+  showToast('🗑 '+u.name+' silindi.');
+  renderAdminPanel();
+}
+
+// ================================================================
+// FIX: HOMEWORK EXPORT - proper blob download
+// ================================================================
 function exportHomework(subj,title,desc,tasks){
   var today=new Date().toLocaleDateString('az-AZ',{year:'numeric',month:'long',day:'numeric'});
   var tasksHtml=tasks.map(function(t,i){
     return '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:#f0fdf4;border-radius:10px;margin-bottom:8px;border-left:3px solid #16a34a">'+
-      '<span style="background:#16a34a;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;margin-top:1px">'+(i+1)+'</span>'+
-      '<span style="font-size:14px;color:#15803d;line-height:1.6">'+t+'</span>'+
+      '<span style="background:#16a34a;color:white;min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;margin-top:1px">'+(i+1)+'</span>'+
+      '<span style="font-size:15px;color:#15803d;line-height:1.6">'+t+'</span>'+
     '</div>';
   }).join('');
 
-  var html='<!DOCTYPE html><html lang="az"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ev Tapşırığı — '+title+'</title>'+
-  '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#f0fdf4;min-height:100vh;padding:20px}'+
-  '.card{background:white;border-radius:20px;padding:28px;max-width:600px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}'+
-  '.hdr{background:linear-gradient(135deg,#0f4c3a,#1f7a5e);border-radius:14px;padding:20px;color:white;margin-bottom:20px}'+
-  '.hdr h1{font-size:20px;font-weight:900;margin-bottom:4px}.hdr p{font-size:13px;opacity:.8}'+
-  '.badge{background:rgba(245,176,66,.9);color:#0f3d2a;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:800;display:inline-block;margin-top:8px}'+
-  '.section-title{font-size:14px;font-weight:800;color:#0f4c3a;margin-bottom:10px;display:flex;align-items:center;gap:6px}'+
-  '.footer{text-align:center;margin-top:24px;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px}'+
-  '.footer a{color:#1f7a5e;text-decoration:none;font-weight:700}'+
+  var html='<!DOCTYPE html><html lang="az"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<title>Ev Tapşırığı</title>'+
+  '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#f0fdf4;padding:16px;min-height:100vh}'+
+  '.card{background:white;border-radius:20px;padding:24px;max-width:560px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}'+
+  '.hdr{background:linear-gradient(135deg,#0f4c3a,#1f7a5e);border-radius:14px;padding:18px;color:white;margin-bottom:20px}'+
+  '.hdr h1{font-size:19px;font-weight:900;margin-bottom:4px}.hdr p{font-size:12px;opacity:.8}'+
+  '.sec{font-weight:800;color:#0f4c3a;margin:14px 0 8px;font-size:14px}'+
+  '.note{background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-top:16px;font-size:13px;color:#78350f;line-height:1.6}'+
+  '.footer{text-align:center;margin-top:20px;font-size:12px;color:#6b7280;padding-top:16px;border-top:1px solid #e5e7eb}'+
+  '.badge{background:rgba(245,176,66,.9);color:#0f3d2a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block;margin-top:6px}'+
   '</style></head><body>'+
   '<div class="card">'+
-  '<div class="hdr">'+
-  '<div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">📚 AN Məktəbə Hazırlıq Mərkəzi</div>'+
-  '<h1>📚 Ev Tapşırığı</h1>'+
-  '<div class="badge">'+subj+' · '+today+'</div>'+
-  '</div>'+
-  '<div class="section-title">🎯 Bu günkü tapşırıq: '+title+'</div>'+
-  '<p style="font-size:14px;color:#374151;margin-bottom:16px;line-height:1.6">'+desc+'</p>'+
-  '<div class="section-title">✅ Yerinə yetiriləcək işlər:</div>'+
+  '<div class="hdr"><p>📚 AN Məktəbə Hazırlıq Mərkəzi · '+today+'</p><h1>Ev Tapşırığı</h1><div class="badge">'+subj+'</div></div>'+
+  '<div class="sec">🎯 Mövzu: '+title+'</div>'+
+  '<p style="font-size:14px;color:#374151;margin-bottom:14px;line-height:1.6">'+desc+'</p>'+
+  '<div class="sec">✅ Tapşırıqlar:</div>'+
   tasksHtml+
-  '<div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-top:16px">'+
-  '<div style="font-weight:800;color:#92400e;margin-bottom:6px">📞 Valideyn xahişi:</div>'+
-  '<div style="font-size:13px;color:#78350f;line-height:1.6">Zəhmət olmasa bu tapşırıqda övladınıza kömək edin. Tapşırığı bitirdikdən sonra müəllim xanıma WhatsApp vasitəsilə məlumat verin.<br><br>'+
-  '<strong>Müəllimə:</strong> <a href="tel:+994554157215">+994 55 415 72 15</a></div>'+
-  '</div>'+
-  '<div class="footer">AN Psixoloji Dəstək Mərkəzi · <a href="https://instagram.com/s_akhundoff">@s_akhundoff</a> · By s_akhundoff</div>'+
+  '<div class="note"><strong>📞 Valideyn xahişi:</strong><br>Zəhmət olmasa bu tapşırıqda övladınıza kömək edin. Bitirdikdən sonra müəllimə bildirin.<br><br>'+
+  '☎️ <strong>+994 55 415 72 15</strong> · 📱 <a href="https://instagram.com/s_akhundoff" style="color:#1f7a5e">@s_akhundoff</a></div>'+
+  '<div class="footer">AN Psixoloji Dəstək Mərkəzi · By <a href="https://instagram.com/s_akhundoff" style="color:#1f7a5e">s_akhundoff</a></div>'+
   '</div></body></html>';
 
-  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;a.download='ev-tapşırığı-'+subj.replace(/\s/g,'-')+'.html';
-  document.body.appendChild(a);a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('📤 Ev tapşırığı yükləndi! Valideyn qrupuna göndərin.','gold');
+  try{
+    var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='ev-tapshirigi-'+subj.replace(/[^a-zA-Z0-9]/g,'-')+'-'+Date.now()+'.html';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+    showToast('📤 Ev tapşırığı yükləndi!','gold');
+  }catch(err){
+    // Fallback: open in new tab
+    var w=window.open('','_blank');
+    if(w){w.document.write(html);w.document.close();}
+    showToast('📤 Yeni tabda açıldı — saxlayın!','gold');
+  }
 }
 
 // ================================================================
-// DAILY
+// RU/EN TRANSLATIONS for week data
 // ================================================================
-function renderDaily(){
-  var cont=document.getElementById('dailyContent');
-  if(!cont) return;
-  var emojis=['🌅','🌤️','☀️','🌈','🎉'];
-  var sched=[
-    {t:'09:00–09:15',a:'Açılış dairəsi',s:'💛 Sosial',d:'Salam mahnısı, tanışlıq, gün proqramı'},
-    {t:'09:15–09:45',a:'Əsas Dil dərsi',s:'📝 Az. Dili',d:'Hərf, söz, cümlə — günün mövzusu'},
-    {t:'09:45–10:00',a:'Fasilə',s:'🍎 Sağlamlıq',d:'Əl yuma, qəlyanaltı, hava dəqiqəsi'},
-    {t:'10:00–10:30',a:'Riyaziyyat dərsi',s:'🔢 Riyaziyyat',d:'Say, fiqur, toplama/çıxma — oyunla'},
-    {t:'10:30–11:00',a:'Yaradıcılıq',s:'🎨 İncəsənət',d:'Rəsm, aplikasiya, plastilinka'},
-    {t:'11:00–11:15',a:'Fiziki fəaliyyət',s:'🏃 Fiziki',d:'Hərəkət oyunları, koordinasiya'},
-    {t:'11:15–11:30',a:'Bağlanış dairəsi',s:'💛 Sosial',d:'Gün yekunlaşdırılması, "sabaha qədər"'},
-  ];
-  var html='';
-  var dayNames=['Bazar ertəsi','Çərşənbə axşamı','Çərşənbə','Cümə axşamı','Cümə'];
-  dayNames.forEach(function(dn,di){
-    html+='<div class="week-block">'+
-      '<div class="week-hdr" onclick="toggleDailyBlock('+di+')">'+
-        '<h3>'+emojis[di]+' '+dn+' — '+(WEEKS[0].days[di]?WEEKS[0].days[di].topic:'')+'</h3>'+
-        '<div class="week-info"><span class="wk-date">'+(di+1)+'-ci gün</span><span class="wk-tag" id="dtag-'+di+'">▶ Bağlı</span></div>'+
-      '</div>'+
-      '<div class="week-body" id="dbody-'+di+'">'+
-        '<div style="background:linear-gradient(135deg,var(--g1),var(--g2));border-radius:14px;padding:16px 18px;color:white;margin-bottom:14px;display:flex;align-items:center;gap:12px">'+
-          '<span style="font-size:32px">'+emojis[di]+'</span>'+
-          '<div><div style="font-weight:900;font-size:16px">'+dn+'</div><div style="font-size:12px;opacity:.8">09:00–11:30 · 7 blok</div></div>'+
-        '</div>'+
-        sched.map(function(s){
-          return '<div class="schedule-row">'+
-            '<div class="sched-time">'+s.t+'</div>'+
-            '<div><div class="sched-act">'+s.a+'</div><div class="sched-act-desc">'+s.d+'</div></div>'+
-            '<div class="sched-subj">'+s.s+'</div>'+
-          '</div>';
-        }).join('')+
-      '</div>'+
-    '</div>';
-  });
-  cont.innerHTML=html;
-}
-function toggleDailyBlock(i){
-  var body=document.getElementById('dbody-'+i);
-  var tag=document.getElementById('dtag-'+i);
-  if(!body) return;
-  var open=body.classList.toggle('open');
-  tag.textContent=open?'▼ Açıq':'▶ Bağlı';
-  tag.classList.toggle('open',open);
-}
+var TRANS={
+  ru:{
+    weeks:['Адаптация и Знакомство','Цвета и Формы','Цифры и Счет','Буквы и Слова','Слоги и Чтение','Предложения и Арифметика','Чтение и Письмо','Итог — Готовность к школе'],
+    days:['Понедельник','Вторник','Среда','Четверг','Пятница'],
+    subjects:{lang:'Язык',math:'Математика',nat:'Природа',art:'Искусство',phys:'Физкультура',soc:'Социальное',mus:'Музыка'},
+    nav:{home:'Главная',lessons:'Уроки',daily:'Расписание',grades:'Оценки',report:'Отчет'},
+    hero:{title:'Подготовка к школе',weeks:'8 недель',desc:'Полная программа для детей 5-6 лет'},
+    login:'Войти',reg:'Регистрация',logout:'Выход',
+    hw:'Домашнее задание',hwsend:'Отправить родителям',
+    open:'▼ Открыто',close:'▶ Закрыто',
+    obj:'Цели',steps:'Шаги',acts:'Деятельность',tip:'Совет учителю',mats:'Материалы',
+    pending:'Ожидающие заявки',approved:'Подтвержденные',approve:'Подтвердить',reject:'Отклонить',
+  },
+  en:{
+    weeks:['Adaptation & Introduction','Colors & Shapes','Numbers & Counting','Letters & Words','Syllables & Reading','Sentences & Arithmetic','Reading & Writing','Final — School Readiness'],
+    days:['Monday','Tuesday','Wednesday','Thursday','Friday'],
+    subjects:{lang:'Language',math:'Mathematics',nat:'Nature',art:'Art',phys:'Physical',soc:'Social',mus:'Music'},
+    nav:{home:'Home',lessons:'Lessons',daily:'Daily',grades:'Grades',report:'Report'},
+    hero:{title:'School Readiness',weeks:'8 weeks',desc:'Complete program for 5-6 year old children'},
+    login:'Sign In',reg:'Register',logout:'Logout',
+    hw:'Homework',hwsend:'Send to Parents',
+    open:'▼ Open',close:'▶ Closed',
+    obj:'Objectives',steps:'Steps',acts:'Activities',tip:'Teacher tip',mats:'Materials',
+    pending:'Pending requests',approved:'Approved users',approve:'Approve',reject:'Reject',
+  }
+};
 
-// ================================================================
-// TABLE + GRADES
-// ================================================================
-function renderTable(){
-  var tbody=document.getElementById('studentTable');
-  if(!tbody) return;
-  tbody.innerHTML='';
-  students.forEach(function(s,i){
-    var avgB=s.behavior.reduce(function(a,b){return a+b},0)/s.behavior.length||0;
-    var avgK=s.knowledge.reduce(function(a,b){return a+b},0)/s.knowledge.length||0;
-    var pct=Math.round(((avgB+avgK)/2/5)*100);
-    var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+(i+1)+'</td><td><strong>'+s.name+'</strong></td><td>'+s.parent+'</td>'+
-      '<td>'+(s.behavior[s.behavior.length-1]||'-')+'/5</td>'+
-      '<td>'+(s.knowledge[s.knowledge.length-1]||'-')+'/5</td>'+
-      '<td><span class="badge'+(pct>=70?' gold':'')+'" style="margin-right:6px">'+pct+'%</span>'+
-      '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div></td>'+
-      '<td><button class="btn-sm" onclick="viewStudent('+s.id+')">👁️</button></td>';
-    tbody.appendChild(tr);
-  });
-}
-function viewStudent(id){
-  var s=students.find(function(st){return st.id===id});
-  if(!s) return;
-  showToast('👤 '+s.name+' · 📊 Dav:'+(s.behavior.reduce(function(a,b){return a+b},0)/s.behavior.length).toFixed(1)+' · 📚 Bil:'+(s.knowledge.reduce(function(a,b){return a+b},0)/s.knowledge.length).toFixed(1));
-}
-function populateSelect(){
-  var sel=document.getElementById('studentSelect');
-  if(!sel) return;
-  sel.innerHTML='';
-  students.forEach(function(s){
-    var o=document.createElement('option');
-    o.value=s.id;o.textContent=s.name;
-    sel.appendChild(o);
-  });
-}
-function saveGrade(){
-  var id=parseInt(document.getElementById('studentSelect').value);
-  var b=parseInt(document.getElementById('behaviorGrade').value);
-  var k=parseInt(document.getElementById('knowledgeGrade').value);
-  var s=students.find(function(st){return st.id===id});
-  if(!s){showToast('❌ Tapılmadı');return}
-  s.behavior.push(b);s.knowledge.push(k);
-  showToast('✅ '+s.name+' üçün qiymət saxlanıldı!');
-  renderTable();renderReport();
-}
-function calcAll(){renderTable();renderReport();showToast('🔄 Yeniləndi!')}
-function exportPDF(){showToast('📄 PDF funksiyası tezliklə...','gold')}
-function renderReport(){
-  var el=document.getElementById('reportContent');
-  if(!el) return;
-  var total=0,html='';
-  students.forEach(function(s){
-    var avgB=s.behavior.reduce(function(a,b){return a+b},0)/s.behavior.length||0;
-    var avgK=s.knowledge.reduce(function(a,b){return a+b},0)/s.knowledge.length||0;
-    var pct=Math.round(((avgB+avgK)/2/5)*100);
-    total+=pct;
-    html+='<div class="report-row">'+
-      '<span><strong>'+s.name+'</strong> <span style="color:var(--text2);font-size:12px">('+s.parent+')</span></span>'+
-      '<span style="display:flex;align-items:center;gap:6px">📊 '+avgB.toFixed(1)+' · 📚 '+avgK.toFixed(1)+' → <strong>'+pct+'%</strong>'+
-      '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div></span>'+
-    '</div>';
-  });
-  var grp=Math.round(total/students.length);
-  el.innerHTML='<div style="background:var(--bg2);padding:14px 18px;border-radius:14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">'+
-    '<strong style="font-size:16px">📈 Qrup ortalaması: '+grp+'%</strong>'+
-    '<span style="color:var(--text2)">👥 '+students.length+' tələbə</span>'+
-  '</div>'+html;
-}
-
-// ================================================================
-// OVERLAY
-// ================================================================
-function closeOverlay(id){
-  document.getElementById(id).classList.remove('open');
-  document.body.style.overflow='';
-}
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){closeOverlay('dayOverlay');closeOverlay('lessonOverlay')}
-});
-
-// ================================================================
-// TOAST
-// ================================================================
-function showToast(msg,type){
-  var t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast'+(type?' '+type:'');
-  requestAnimationFrame(function(){t.classList.add('show')});
-  setTimeout(function(){t.classList.remove('show')},3500);
-}
-
-// ================================================================
-// LANG (simplified)
-// ================================================================
 function setLang(l){
   currentLang=l;
   document.querySelectorAll('.lang-btn').forEach(function(b){b.classList.toggle('active',b.textContent===l.toUpperCase())});
-  showToast(l==='az'?'🇦🇿 Azərbaycan dili':l==='ru'?'🇷🇺 Rus dili':'🇬🇧 English');
+  applyTranslations(l);
+  // re-render pages if open
+  renderLessons();
+  renderDaily();
+  showToast(l==='az'?'🇦🇿 Azərbaycan':l==='ru'?'🇷🇺 Русский':'🇬🇧 English');
+}
+
+function applyTranslations(l){
+  if(l==='az') return; // AZ is default
+  var t=TRANS[l];
+  if(!t) return;
+  // Nav
+  var navMap={home:'home',lessons:'lessons',daily:'daily',grades:'grades',report:'report'};
+  Object.keys(navMap).forEach(function(k){
+    var el=document.querySelector('.hdr-nav a[data-page="'+k+'"]');
+    if(el&&t.nav[k]) el.innerHTML=el.innerHTML.replace(/[^🏠📚📅📝📊\s].+/,t.nav[k]);
+  });
+  // Bottom nav labels
+  var mnav=document.querySelectorAll('.mnav-btn span:last-child');
+  var mnav_labels=Object.values(t.nav);
+  mnav.forEach(function(el,i){if(mnav_labels[i]) el.textContent=mnav_labels[i];});
+  // Hero
+  var heroH1=document.querySelector('.hero-h1');
+  if(heroH1) heroH1.innerHTML='🎯 '+t.hero.title+' <em>'+t.hero.weeks+'</em>';
+  var heroP=document.querySelector('.hero-p');
+  if(heroP) heroP.textContent=t.hero.desc;
+}
+
+// ================================================================
+// ƏLIFBA A-Z DATA
+// ================================================================
+var _currentHerf=null;
+var _currentRaqam=null;
+var ELIFBA=[
+  {h:'A',k:'a',sz:'ANA',mi:'👩',sozler:['Ana','Alma','At','Ağac','Ayı'],hw:'Dəftərə A hərfini 5 sətir yaz. Hər sətirdə böyük A, kiçik a. Yanına alma şəkli çək.'},
+  {h:'B',k:'b',sz:'BAL',mi:'🍯',sozler:['Bal','Bağ','Balıq','Barmaq','Böcək'],hw:'Dəftərə B hərfini 5 sətir yaz. Bal arısı çək — B üçün.'},
+  {h:'C',k:'c',sz:'CAM',mi:'🪟',sozler:['Cam','Cib','Cücə','Ceyran'],hw:'Dəftərə C hərfini 5 sətir yaz. Cam şəkli çək.'},
+  {h:'Ç',k:'ç',sz:'ÇİÇƏK',mi:'🌸',sozler:['Çiçək','Çörək','Çay','Çanta'],hw:'Dəftərə Ç hərfini 5 sətir yaz. Çiçək çək.'},
+  {h:'D',k:'d',sz:'DAĞ',mi:'⛰️',sozler:['Dağ','Dəniz','Dost','Dərs'],hw:'Dəftərə D hərfini 5 sətir yaz. Dağ şəkli çək.'},
+  {h:'E',k:'e',sz:'EV',mi:'🏠',sozler:['Ev','El','Eşşək','Enik'],hw:'Dəftərə E hərfini 5 sətir yaz. Ev çək.'},
+  {h:'Ə',k:'ə',sz:'ƏL',mi:'✋',sozler:['Əl','Əkin','Ət','Əjdaha'],hw:'Dəftərə Ə hərfini 5 sətir yaz. Əl şəkli çək.'},
+  {h:'F',k:'f',sz:'FİL',mi:'🐘',sozler:['Fil','Fındıq','Fərq','Fırça'],hw:'Dəftərə F hərfini 5 sətir yaz. Fil çək.'},
+  {h:'G',k:'g',sz:'GÜL',mi:'🌹',sozler:['Gül','Göz','Gəmi','Günəş'],hw:'Dəftərə G hərfini 5 sətir yaz. Gül çək.'},
+  {h:'Ğ',k:'ğ',sz:'BAĞÇA',mi:'🌿',sozler:['Bağça','Ağac','Dağ','Yağış'],hw:'Dəftərə Ğ hərfini 5 sətir yaz. Bağça çək.'},
+  {h:'H',k:'h',sz:'HEYVan',mi:'🐾',sozler:['Heyvan','Həyat','Həkim','Hava'],hw:'Dəftərə H hərfini 5 sətir yaz. Heyvan çək.'},
+  {h:'X',k:'x',sz:'XƏBƏR',mi:'📰',sozler:['Xəbər','Xörək','Xəzər','Xalq'],hw:'Dəftərə X hərfini 5 sətir yaz. Xalçа naxışı çək.'},
+  {h:'I',k:'ı',sz:'ILAN',mi:'🐍',sozler:['İlan','Işıq','Iğ'],hw:'Dəftərə I hərfini 5 sətir yaz.'},
+  {h:'İ',k:'i',sz:'İT',mi:'🐕',sozler:['İt','İnsan','İldırım','İp'],hw:'Dəftərə İ hərfini 5 sətir yaz. İt çək.'},
+  {h:'J',k:'j',sz:'JURNAL',mi:'📔',sozler:['Jurnal','Jalüz','Jilent'],hw:'Dəftərə J hərfini 5 sətir yaz.'},
+  {h:'K',k:'k',sz:'KƏND',mi:'🏡',sozler:['Kənd','Kitab','Karandaş','Körpə'],hw:'Dəftərə K hərfini 5 sətir yaz. Kitab çək.'},
+  {h:'Q',k:'q',sz:'QUŞU',mi:'🐦',sozler:['Quş','Qaz','Qar','Qırmızı'],hw:'Dəftərə Q hərfini 5 sətir yaz. Quş çək.'},
+  {h:'L',k:'l',sz:'LALƏ',mi:'🌷',sozler:['Lalə','Limon','Lövhə','Lent'],hw:'Dəftərə L hərfini 5 sətir yaz. Lalə çək.'},
+  {h:'M',k:'m',sz:'MAMA',mi:'👩',sozler:['Mama','Mənzil','Meyvə','Məktəb'],hw:'Dəftərə M hərfini 5 sətir yaz. Mama çək.'},
+  {h:'N',k:'n',sz:'NƏR',mi:'🌺',sozler:['Nər','Nənə','Nar','Naxış'],hw:'Dəftərə N hərfini 5 sətir yaz. Nar çək.'},
+  {h:'O',k:'o',sz:'OT',mi:'🌿',sozler:['Ot','Orman','Oxlov','Ordek'],hw:'Dəftərə O hərfini 5 sətir yaz.'},
+  {h:'Ö',k:'ö',sz:'ÖRD',mi:'🦆',sozler:['Ördək','Öküz','Öyrənmək'],hw:'Dəftərə Ö hərfini 5 sətir yaz. Ördək çək.'},
+  {h:'P',k:'p',sz:'PAPA',mi:'👨',sozler:['Papa','Palıd','Pəncərə','Parça'],hw:'Dəftərə P hərfini 5 sətir yaz.'},
+  {h:'R',k:'r',sz:'RAHİ',mi:'🌊',sozler:['Rəng','Rəsm','Riyaziyyat','Rüzgar'],hw:'Dəftərə R hərfini 5 sətir yaz. Rəng sxemi çək.'},
+  {h:'S',k:'s',sz:'SU',mi:'💧',sozler:['Su','Səma','Sinif','Saat'],hw:'Dəftərə S hərfini 5 sətir yaz. Səma çək.'},
+  {h:'Ş',k:'ş',sz:'ŞƏKİL',mi:'🖼️',sozler:['Şəkil','Şirniyyat','Şam','Şəhər'],hw:'Dəftərə Ş hərfini 5 sətir yaz. Şəkil çək.'},
+  {h:'T',k:'t',sz:'TAM',mi:'✅',sozler:['Tam','Torpaq','Tərəvəz','Top'],hw:'Dəftərə T hərfini 5 sətir yaz. Top çək.'},
+  {h:'U',k:'u',sz:'UÇMAQ',mi:'✈️',sozler:['Uçmaq','Ululdamaq','Uzun'],hw:'Dəftərə U hərfini 5 sətir yaz.'},
+  {h:'Ü',k:'ü',sz:'ÜZÜM',mi:'🍇',sozler:['Üzüm','Üzgüçülük','Ülkər'],hw:'Dəftərə Ü hərfini 5 sətir yaz. Üzüm çək.'},
+  {h:'V',k:'v',sz:'VƏTƏN',mi:'🇦🇿',sozler:['Vətən','Vaz','Val','Vida'],hw:'Dəftərə V hərfini 5 sətir yaz. Vətən bayrağı çək.'},
+  {h:'Y',k:'y',sz:'YOL',mi:'🛣️',sozler:['Yol','Yarpaq','Yağış','Yemək'],hw:'Dəftərə Y hərfini 5 sətir yaz. Yarpaq çək.'},
+  {h:'Z',k:'z',sz:'ZƏNBİL',mi:'🧺',sozler:['Zənbil','Zəng','Zürafə','Zərif'],hw:'Dəftərə Z hərfini 5 sətir yaz. Zürafə çək.'},
+];
+
+// ================================================================
+// RIYAZIYYAT ARDICIЛ DATA
+// ================================================================
+var RIYAZIYYAT=[
+  {n:1,ad:'Bir',ing:'One',icon:'☝️',desc:'Tək, yeganə, ilk',misallar:['1 günəş var','1 ayım var','1 burnun var'],hw:'Dəftərə 1 rəqəmini 5 sətir yaz. Yanına 1 ulduz çək. Evdə tək olan 5 şey tap.'},
+  {n:2,ad:'İki',ing:'Two',icon:'✌️',desc:'Cüt, qoşa, ikili',misallar:['2 gözüm var','2 qulağım var','2 əlim var'],hw:'Dəftərə 2 rəqəmini 5 sətir yaz. 2 alma çək. Cüt olan 5 şey tap evdə.'},
+  {n:3,ad:'Üç',ing:'Three',icon:'🤟',desc:'Üçlük, üçbucaq',misallar:['3 köşəli üçbucaq','3 meyvə','Trafik işarəsinin 3 rəngi'],hw:'Dəftərə 3 rəqəmini 5 sətir yaz. Üçbucaq çək. 3 ulduz çək.'},
+  {n:4,ad:'Dörd',ing:'Four',icon:'🖐️',desc:'Dördlük, kvadrat',misallar:['4 kvadrat küncü','4 fəsil','4 istiqamət'],hw:'Dəftərə 4 rəqəmini 5 sətir yaz. Kvadrat çək. 4 çiçək çək.'},
+  {n:5,ad:'Beş',ing:'Five',icon:'✋',desc:'Beşlik, əlin barmaqları',misallar:['5 barmaq','5 həftə iş günü','5/5 əla qiymət'],hw:'Dəftərə 5 rəqəmini 5 sətir yaz. Əl şəkli çək (5 barmaq). 5 ulduzu say.'},
+  {n:6,ad:'Altı',ing:'Six',icon:'🎲',desc:'Altılıq, zarın üzü',misallar:['6 bal arısı','Zarda 6 nöqtə','6 rəng göy qurşağında'],hw:'Dəftərə 6 rəqəmini 5 sətir yaz. Zar çək (6 nöqtə). 6 şey say evdə.'},
+  {n:7,ad:'Yeddi',ing:'Seven',icon:'🌈',desc:'Yeddilik, göy qurşağı',misallar:['7 rəng','7 nota','Həftənin 7 günü'],hw:'Dəftərə 7 rəqəmini 5 sətir yaz. Göy qurşağı çək (7 rəng). Həftənin günlərini say.'},
+  {n:8,ad:'Səkkiz',ing:'Eight',icon:'🕷️',desc:'Səkkizlik, hörümçək ayaqları',misallar:['8 hörümçək ayağı','8 not','Kəpənəyin 8 qanadı yox — 4 var! Bəs səkkiz olan nədir?'],hw:'Dəftərə 8 rəqəmini 5 sətir yaz. Hörümçək çək (8 ayaq say!).'},
+  {n:9,ad:'Doqquz',ing:'Nine',icon:'🔵',desc:'Doqquzluq',misallar:['9 planet var idi (indi 8!)','3x3 = 9','Futbol komandası 9+2'],hw:'Dəftərə 9 rəqəmini 5 sətir yaz. 9 nöqtə çək (3x3 sıra).'},
+  {n:10,ad:'On',ing:'Ten',icon:'🙌',desc:'Onluq, iki əlin barmaqları',misallar:['10 barmaq','10 nağıl','10/10 mükəmməl!'],hw:'Dəftərə 10 rəqəmini 5 sətir yaz. İki əl çək (10 barmaq). 1-10-a qədər say.'},
+  {n:0,ad:'Sıfır',ing:'Zero',icon:'⭕',desc:'Heç nə, boş, başlanğıc',misallar:['0 alma = boş masa','Termometrdə 0°','0-dan hər şey başlayır'],hw:'Dəftərə 0 rəqəmini 5 sətir yaz. Boş dairə çək. "Sıfır nədir?" izah et.'},
+];
+
+// ================================================================
+// ƏLIFBA PAGE
+// ================================================================
+function renderElifba(){
+  var cont=document.getElementById('elifbaContent');
+  if(!cont) return;
+  var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">';
+  ELIFBA.forEach(function(h,i){
+    html+='<div onclick="openHerfPopup('+i+')" class="hov-card" style="background:white;border-radius:16px;padding:16px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:.25s">'+
+      '<div style="font-size:36px;font-weight:900;color:var(--g1);line-height:1">'+h.h+'</div>'+
+      '<div style="font-size:20px;color:var(--text2);margin-top:2px">'+h.k+'</div>'+
+      '<div style="font-size:20px;margin-top:6px">'+h.mi+'</div>'+
+      '<div style="font-size:11px;font-weight:700;color:var(--g2);margin-top:4px">'+h.sz+'</div>'+
+    '</div>';
+  });
+  html+='</div>';
+  cont.innerHTML=html;
+}
+
+function openHerfPopup(i){
+  var h=ELIFBA[i];
+  _currentHerf=h;
+  var html='<div style="text-align:center;margin-bottom:20px">'+
+    '<div style="font-size:80px;font-weight:900;color:var(--g1);line-height:1;text-shadow:0 4px 12px rgba(15,76,58,.2)">'+h.h+'</div>'+
+    '<div style="font-size:40px;color:var(--text2);margin-top:4px">'+h.k+'</div>'+
+    '<div style="font-size:48px;margin-top:8px">'+h.mi+'</div>'+
+    '<div style="font-size:18px;font-weight:800;color:var(--g2);margin-top:6px">'+h.sz+'</div>'+
+  '</div>'+
+  '<div style="margin-bottom:16px">'+
+    '<div style="font-weight:800;color:var(--g1);font-size:13px;margin-bottom:8px">📝 Bu hərflə sözlər:</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
+      h.sozler.map(function(s){
+        return '<span style="background:var(--bg2);color:var(--g1);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700">'+h.h+' → '+s+'</span>';
+      }).join('')+
+    '</div>'+
+  '</div>'+
+  '<div style="background:#f0fdf4;border:2px solid #86efac;border-radius:16px;padding:16px;margin-bottom:12px">'+
+    '<div style="font-weight:800;color:#166534;margin-bottom:8px">✍️ Necə yazılır?</div>'+
+    '<div style="font-size:13px;color:#15803d;line-height:1.7">'+
+      '1. Böyük <strong>'+h.h+'</strong> hərfini çəkin<br>'+
+      '2. Kiçik <strong>'+h.k+'</strong> hərfini çəkin<br>'+
+      '3. Hər birini 5 dəfə yaz<br>'+
+      '4. "<strong>'+h.sz+'</strong>" sözünü yaz'+
+    '</div>'+
+  '</div>'+
+  '<div class="hw-section">'+
+    '<div class="hw-title">📚 Ev tapşırığı — "'+h.h+'" hərfi</div>'+
+    '<div class="hw-desc">'+h.hw+'</div>'+
+    '<button class="hw-export-btn" onclick="exportCurrentHerfHW()">📤 Valideyn qrupuna göndər</button>'+
+  '</div>';
+
+  document.getElementById('lessonPopupContent').innerHTML=
+    '<button class="popup-close" onclick="closeLessonOverlay()">×</button>'+
+    '<div class="popup-tag" style="background:var(--bg2);color:var(--g1)">'+(i+1)+'/'+ELIFBA.length+' · Azərbaycan Əlifbası</div>'+
+    '<div class="popup-title">'+h.h+' / '+h.k+' — "'+h.sz+'" hərfi</div>'+
+    html;
+  document.getElementById('lessonOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function exportHerfHW(H,k,sz,mi,hwText){
+  var today=new Date().toLocaleDateString('az-AZ',{year:'numeric',month:'long',day:'numeric'});
+  var html='<!DOCTYPE html><html lang="az"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<title>Ev Tapşırığı — '+H+' hərfi</title>'+
+  '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#f0fdf4;padding:16px}'+
+  '.card{background:white;border-radius:20px;padding:24px;max-width:560px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}'+
+  '.hdr{background:linear-gradient(135deg,#0f4c3a,#1f7a5e);border-radius:14px;padding:18px;color:white;margin-bottom:20px;text-align:center}'+
+  '.big-h{font-size:80px;font-weight:900;color:white;line-height:1;text-shadow:0 4px 12px rgba(0,0,0,.3)}'+
+  '.small-h{font-size:40px;color:rgba(255,255,255,.8)}'+
+  '.lines{margin:16px 0;border:2px dashed #86efac;border-radius:12px;padding:12px;min-height:120px;background:#f9fff9}'+
+  '.line{border-bottom:1px solid #86efac;height:40px;margin-bottom:4px;position:relative}'+
+  '.line::before{content:"'+H+'";position:absolute;left:8px;top:6px;font-size:20px;font-weight:900;color:#86efac;opacity:.4}'+
+  '.footer{text-align:center;margin-top:20px;font-size:12px;color:#6b7280;padding-top:16px;border-top:1px solid #e5e7eb}'+
+  '</style></head><body>'+
+  '<div class="card">'+
+  '<div class="hdr"><p style="font-size:11px;opacity:.7;margin-bottom:4px">📚 AN Məktəbə Hazırlıq · '+today+'</p>'+
+  '<p style="margin-bottom:4px">'+mi+'</p>'+
+  '<div class="big-h">'+H+'</div><div class="small-h">'+k+'</div>'+
+  '<p style="margin-top:8px;font-size:14px;font-weight:700">— '+sz+' —</p></div>'+
+  '<p style="font-size:14px;color:#374151;margin-bottom:14px;line-height:1.6;background:#f0fdf4;padding:12px;border-radius:10px;border-left:4px solid #16a34a">'+hwText+'</p>'+
+  '<div style="font-weight:700;color:#0f4c3a;margin-bottom:8px">✍️ Buraya yaz (5 sətir):</div>'+
+  '<div class="lines">'+Array(5).fill('<div class="line"></div>').join('')+'</div>'+
+  '<div style="font-weight:700;color:#0f4c3a;margin:14px 0 8px">🎨 Şəkil çək ('+sz+'):</div>'+
+  '<div style="border:2px dashed #86efac;border-radius:12px;min-height:120px;background:#f9fff9"></div>'+
+  '<div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-top:16px;font-size:13px;color:#78350f;line-height:1.6">'+
+  '<strong>📞 Valideyn xahişi:</strong> Övladınız bu hərfi tanıyıb-tanımadığını yoxlayın. Lütfən tapşırığı tamamladıqda müəlliməyə bildirin.<br>'+
+  '<strong>☎️ +994 55 415 72 15</strong></div>'+
+  '<div class="footer">AN Psixoloji Dəstək Mərkəzi · By <a href="https://instagram.com/s_akhundoff" style="color:#1f7a5e">s_akhundoff</a></div>'+
+  '</div></body></html>';
+
+  try{
+    var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='herf-'+H+'-tapshiriq.html';a.style.display='none';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+    showToast('📤 '+H+' hərfi tapşırığı yükləndi!','gold');
+  }catch(e){
+    var w=window.open('','_blank');
+    if(w){w.document.write(html);w.document.close();}
+    showToast('📤 Yeni tabda açıldı!','gold');
+  }
+}
+
+// ================================================================
+// RIYAZIYYAT PAGE
+// ================================================================
+function renderRiyaziyyat(){
+  var cont=document.getElementById('riyaziyyatContent');
+  if(!cont) return;
+  var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px">';
+  RIYAZIYYAT.forEach(function(r,i){
+    html+='<div onclick="openRaqamPopup('+i+')" class="hov-card" style="background:white;border-radius:16px;padding:16px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:.25s">'+
+      '<div style="font-size:48px;font-weight:900;color:var(--g1);line-height:1">'+r.n+'</div>'+
+      '<div style="font-size:28px;margin-top:4px">'+r.icon+'</div>'+
+      '<div style="font-size:15px;font-weight:800;color:var(--g2);margin-top:6px">'+r.ad+'</div>'+
+      '<div style="font-size:11px;color:var(--text2)">'+r.ing+'</div>'+
+    '</div>';
+  });
+  html+='</div>';
+  cont.innerHTML=html;
+}
+
+function openRaqamPopup(i){
+  var r=RIYAZIYYAT[i];
+  _currentRaqam=i;
+  var html='<div style="text-align:center;margin-bottom:20px">'+
+    '<div style="font-size:96px;font-weight:900;color:var(--g1);line-height:1;text-shadow:0 4px 16px rgba(15,76,58,.2)">'+r.n+'</div>'+
+    '<div style="font-size:48px;margin-top:4px">'+r.icon+'</div>'+
+    '<div style="font-size:22px;font-weight:900;color:var(--g2);margin-top:6px">'+r.ad+' · '+r.ing+'</div>'+
+    '<div style="font-size:14px;color:var(--text2);margin-top:4px">'+r.desc+'</div>'+
+  '</div>'+
+  '<div style="margin-bottom:16px">'+
+    '<div style="font-weight:800;color:var(--g1);font-size:13px;margin-bottom:8px">💡 Nümunələr:</div>'+
+    r.misallar.map(function(m){
+      return '<div style="padding:8px 14px;background:var(--bg2);border-radius:10px;font-size:13px;color:var(--text);margin-bottom:6px;border-left:3px solid var(--g2)">'+m+'</div>';
+    }).join('')+
+  '</div>'+
+  // Counting dots visual
+  (r.n>0&&r.n<=10?'<div style="background:#f0fdf4;border-radius:14px;padding:14px;margin-bottom:14px;text-align:center">'+
+    '<div style="font-weight:800;color:var(--g1);font-size:13px;margin-bottom:10px">Say görüntüsü:</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">'+
+      Array(r.n).fill('<div style="width:36px;height:36px;background:var(--g2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:13px">'+(1)+'</div>').map(function(d,j){return d.replace('>1<','>'+( j+1)+'<')}).join('')+
+    '</div>'+
+  '</div>':'') +
+  '<div class="hw-section">'+
+    '<div class="hw-title">📚 Ev tapşırığı — "'+r.n+'" rəqəmi</div>'+
+    '<div class="hw-desc">'+r.hw+'</div>'+
+    '<button class="hw-export-btn" onclick="exportRaqamHW('+i+')">' +
+      '📤 Valideyn qrupuna göndər'+
+    '</button>'+
+  '</div>';
+
+  document.getElementById('lessonPopupContent').innerHTML=
+    '<button class="popup-close" onclick="closeLessonOverlay()">×</button>'+
+    '<div class="popup-tag" style="background:var(--bg2);color:var(--g1)">'+(i+1)+'/'+RIYAZIYYAT.length+' · Riyaziyyat</div>'+
+    '<div class="popup-title">'+r.n+' — '+r.ad+'</div>'+
+    html;
+  document.getElementById('lessonOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function exportCurrentHerfHW(){
+  if(!_currentHerf) return;
+  var h=_currentHerf;
+  exportHerfHW(h.h,h.k,h.sz,h.mi,h.hw);
+}
+
+function exportCurrentRaqamHW(){
+  if(_currentRaqam===null) return;
+  exportRaqamHW(_currentRaqam);
+}
+
+function exportRaqamHW(i){
+  var r=RIYAZIYYAT[i];
+  var today=new Date().toLocaleDateString('az-AZ',{year:'numeric',month:'long',day:'numeric'});
+  var dotsHtml=r.n>0?Array(r.n).fill(0).map(function(_,j){
+    return '<span style="display:inline-block;width:40px;height:40px;background:#1f7a5e;border-radius:50%;margin:4px;color:white;font-weight:900;text-align:center;line-height:40px;font-size:14px">'+(j+1)+'</span>';
+  }).join(''):'<span style="font-size:32px">∅ Boş</span>';
+
+  var html='<!DOCTYPE html><html lang="az"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<title>Ev Tapşırığı — '+r.n+' rəqəmi</title>'+
+  '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#f0fdf4;padding:16px}'+
+  '.card{background:white;border-radius:20px;padding:24px;max-width:560px;margin:0 auto;box-shadow:0 4px 20px rgba(0,0,0,.08)}'+
+  '.hdr{background:linear-gradient(135deg,#0f4c3a,#1f7a5e);border-radius:14px;padding:18px;color:white;margin-bottom:20px;text-align:center}'+
+  '.big-n{font-size:96px;font-weight:900;color:white;line-height:1;text-shadow:0 4px 16px rgba(0,0,0,.3)}'+
+  '.lines{margin:12px 0;border:2px dashed #86efac;border-radius:12px;padding:12px;min-height:120px;background:#f9fff9}'+
+  '.line{border-bottom:1px solid #86efac;height:40px;position:relative}'+
+  '.line::before{content:"'+r.n+'";position:absolute;left:8px;top:6px;font-size:24px;font-weight:900;color:#86efac;opacity:.3}'+
+  '.footer{text-align:center;margin-top:20px;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px}'+
+  '</style></head><body>'+
+  '<div class="card">'+
+  '<div class="hdr"><p style="font-size:11px;opacity:.7;margin-bottom:4px">📚 AN Məktəbə Hazırlıq · '+today+'</p>'+
+  '<div class="big-n">'+r.n+'</div>'+
+  '<p style="margin-top:6px;font-size:18px;font-weight:800">'+r.ad+' · '+r.icon+'</p></div>'+
+  '<div style="text-align:center;padding:12px;background:#f0fdf4;border-radius:12px;margin-bottom:14px">'+dotsHtml+'</div>'+
+  '<p style="font-size:14px;color:#374151;margin-bottom:14px;line-height:1.6;background:#f0fdf4;padding:12px;border-radius:10px;border-left:4px solid #16a34a">'+r.hw+'</p>'+
+  '<div style="font-weight:700;color:#0f4c3a;margin-bottom:8px">✍️ Rəqəmi yaz (5 sətir):</div>'+
+  '<div class="lines">'+Array(5).fill('<div class="line"></div>').join('')+'</div>'+
+  '<div style="font-weight:700;color:#0f4c3a;margin:14px 0 8px">🎨 '+r.n+' ədəd şey çək:</div>'+
+  '<div style="border:2px dashed #86efac;border-radius:12px;min-height:120px;background:#f9fff9"></div>'+
+  '<div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:12px;padding:14px;margin-top:16px;font-size:13px;color:#78350f;line-height:1.6">'+
+  '<strong>📞 Valideyn xahişi:</strong> Övladınız '+r.n+' rəqəmini tanıyıb-tanımadığını yoxlayın.<br>'+
+  '<strong>☎️ +994 55 415 72 15</strong></div>'+
+  '<div class="footer">AN Psixoloji Dəstək Mərkəzi · By <a href="https://instagram.com/s_akhundoff" style="color:#1f7a5e">s_akhundoff</a></div>'+
+  '</div></body></html>';
+
+  try{
+    var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='reqem-'+r.n+'-tapshiriq.html';a.style.display='none';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+    showToast('📤 '+r.n+' ('+r.ad+') tapşırığı yükləndi!','gold');
+  }catch(e){
+    var w=window.open('','_blank');
+    if(w){w.document.write(html);w.document.close();}
+    showToast('📤 Yeni tabda açıldı!','gold');
+  }
 }
 </script>
 </body>
