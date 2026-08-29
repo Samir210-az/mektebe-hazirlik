@@ -1202,6 +1202,17 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter'&&document.getElementById('loginPage').style.display!=='none') doLogin();
 });
 
+// TELEGRAM NOTIFICATION
+function notifyTelegram(text){
+  var token='8936900898:AAG4_jlATIsIPe4fbk8U5iOJAKK08hQtK_o';
+  var chatId='1315001188';
+  fetch('https://api.telegram.org/bot'+token+'/sendMessage',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:chatId,text:text})
+  }).catch(function(){});
+}
+
 // REGISTRATION
 function showRegForm(){
   document.getElementById('regFormWrap').style.display='block';
@@ -1225,6 +1236,7 @@ function submitReg(){
   pending.push({u:user,p:pass,role:role,name:name,ts:Date.now()});
   localStorage.setItem('an_pending',JSON.stringify(pending));
   PENDING_USERS=pending;
+  notifyTelegram('🧸 Yeni qeydiyyat — Məktəbəqədər Hazırlıq\nAd: '+name+'\nRol: '+role+'\nİstifadəçi adı: '+user+'\nLink: https://samir210-az.github.io/mektebe-hazirlik/');
   showToast('✅ Müraciətiniz göndərildi! Admin təsdiq edəcək.','gold');
   hideRegForm();
   document.getElementById('regName').value='';
