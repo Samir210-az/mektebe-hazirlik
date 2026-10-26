@@ -132,9 +132,9 @@ export default function Layout({ children }) {
         }}>
           <p style={{ margin: 0, fontSize: 13 }}>
             🎒 Məktəbəqədər Hazırlıq Proqramı © {new Date().getFullYear()} — Bütün hüquqlar qorunur |{' '}
-            <a href="https://www.instagram.com/s_akhundoff" target="_blank" rel="noreferrer"
+            <a href="https://aze-ai.az" target="_blank" rel="noreferrer"
               style={{ color: '#FFD93D', textDecoration: 'none', fontWeight: 800 }}>
-              📸 @s_akhundoff
+              📸 securtiy_group
             </a>
           </p>
           <p style={{ margin: '4px 0 0', fontSize: 11, opacity: 0.7 }}>By s_akhundoff</p>
