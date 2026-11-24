@@ -1235,7 +1235,7 @@ function submitReg(){
   pending.push({u:user,p:pass,role:role,name:name,ts:Date.now()});
   localStorage.setItem('an_pending',JSON.stringify(pending));
   PENDING_USERS=pending;
-  notifyTelegram('🧸 Yeni qeydiyyat — Məktəbəqədər Hazırlıq\nAd: '+name+'\nRol: '+role+'\nİstifadəçi adı: '+user+'\nLink: https://samir210-az.github.io/mektebe-hazirlik/');
+  notifyTelegram('🧸 Yeni qeydiyyat — Məktəbəqədər Hazırlıq\nAd: '+name+'\nRol: '+role+'\nİstifadəçi adı: '+user+'\nLink: https://hazirliq.aze-ai.az');
   showToast('✅ Müraciətiniz göndərildi! Admin təsdiq edəcək.','gold');
   hideRegForm();
   document.getElementById('regName').value='';
